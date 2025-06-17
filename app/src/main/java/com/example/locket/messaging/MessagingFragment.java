@@ -1,23 +1,35 @@
 package com.example.locket.messaging;
 
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * Fragment for messaging functionality to chat with friends
- */
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.locket.R;
+
 public class MessagingFragment extends Fragment {
 
+    private RecyclerView rvChats;
+
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // TODO: Inflate and return the messaging layout
-        return null;
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_messaging, container, false);
     }
 
-    // TODO: Implement chat list
-    // TODO: Implement message sending and receiving
-    // TODO: Implement real-time message updates
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        rvChats = view.findViewById(R.id.rvChats);
+        rvChats.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        // TODO: Set up chats adapter with message list
+    }
 }
