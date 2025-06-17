@@ -102,7 +102,7 @@ public class ProfileFragment extends Fragment implements PhotosAdapter.OnPhotoCl
         cal.set(2025, Calendar.JUNE, 1);
 
         // June photos
-        for (int i = 1; i <= 30; i++) {
+        for (int i = 1; i <= 10; i++) {
             cal.set(Calendar.DAY_OF_MONTH, i);
             Photo photo = new Photo("photo_june_" + i,
                     "https://picsum.photos/id/1/300/300", cal.getTime());
