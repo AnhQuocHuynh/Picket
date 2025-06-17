@@ -56,12 +56,30 @@
         android:id="@+id/historyFragment"
         android:name="com.example.locket.profile.ProfileFragment"
         android:label="History"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profile_to_photoDetail"
+            app:destination="@id/photoDetailFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/feedFragment"
         android:name="com.example.locket.feed.FeedFragment"
         android:label="Feed"
         tools:layout="@layout/fragment_feed" />
+
+    <!-- Photo Detail Screen -->
+    <fragment
+        android:id="@+id/photoDetailFragment"
+        android:name="com.example.locket.profile.PhotoDetailFragment"
+        android:label="Photo Detail"
+        tools:layout="@layout/fragment_photo_detail">
+        <argument
+            android:name="photo_url"
+            app:argType="string" />
+        <argument
+            android:name="photo_date"
+            app:argType="long" />
+    </fragment>
 
 </navigation>

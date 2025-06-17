@@ -47,8 +47,12 @@ dependencies {
 
     // Gesture detection
     implementation("androidx.core:core-ktx:1.10.1")
-    implementation(libs.navigation.fragment)
-    implementation(libs.navigation.ui)
+
+    // CircleImageView for round profile images
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+
+    // Glide for image loading
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
