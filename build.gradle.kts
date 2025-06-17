@@ -2,3 +2,18 @@
 plugins {
     alias(libs.plugins.android.application) apply false
 }
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.2.2")
+        classpath("com.google.dagger:hilt-android-gradle-plugin:2.48")
+    }
+}
+
+tasks.register("clean", Delete::class) {
+    delete(layout.buildDirectory)
+}
