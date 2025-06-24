@@ -16,3 +16,7 @@ local.properties
 .idea/AndroidProjectSystem.xml
 .idea/deploymentTargetSelector.xml
 .idea/vcs.xml
+/.idea
+/.idea
+.idea/gradle.xml
+.idea/gradle.xml
