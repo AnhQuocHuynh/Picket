@@ -88,16 +88,21 @@ public class LoginActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     showLoading(false);
                     
-                    // Save user session
-                    sessionManager.saveUserSession(
-                        response.getToken(),
-                        response.getUser().getId(),
-                        response.getUser().getUsername(),
-                        response.getUser().getEmail()
-                    );
-                    
-                    Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                    navigateToMain();
+                    // Check if response has data
+                    if (response.getData() != null && response.getData().getUser() != null) {
+                        // Save user session
+                        sessionManager.saveUserSession(
+                            response.getData().getToken(),
+                            response.getData().getUser().getId(),
+                            response.getData().getUser().getUsername(),
+                            response.getData().getUser().getEmail()
+                        );
+                        
+                        Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                        navigateToMain();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Login failed: Invalid response data", Toast.LENGTH_LONG).show();
+                    }
                 });
             }
 

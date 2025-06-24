@@ -29,8 +29,13 @@ public class AuthRepository {
             public void onResponse(Call<AuthModels.AuthResponse> call, Response<AuthModels.AuthResponse> response) {
                 Log.d(TAG, "Login response received. Code: " + response.code());
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "Login successful for user: " + response.body().getUser().getUsername());
-                    callback.onSuccess(response.body());
+                    AuthModels.AuthResponse authResponse = response.body();
+                    if (authResponse.getData() != null && authResponse.getData().getUser() != null) {
+                        Log.d(TAG, "Login successful for user: " + authResponse.getData().getUser().getUsername());
+                    } else {
+                        Log.d(TAG, "Login successful but user data is null");
+                    }
+                    callback.onSuccess(authResponse);
                 } else {
                     String errorMsg = "Login failed with code: " + response.code();
                     if (response.errorBody() != null) {
@@ -54,9 +59,9 @@ public class AuthRepository {
         });
     }
 
-    public void register(String username, String email, String password, AuthCallback callback) {
+    public void register(String username, String email, String password, String fullName, AuthCallback callback) {
         Log.d(TAG, "Attempting registration for username: " + username + ", email: " + email);
-        AuthModels.RegisterRequest request = new AuthModels.RegisterRequest(username, email, password);
+        AuthModels.RegisterRequest request = new AuthModels.RegisterRequest(username, email, password, fullName);
         Call<AuthModels.AuthResponse> call = authApi.register(request);
         
         call.enqueue(new Callback<AuthModels.AuthResponse>() {
@@ -64,8 +69,13 @@ public class AuthRepository {
             public void onResponse(Call<AuthModels.AuthResponse> call, Response<AuthModels.AuthResponse> response) {
                 Log.d(TAG, "Register response received. Code: " + response.code());
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "Registration successful for user: " + response.body().getUser().getUsername());
-                    callback.onSuccess(response.body());
+                    AuthModels.AuthResponse authResponse = response.body();
+                    if (authResponse.getData() != null && authResponse.getData().getUser() != null) {
+                        Log.d(TAG, "Registration successful for user: " + authResponse.getData().getUser().getUsername());
+                    } else {
+                        Log.d(TAG, "Registration successful but user data is null");
+                    }
+                    callback.onSuccess(authResponse);
                 } else {
                     String errorMsg = "Registration failed with code: " + response.code();
                     if (response.errorBody() != null) {

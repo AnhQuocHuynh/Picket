@@ -104,22 +104,30 @@ public class RegisterActivity extends AppCompatActivity {
     private void performRegister(String username, String email, String password) {
         showLoading(true);
         
-        authRepository.register(username, email, password, new AuthRepository.AuthCallback() {
+        // Use username as fullName for now
+        String fullName = username;
+        
+        authRepository.register(username, email, password, fullName, new AuthRepository.AuthCallback() {
             @Override
             public void onSuccess(AuthModels.AuthResponse response) {
                 runOnUiThread(() -> {
                     showLoading(false);
                     
-                    // Save user session
-                    sessionManager.saveUserSession(
-                        response.getToken(),
-                        response.getUser().getId(),
-                        response.getUser().getUsername(),
-                        response.getUser().getEmail()
-                    );
-                    
-                    Toast.makeText(RegisterActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
-                    navigateToMain();
+                    // Check if response has data
+                    if (response.getData() != null && response.getData().getUser() != null) {
+                        // Save user session
+                        sessionManager.saveUserSession(
+                            response.getData().getToken(),
+                            response.getData().getUser().getId(),
+                            response.getData().getUser().getUsername(),
+                            response.getData().getUser().getEmail()
+                        );
+                        
+                        Toast.makeText(RegisterActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
+                        navigateToMain();
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "Registration failed: Invalid response data", Toast.LENGTH_LONG).show();
+                    }
                 });
             }
 
