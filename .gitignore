@@ -11,6 +11,7 @@
 /.idea/deploymentTargetSelector.xml
 /.idea/vcs.xml
 /.idea/gradle.xml
+/.idea/misc.xml
 /.idea
 .DS_Store
 /build
