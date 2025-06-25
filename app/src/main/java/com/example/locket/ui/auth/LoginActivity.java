@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.locket.data.model.AuthModels;
 import com.example.locket.data.repository.AuthRepository;
 import com.example.locket.databinding.ActivityLoginBinding;
-import com.example.locket.ui.main.MainActivity;
+import com.example.locket.MainActivity;
 import com.example.locket.utils.SessionManager;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;

@@ -50,11 +50,6 @@
             
         <!-- Main Activity -->
         <activity
-            android:name=".ui.main.MainActivity"
-            android:exported="false" />
-            
-        <!-- MainActivity (from origin/Home) -->
-        <activity
             android:name=".MainActivity"
             android:exported="false" />
     </application>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/feedFragment"
+        android:icon="@drawable/ic_gallery"
+        android:title="Feed" />
+
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/ic_switch_camera"
+        android:title="Camera" />
+
+    <item
+        android:id="@+id/historyFragment"
+        android:icon="@drawable/ic_user"
+        android:title="Profile" />
+
+    <item
+        android:id="@+id/messageFragment"
+        android:icon="@drawable/ic_chat"
+        android:title="Messages" />
+
+</menu> 

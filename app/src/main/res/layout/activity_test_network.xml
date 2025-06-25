@@ -56,4 +56,23 @@
 
     </LinearLayout>
 
+    <!-- Separator -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#cccccc"
+        android:layout_margin="16dp" />
+
+    <!-- Main App Button -->
+    <Button
+        android:id="@+id/openMainAppButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🚀 Open Main App (Camera + Features)"
+        android:textAllCaps="false"
+        android:backgroundTint="@android:color/holo_green_dark"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
 </LinearLayout> 

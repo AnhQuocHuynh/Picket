@@ -1,5 +1,6 @@
 package com.example.locket;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -27,6 +28,7 @@ public class TestNetworkActivity extends AppCompatActivity {
     private TextView statusText;
     private Button testLoginButton;
     private Button testRegisterButton;
+    private Button openMainAppButton;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,7 @@ public class TestNetworkActivity extends AppCompatActivity {
         statusText = findViewById(R.id.statusText);
         testLoginButton = findViewById(R.id.testLoginButton);
         testRegisterButton = findViewById(R.id.testRegisterButton);
+        openMainAppButton = findViewById(R.id.openMainAppButton);
         
         statusText.setText("Backend Connection Tester\nReady to test...");
     }
@@ -48,6 +51,13 @@ public class TestNetworkActivity extends AppCompatActivity {
     private void setupClickListeners() {
         testLoginButton.setOnClickListener(v -> testLogin());
         testRegisterButton.setOnClickListener(v -> testRegister());
+        openMainAppButton.setOnClickListener(v -> openMainApp());
+    }
+    
+    private void openMainApp() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        // Don't finish() so user can come back to testing
     }
     
     private void testLogin() {
