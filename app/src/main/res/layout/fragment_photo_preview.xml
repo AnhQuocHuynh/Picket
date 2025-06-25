@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#363843"
+    android:padding="16dp">
+
+    <!-- Ảnh bo góc -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardPhoto"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="6dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/layoutActions"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imageViewPreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="Preview" />
+
+            <EditText
+                android:id="@+id/etCaption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:background="@drawable/bg_caption_bubble"
+                android:hint="Thêm caption"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#CCCCCC"
+                android:textSize="16sp"
+                android:paddingLeft="24dp"
+                android:paddingRight="40dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:maxLines="1"
+                android:imeOptions="actionDone"
+                android:inputType="textCapSentences"
+                android:layout_marginBottom="20dp"
+                android:drawableEnd="@drawable/ic_location" />
+        </FrameLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Thanh 3 nút chức năng -->
+    <LinearLayout
+        android:id="@+id/layoutActions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/cardPhoto"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnCancel"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/circle_button_bg"
+            android:padding="8dp"
+            android:src="@drawable/ic_cancel"
+            app:tint="#FFFFFF"
+            android:contentDescription="Cancel" />
+
+        <Space
+            android:layout_width="32dp"
+            android:layout_height="0dp" />
+
+        <ImageButton
+            android:id="@+id/btnPost"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:background="@drawable/circle_button_orange"
+            android:src="@drawable/ic_send"
+            android:contentDescription="Gửi"
+            app:tint="#FFFFFF" />
+
+        <Space
+            android:layout_width="32dp"
+            android:layout_height="0dp" />
+
+        <ImageButton
+            android:id="@+id/btnDownload"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/circle_button_bg"
+            android:padding="8dp"
+            android:src="@drawable/ic_download"
+            app:tint="#FFFFFF"
+            android:contentDescription="Download"/>
+    </LinearLayout>
+
+    <!-- Lựa chọn người nhận -->
+    <LinearLayout
+        android:id="@+id/layoutReceivers"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintTop_toBottomOf="@id/layoutActions"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Người nhận 1 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/receiverEveryone"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_orange_border"
+                android:src="@drawable/ic_everyone"
+                android:contentDescription="Everyone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Everyone"
+                android:textColor="#FF6D00"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <Space android:layout_width="24dp" android:layout_height="0dp" />
+
+        <!-- Người nhận 2 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/receiverBin1"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_gray_border"
+                android:src="@drawable/ic_user"
+                android:contentDescription="Bin1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bin"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <Space android:layout_width="24dp" android:layout_height="0dp" />
+
+        <!-- Người nhận 3 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/receiverBin2"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_gray_border"
+                android:src="@drawable/ic_user"
+                android:contentDescription="Bin2" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bin"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

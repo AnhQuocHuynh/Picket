@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <!-- Authentication -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.locket.auth.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_login_to_home"
+            app:destination="@id/homeFragment"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.locket.auth.RegisterFragment"
+        android:label="Register"
+        tools:layout="@layout/fragment_register">
+        <action
+            android:id="@+id/action_register_to_login"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_register_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Main App Screens -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.locket.feed.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_photoPreviewFragment"
+            app:destination="@id/photoPreviewFragment" />
+
+        <!-- Navigation actions will be handled by swipe gestures -->
+    </fragment>
+
+    <fragment
+        android:id="@+id/messageFragment"
+        android:name="com.example.locket.messaging.MessagingFragment"
+        android:label="Messages"
+        tools:layout="@layout/fragment_messaging" />
+
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="com.example.locket.profile.ProfileFragment"
+        android:label="History"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profile_to_photoDetail"
+            app:destination="@id/photoDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/feedFragment"
+        android:name="com.example.locket.feed.FeedFragment"
+        android:label="Feed"
+        tools:layout="@layout/fragment_feed" />
+
+    <!-- Photo Detail Screen -->
+    <fragment
+        android:id="@+id/photoDetailFragment"
+        android:name="com.example.locket.profile.PhotoDetailFragment"
+        android:label="Photo Detail"
+        tools:layout="@layout/fragment_photo_detail">
+        <argument
+            android:name="photo_url"
+            app:argType="string" />
+        <argument
+            android:name="photo_date"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/photoPreviewFragment"
+        android:name="com.example.locket.feed.PhotoPreviewFragment"
+        android:label="Photo Preview"
+        tools:layout="@layout/fragment_photo_preview">
+        <argument
+            android:name="image_uri"
+            app:argType="string" />
+    </fragment>
+
+
+
+</navigation>
