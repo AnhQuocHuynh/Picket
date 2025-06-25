@@ -55,7 +55,7 @@ public class TestNetworkActivity extends AppCompatActivity {
         
         AuthModels.LoginRequest request = new AuthModels.LoginRequest(
             "test@example.com", 
-            "password123"
+            "Password123"
         );
         
         Call<AuthModels.AuthResponse> call = authApi.login(request);
@@ -106,10 +106,10 @@ public class TestNetworkActivity extends AppCompatActivity {
         statusText.setText("Testing register...");
         
         AuthModels.RegisterRequest request = new AuthModels.RegisterRequest(
-            "testuser",
-            "test@example.com", 
-            "password123",
-            "Test User"
+            "android_test_new",
+            "android_test_new@example.com", 
+            "Password123",
+            "Android Test"
         );
         
         Call<AuthModels.AuthResponse> call = authApi.register(request);
