@@ -13,3 +13,25 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Documentation files (keep in repo for team reference)
+# PROJECT_STRUCTURE.md - tracked for team collaboration
+
+# Temporary files
+*.tmp
+*.log
+
+# Backend files (should not be in Android project)
+node_modules/
+package.json
+package-lock.json
+.env
+server.js
+models/
+routes/
+middleware/
+
+# Test and debug files
+test-*.js
+*.bat
+*.md.backup

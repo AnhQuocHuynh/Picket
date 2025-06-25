@@ -54,7 +54,7 @@ public class TestNetworkActivity extends AppCompatActivity {
         statusText.setText("Testing login...");
         
         AuthModels.LoginRequest request = new AuthModels.LoginRequest(
-            "test@example.com", 
+            "testuser@backend.com", 
             "Password123"
         );
         
@@ -62,15 +62,19 @@ public class TestNetworkActivity extends AppCompatActivity {
         call.enqueue(new Callback<AuthModels.AuthResponse>() {
             @Override
             public void onResponse(Call<AuthModels.AuthResponse> call, Response<AuthModels.AuthResponse> response) {
+                Log.d("TestNetwork", "Login URL: " + call.request().url());
+                Log.d("TestNetwork", "Response code: " + response.code());
+                
                 if (response.isSuccessful() && response.body() != null) {
                     AuthModels.AuthResponse authResponse = response.body();
                     
                     String result = "✅ LOGIN SUCCESS!\n" +
+                                  "URL: " + call.request().url() + "\n" +
                                   "Success: " + authResponse.isSuccess() + "\n" +
                                   "Message: " + authResponse.getMessage() + "\n";
                     
                     if (authResponse.getData() != null) {
-                        result += "Token: " + authResponse.getData().getToken() + "\n";
+                        result += "Token: " + authResponse.getData().getToken().substring(0, 30) + "...\n";
                         if (authResponse.getData().getUser() != null) {
                             result += "User: " + authResponse.getData().getUser().getEmail();
                         }
@@ -81,14 +85,30 @@ public class TestNetworkActivity extends AppCompatActivity {
                     
                     Log.d("TestNetwork", "Login successful: " + authResponse.getMessage());
                 } else {
-                    statusText.setText("❌ LOGIN FAILED!\nResponse code: " + response.code());
-                    Log.e("TestNetwork", "Login failed: " + response.code());
+                    String errorBody = "";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorBody = response.errorBody().string();
+                        }
+                    } catch (Exception e) {
+                        errorBody = "Could not read error";
+                    }
+                    
+                    String result = "❌ LOGIN FAILED!\n" +
+                                  "URL: " + call.request().url() + "\n" +
+                                  "Response code: " + response.code() + "\n" +
+                                  "Error: " + errorBody;
+                    
+                    statusText.setText(result);
+                    Log.e("TestNetwork", "Login failed: " + response.code() + " - " + errorBody);
                 }
             }
             
             @Override
             public void onFailure(Call<AuthModels.AuthResponse> call, Throwable t) {
-                String error = "❌ CONNECTION FAILED!\nError: " + t.getMessage() + 
+                String error = "❌ CONNECTION FAILED!\n" +
+                              "URL: " + call.request().url() + "\n" +
+                              "Error: " + t.getMessage() + 
                               "\n\nPossible issues:\n" +
                               "- Backend server not running\n" +
                               "- Wrong IP address (check 10.0.2.2 for emulator)\n" +
@@ -105,26 +125,35 @@ public class TestNetworkActivity extends AppCompatActivity {
     private void testRegister() {
         statusText.setText("Testing register...");
         
+        // Tạo username và email unique mỗi lần test (short username for validation)
+        long timestamp = System.currentTimeMillis();
+        String uniqueUsername = "usr" + (timestamp % 1000000); // Giới hạn 6 số cuối để username ngắn
+        String uniqueEmail = "android_" + timestamp + "@example.com";
+        
         AuthModels.RegisterRequest request = new AuthModels.RegisterRequest(
-            "android_test_new",
-            "android_test_new@example.com", 
+            uniqueUsername,
+            uniqueEmail, 
             "Password123",
-            "Android Test"
+            "Android Test User"
         );
         
         Call<AuthModels.AuthResponse> call = authApi.register(request);
         call.enqueue(new Callback<AuthModels.AuthResponse>() {
             @Override
             public void onResponse(Call<AuthModels.AuthResponse> call, Response<AuthModels.AuthResponse> response) {
+                Log.d("TestNetwork", "Register URL: " + call.request().url());
+                Log.d("TestNetwork", "Response code: " + response.code());
+                
                 if (response.isSuccessful() && response.body() != null) {
                     AuthModels.AuthResponse authResponse = response.body();
                     
                     String result = "✅ REGISTER SUCCESS!\n" +
+                                  "URL: " + call.request().url() + "\n" +
                                   "Success: " + authResponse.isSuccess() + "\n" +
                                   "Message: " + authResponse.getMessage() + "\n";
                     
                     if (authResponse.getData() != null) {
-                        result += "Token: " + authResponse.getData().getToken() + "\n";
+                        result += "Token: " + authResponse.getData().getToken().substring(0, 30) + "...\n";
                         if (authResponse.getData().getUser() != null) {
                             result += "User: " + authResponse.getData().getUser().getEmail();
                         }
@@ -135,14 +164,30 @@ public class TestNetworkActivity extends AppCompatActivity {
                     
                     Log.d("TestNetwork", "Register successful: " + authResponse.getMessage());
                 } else {
-                    statusText.setText("❌ REGISTER FAILED!\nResponse code: " + response.code());
-                    Log.e("TestNetwork", "Register failed: " + response.code());
+                    String errorBody = "";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorBody = response.errorBody().string();
+                        }
+                    } catch (Exception e) {
+                        errorBody = "Could not read error";
+                    }
+                    
+                    String result = "❌ REGISTER FAILED!\n" +
+                                  "URL: " + call.request().url() + "\n" +
+                                  "Response code: " + response.code() + "\n" +
+                                  "Error: " + errorBody;
+                    
+                    statusText.setText(result);
+                    Log.e("TestNetwork", "Register failed: " + response.code() + " - " + errorBody);
                 }
             }
             
             @Override
             public void onFailure(Call<AuthModels.AuthResponse> call, Throwable t) {
-                String error = "❌ CONNECTION FAILED!\nError: " + t.getMessage() + 
+                String error = "❌ CONNECTION FAILED!\n" +
+                              "URL: " + call.request().url() + "\n" +
+                              "Error: " + t.getMessage() + 
                               "\n\nPossible issues:\n" +
                               "- Backend server not running\n" +
                               "- Wrong IP address (check 10.0.2.2 for emulator)\n" +
