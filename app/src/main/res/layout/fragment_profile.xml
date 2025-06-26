@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black">
+    >
 
     <!-- User Profile Section -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,7 +20,6 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/default_avatar"
-            app:civ_border_color="@color/white"
             app:civ_border_width="2dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -32,7 +31,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:text="Username"
-            android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/ivUserAvatar"
@@ -40,14 +38,12 @@
             app:layout_constraintTop_toTopOf="@+id/ivUserAvatar" />
 
         <!-- Logout Button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Logout"
             android:textSize="12sp"
-            android:backgroundTint="#444444"
-            android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

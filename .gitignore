@@ -23,3 +23,4 @@ local.properties
 .idea/vcs.xml
 .idea/assetWizardSettings.xml
 .idea/gradle.xml
+.idea/navEditor.xml
