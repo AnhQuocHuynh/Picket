@@ -41,3 +41,4 @@ middleware/
 test-*.js
 *.bat
 *.md.backup
+PROJECT_STRUCTURE.md
