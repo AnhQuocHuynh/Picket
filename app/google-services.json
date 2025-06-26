@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "718178181464",
+    "project_id": "qmmq-54",
+    "storage_bucket": "qmmq-54.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:718178181464:android:e7f68d3624fc72f1a9052d",
+        "android_client_info": {
+          "package_name": "com.example.locket_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrjEf7ZkTtySEUBMwz8VEpjGh_WnXRMmk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
