@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.navigation.NavController;
 
 /**
  * Main entry point for the Locket app.
@@ -18,7 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
  * - Messaging (Chat with friends)
  */
 public class MainActivity extends AppCompatActivity {
-
+    private NavController navController;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,7 +31,17 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // TODO: Setup navigation components to navigate between different features
-        // TODO: Check authentication state and redirect to login if needed
+        androidx.fragment.app.FragmentManager fragmentManager = getSupportFragmentManager();
+        androidx.navigation.fragment.NavHostFragment navHostFragment =
+                (androidx.navigation.fragment.NavHostFragment) fragmentManager.findFragmentById(R.id.nav_host_fragment);
+
+        if (navHostFragment != null) {
+            navController = navHostFragment.getNavController();
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        return navController.navigateUp() || super.onSupportNavigateUp();
     }
 }
