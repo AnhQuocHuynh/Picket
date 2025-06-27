@@ -1,52 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/homeContainer"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context="com.example.locket.feed.fragments.HomeFragment">
 
-    <TextView
-        android:id="@+id/tvHomeTitle"
-        android:layout_width="wrap_content"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <RelativeLayout
+        android:id="@+id/tool_bar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Locket Home"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_alignParentTop="true"
+        android:layout_marginHorizontal="@dimen/_10sdp"
+        android:layout_marginVertical="@dimen/_10sdp">
 
-    <TextView
-        android:id="@+id/tvSwipeInstructions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center"
-        android:text="Swipe left for History\nSwipe right for Messages\nSwipe up for Feed"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvHomeTitle" />
+        <RelativeLayout
+            android:id="@+id/relative_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/_10sdp"
+            android:visibility="visible">
 
-    <ImageView
-        android:id="@+id/ivHomeImage"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="48dp"
-        android:src="@android:drawable/ic_menu_camera"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvSwipeInstructions" />
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/img_profile"
+                android:layout_width="@dimen/_35sdp"
+                android:layout_height="@dimen/_35sdp"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/background_btn"
+                android:padding="@dimen/_5sdp"
+                android:src="@color/white"
+                app:riv_corner_radius="@dimen/_50sdp"
+                app:tint="@color/white" />
 
-    <Button
-        android:id="@+id/btnTakePhoto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="Take Photo"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivHomeImage" />
+            <LinearLayout
+                android:id="@+id/linear_friends"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_35sdp"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/background_text_view"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/_10sdp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/background_btn"
+                    android:src="@drawable/group_24px"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:id="@+id/txt_number_friends"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_5sdp"
+                    android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+                    android:text="1 Bạn bè"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_14ssp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/img_message"
+                android:layout_width="@dimen/_35sdp"
+                android:layout_height="@dimen/_35sdp"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/background_btn"
+                android:padding="@dimen/_10sdp"
+                android:src="@drawable/baseline_chat_bubble_outline_24"
+                app:tint="@color/white" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relative_send_friend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:fontFamily="@font/black"
+                    android:text="Gửi đến..."
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_18ssp" />
+            </RelativeLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+
+</RelativeLayout>
