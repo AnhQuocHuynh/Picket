@@ -21,6 +21,7 @@ sspAndroid = "1.1.1"
 roundedimageview = "2.3.0"
 workRuntime = "2.10.0"
 roomCommonJvm = "2.7.2"
+workRuntimeVersion = "2.10.2"
 
 [libraries]
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraExtensions" }
@@ -50,6 +51,7 @@ sdp-android = { module = "com.intuit.sdp:sdp-android", version.ref = "sdpAndroid
 ssp-android = { module = "com.intuit.ssp:ssp-android", version.ref = "sspAndroid" }
 roundedimageview = { module = "com.makeramen:roundedimageview", version.ref = "roundedimageview" }
 androidx-room-common-jvm = { group = "androidx.room", name = "room-common-jvm", version.ref = "roomCommonJvm" }
+work-runtime = { group = "androidx.work", name = "work-runtime", version.ref = "workRuntimeVersion" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 

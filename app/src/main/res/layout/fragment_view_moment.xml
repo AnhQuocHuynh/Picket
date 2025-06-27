@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg"
-    tools:context=".feed.fragments.ViewMomentFragment">
+    tools:context="com.example.locket.feed.fragments.ViewMomentFragment">
 
     <RelativeLayout
         android:id="@+id/relative_view_all_moment"

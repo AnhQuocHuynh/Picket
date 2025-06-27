@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/bg"
     android:orientation="vertical"
-    tools:context=".auth.fragments.LoginOrRegisterFragment">
+    tools:context="com.example.locket.auth.fragments.LoginOrRegisterFragment">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager2"

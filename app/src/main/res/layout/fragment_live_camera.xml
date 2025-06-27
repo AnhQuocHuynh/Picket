@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/bg"
-    tools:context=".camera.fragments.LiveCameraFragment">
+    tools:context="com.example.locket.camera.fragments.LiveCameraFragment">
 
     <RelativeLayout
         android:id="@+id/relative_camera"
@@ -20,13 +20,17 @@
             android:layout_height="@dimen/_300sdp"
             android:background="@drawable/background_camera"
             android:orientation="vertical">
-
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:cardCornerRadius="29dp"
+                android:layout_marginHorizontal="5dp"> <!-- CardView to hold the camera preview and image view -->
             <androidx.camera.view.PreviewView
                 android:id="@+id/camera_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="visible" />
-
+            </androidx.cardview.widget.CardView>
             <RelativeLayout
                 android:id="@+id/layout_img_view"
                 android:layout_width="match_parent"

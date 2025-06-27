@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg"
-    tools:context=".auth.fragments.LoginEmailFragment">
+    tools:context="com.example.locket.auth.fragments.LoginEmailFragment">
 
     <LinearLayout
         android:id="@+id/tool_bar"

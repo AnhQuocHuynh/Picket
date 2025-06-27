@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:background="@color/bg_bottom_sheet"
     android:layout_height="wrap_content"
-    tools:context=".auth.fragments.CheckPassFragment">
+    tools:context="com.example.locket.auth.fragments.CheckPassFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
