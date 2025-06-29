@@ -31,6 +31,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
 import com.example.locket.R;
+import com.example.locket.auth.UserManager;
+import com.example.locket.auth.UserType;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
@@ -39,23 +41,55 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+// CameraX Video API
+import androidx.camera.video.VideoCapture;
+import androidx.camera.video.Recorder;
+import androidx.camera.video.Recording;
+import androidx.camera.video.OutputOptions;
+import androidx.camera.video.PendingRecording;
+import androidx.camera.video.VideoRecordEvent;
+import androidx.camera.video.FileOutputOptions;
+
+import com.example.locket.feed.RecordingProgressView;
+
 public class HomeFragment extends Fragment {
 
     private PreviewView previewView;
     private ImageCapture imageCapture;
+    private VideoCapture<Recorder> videoCapture;
+    private Recording activeRecording;
     private ExecutorService cameraExecutor;
     private boolean isBackCamera = true;
+    private boolean isRecording = false;
+    private UserManager userManager;
 
     private TextView tvDropdown;
     private ImageView ivAvatar;
-    private ImageButton btnChat, btnGallery, btnCapture, btnSwitchCamera;
+    private ImageButton btnChat, btnGallery, btnCapture, btnSwitchCamera, btnDraw;
+    private RecordingProgressView recordingProgress;
 
     private GestureDetectorCompat gestureDetector;
     private NavController navController;
-    private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
+
+    private final ActivityResultLauncher<String> requestAudioPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     startCamera();
+                } else {
+                    Toast.makeText(getContext(), "Audio permission denied - video recording will not work", Toast.LENGTH_SHORT).show();
+                    startCamera(); // Vẫn start camera nhưng không có video recording
+                }
+            });
+
+    private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Sau khi có camera permission, xin audio permission nếu là pro user
+                    if (userManager.isProUser()) {
+                        requestAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO);
+                    } else {
+                        startCamera();
+                    }
                 } else {
                     Toast.makeText(getContext(), "Camera permission denied", Toast.LENGTH_SHORT).show();
                 }
@@ -72,6 +106,7 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        userManager = UserManager.getInstance(requireContext());
         navController = Navigation.findNavController(view);
         previewView = view.findViewById(R.id.previewView);
         tvDropdown = view.findViewById(R.id.tvDropdown);
@@ -80,6 +115,8 @@ public class HomeFragment extends Fragment {
         btnGallery = view.findViewById(R.id.btnGallery);
         btnCapture = view.findViewById(R.id.btnCapture);
         btnSwitchCamera = view.findViewById(R.id.btnSwitchCamera);
+        btnDraw = view.findViewById(R.id.btnDraw);
+        recordingProgress = view.findViewById(R.id.recordingProgress);
 
         cameraExecutor = Executors.newSingleThreadExecutor();
 
@@ -109,7 +146,16 @@ public class HomeFragment extends Fragment {
     }
 
     private void handleEvents() {
-        btnCapture.setOnClickListener(v -> takePhoto());
+        // Setup capture button với chức năng quay phim cho pro users
+        if (userManager.isProUser()) {
+            setupProCaptureButton();
+        } else {
+            btnCapture.setOnClickListener(v -> takePhoto());
+        }
+
+        btnDraw.setOnClickListener(v -> {
+            navController.navigate(R.id.action_homeFragment_to_drawingFragment);
+        });
 
         btnChat.setOnClickListener(v -> {
             navController.navigate(R.id.messageFragment);
@@ -120,7 +166,7 @@ public class HomeFragment extends Fragment {
         });
 
         ivAvatar.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Mở profile (chưa cài)", Toast.LENGTH_SHORT).show();
+            navController.navigate(R.id.action_homeFragment_to_userSettingsFragment);
         });
 
         tvDropdown.setOnClickListener(v -> {
@@ -142,6 +188,50 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    private void setupProCaptureButton() {
+        btnCapture.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    // Bắt đầu theo dõi thời gian giữ
+                    v.setTag(System.currentTimeMillis());
+                    return true;
+
+                case MotionEvent.ACTION_MOVE:
+                    // Kiểm tra nếu giữ lâu thì bắt đầu quay phim
+                    Long startTime = (Long) v.getTag();
+                    if (startTime != null && !isRecording) {
+                        long holdTime = System.currentTimeMillis() - startTime;
+                        if (holdTime > 500) { // Giữ hơn 500ms = bắt đầu quay phim
+                            startRecording();
+                            // Hiển thị progress view
+                            recordingProgress.setVisibility(View.VISIBLE);
+                            recordingProgress.startRecording();
+                        }
+                    }
+                    return true;
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    // Kiểm tra thời gian giữ
+                    startTime = (Long) v.getTag();
+                    if (startTime != null) {
+                        long holdTime = System.currentTimeMillis() - startTime;
+                        if (holdTime > 500) { // Giữ hơn 500ms = dừng quay phim
+                            stopRecording();
+                            // Ẩn progress view
+                            recordingProgress.stopRecording();
+                            recordingProgress.setVisibility(View.GONE);
+                        } else { // Bấm nhanh = chụp ảnh
+                            takePhoto();
+                        }
+                    }
+                    v.setTag(null);
+                    return true;
+            }
+            return false;
+        });
+    }
+
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext());
 
@@ -152,12 +242,26 @@ public class HomeFragment extends Fragment {
                 Preview preview = new Preview.Builder().build();
                 imageCapture = new ImageCapture.Builder().build();
 
+                // Thêm VideoCapture cho người dùng pro
+                if (userManager.isProUser()) {
+                    Recorder recorder = new Recorder.Builder().build();
+                    videoCapture = VideoCapture.withOutput(recorder);
+                } else {
+                    videoCapture = null;
+                }
+
                 CameraSelector cameraSelector = new CameraSelector.Builder()
                         .requireLensFacing(isBackCamera ? CameraSelector.LENS_FACING_BACK : CameraSelector.LENS_FACING_FRONT)
                         .build();
 
                 cameraProvider.unbindAll();
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
+
+                if (userManager.isProUser() && videoCapture != null) {
+                    cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture, videoCapture);
+                } else {
+                    cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
+                }
+
                 preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
             } catch (Exception e) {
@@ -193,6 +297,50 @@ public class HomeFragment extends Fragment {
                         Toast.makeText(getContext(), "Lỗi chụp ảnh: " + exception.getMessage(), Toast.LENGTH_SHORT).show());
             }
         });
+    }
+
+    private void startRecording() {
+        if (videoCapture == null || isRecording) return;
+
+        File videoFile = new File(requireContext().getCacheDir(),
+                new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
+                        .format(System.currentTimeMillis()) + ".mp4");
+
+        FileOutputOptions outputOptions = new FileOutputOptions.Builder(videoFile).build();
+        PendingRecording pendingRecording = videoCapture.getOutput().prepareRecording(requireContext(), outputOptions);
+        activeRecording = pendingRecording.start(ContextCompat.getMainExecutor(requireContext()), event -> {
+            if (event instanceof VideoRecordEvent.Start) {
+                isRecording = true;
+                Toast.makeText(getContext(), "Bắt đầu quay phim...", Toast.LENGTH_SHORT).show();
+            } else if (event instanceof VideoRecordEvent.Finalize) {
+                isRecording = false;
+                VideoRecordEvent.Finalize finalizeEvent = (VideoRecordEvent.Finalize) event;
+                if (finalizeEvent.hasError()) {
+                    Toast.makeText(getContext(), "Lỗi quay phim: " + finalizeEvent.getError(), Toast.LENGTH_SHORT).show();
+                } else {
+                    Uri savedUri = Uri.fromFile(videoFile);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("video_uri", savedUri.toString());
+                    bundle.putBoolean("is_video", true);
+                    navController.navigate(R.id.action_homeFragment_to_photoPreviewFragment, bundle);
+                }
+                // Ẩn progress view khi kết thúc
+                requireActivity().runOnUiThread(() -> {
+                    recordingProgress.stopRecording();
+                    recordingProgress.setVisibility(View.GONE);
+                });
+            }
+        });
+
+        isRecording = true;
+    }
+
+    private void stopRecording() {
+        if (activeRecording != null && isRecording) {
+            activeRecording.stop();
+            isRecording = false;
+            Toast.makeText(getContext(), "Dừng quay phim", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

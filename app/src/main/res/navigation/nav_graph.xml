@@ -46,8 +46,12 @@
         <action
             android:id="@+id/action_homeFragment_to_photoPreviewFragment"
             app:destination="@id/photoPreviewFragment" />
-
-        <!-- Navigation actions will be handled by swipe gestures -->
+        <action
+            android:id="@+id/action_homeFragment_to_drawingFragment"
+            app:destination="@id/drawingFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_userSettingsFragment"
+            app:destination="@id/userSettingsFragment" />
     </fragment>
 
     <fragment
@@ -60,11 +64,7 @@
         android:id="@+id/historyFragment"
         android:name="com.example.locket.profile.ProfileFragment"
         android:label="History"
-        tools:layout="@layout/fragment_profile">
-        <action
-            android:id="@+id/action_profile_to_photoDetail"
-            app:destination="@id/photoDetailFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/feedFragment"
@@ -94,8 +94,31 @@
         <argument
             android:name="image_uri"
             app:argType="string" />
+        <argument
+            android:name="video_uri"
+            app:argType="string" />
+        <argument
+            android:name="is_video"
+            app:argType="boolean" />
+        <argument
+            android:name="is_drawing"
+            app:argType="boolean" />
     </fragment>
 
+    <fragment
+        android:id="@+id/drawingFragment"
+        android:name="com.example.locket.drawing.DrawingFragment"
+        android:label="Drawing"
+        tools:layout="@layout/fragment_drawing">
+        <action
+            android:id="@+id/action_drawingFragment_to_photoPreviewFragment"
+            app:destination="@id/photoPreviewFragment" />
+    </fragment>
 
+    <fragment
+        android:id="@+id/userSettingsFragment"
+        android:name="com.example.locket.auth.UserSettingsFragment"
+        android:label="User Settings"
+        tools:layout="@layout/fragment_user_settings" />
 
 </navigation>

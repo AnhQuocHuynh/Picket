@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#363843"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cài đặt tài khoản"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp" />
+
+    <TextView
+        android:id="@+id/tvCurrentUserType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Loại tài khoản hiện tại: FREE"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tài khoản FREE: Chụp ảnh, vẽ tranh\nTài khoản PRO: Thêm chức năng quay phim (giữ nút chụp)"
+        android:textColor="#CCCCCC"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginBottom="32dp" />
+
+    <Button
+        android:id="@+id/btnSwitchToPro"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Nâng cấp lên PRO"
+        android:background="@drawable/circle_button_orange"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnSwitchToFree"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Chuyển về FREE"
+        android:background="@drawable/circle_button_bg"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>

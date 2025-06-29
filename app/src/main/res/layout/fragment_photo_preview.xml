@@ -33,6 +33,22 @@
                 android:scaleType="centerCrop"
                 android:contentDescription="Preview" />
 
+            <VideoView
+                android:id="@+id/videoViewPreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:contentDescription="Video Preview" />
+
+            <!-- DrawingView cho replay -->
+            <com.example.locket.drawing.DrawingView
+                android:id="@+id/drawingViewReplay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                android:background="#FFFFFF" />
+
             <EditText
                 android:id="@+id/etCaption"
                 android:layout_width="wrap_content"
@@ -53,6 +69,21 @@
                 android:inputType="textCapSentences"
                 android:layout_marginBottom="20dp"
                 android:drawableEnd="@drawable/ic_location" />
+
+            <!-- Nút play replay trên bức vẽ - đặt cuối cùng để hiển thị trên cùng -->
+            <ImageButton
+                android:id="@+id/btnPlayReplayOverlay"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="20dp"
+                android:background="@drawable/circle_button_play_bg"
+                android:padding="12dp"
+                android:src="@drawable/ic_play"
+                app:tint="#FFFFFF"
+                android:contentDescription="Play Replay"
+                android:visibility="gone"
+                android:elevation="12dp" />
         </FrameLayout>
     </androidx.cardview.widget.CardView>
 
@@ -104,6 +135,21 @@
             android:src="@drawable/ic_download"
             app:tint="#FFFFFF"
             android:contentDescription="Download"/>
+
+        <Space
+            android:layout_width="16dp"
+            android:layout_height="0dp" />
+
+        <ImageButton
+            android:id="@+id/btnPlayReplay"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/circle_button_bg"
+            android:padding="8dp"
+            android:src="@drawable/ic_play"
+            app:tint="#FFFFFF"
+            android:contentDescription="Play Replay"
+            android:visibility="gone" />
     </LinearLayout>
 
     <!-- Lựa chọn người nhận -->
