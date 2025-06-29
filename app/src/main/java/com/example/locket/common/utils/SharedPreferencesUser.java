@@ -25,6 +25,7 @@ public class SharedPreferencesUser {
     private static final String REFRESH_TOKEN = "refresh_token";
     private static final String USER_FRIENDS = "user_friends";
     private static final String ACCOUNT_INFO = "account_info";
+    private static final String PENDING_FRIEND_TOKEN = "pending_friend_token";
 
     public static void saveLoginRequest(Context context, LoginRequest loginRequest) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -173,6 +174,26 @@ public class SharedPreferencesUser {
     public static boolean isLoggedIn(Context context) {
         String token = getJWTToken(context);
         return token != null && !token.isEmpty();
+    }
+
+    // Pending friend token methods for deep linking
+    public static void savePendingFriendToken(Context context, String token) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PENDING_FRIEND_TOKEN, token);
+        editor.apply();
+    }
+
+    public static String getPendingFriendToken(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return sharedPreferences.getString(PENDING_FRIEND_TOKEN, null);
+    }
+
+    public static void clearPendingFriendToken(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(PENDING_FRIEND_TOKEN);
+        editor.apply();
     }
 }
 

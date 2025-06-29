@@ -37,6 +37,27 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            
+            <!-- Deep Linking for Friend Invite Links -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https"
+                      android:host="locket.app"
+                      android:pathPrefix="/add-friend/" />
+            </intent-filter>
+            
+            <!-- Deep Linking for HTTP (for testing) -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http"
+                      android:host="localhost"
+                      android:port="3000"
+                      android:pathPrefix="/add-friend/" />
+            </intent-filter>
         </activity>
     </application>
 

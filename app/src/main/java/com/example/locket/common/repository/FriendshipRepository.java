@@ -273,4 +273,61 @@ public class FriendshipRepository {
             }
         });
     }
+
+    /**
+     * 🎯 Accept friend request via link
+     */
+    public void acceptFriendViaLink(String token, FriendshipCallback callback) {
+        String authHeader = AuthManager.getAuthHeader(context);
+        if (authHeader == null) {
+            if (callback != null) callback.onError("No authentication token", 401);
+            return;
+        }
+
+        if (callback != null) callback.onLoading(true);
+
+        AcceptLinkRequest request = new AcceptLinkRequest(token);
+        Call<FriendshipResponse> call = friendshipApiService.acceptFriendViaLink(authHeader, request);
+        
+        call.enqueue(new Callback<FriendshipResponse>() {
+            @Override
+            public void onResponse(Call<FriendshipResponse> call, Response<FriendshipResponse> response) {
+                if (callback != null) callback.onLoading(false);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Accept friend via link successful");
+                    if (callback != null) callback.onSuccess(response.body());
+                } else {
+                    ApiErrorHandler.handleError(response, new ApiErrorHandler.ErrorCallback() {
+                        @Override
+                        public void onError(String message, int code) {
+                            if (callback != null) callback.onError(message, code);
+                        }
+
+                        @Override
+                        public void onTokenExpired() {
+                            ApiErrorHandler.clearAuthenticationData(context);
+                            if (callback != null) callback.onError("Session expired", 401);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FriendshipResponse> call, Throwable t) {
+                if (callback != null) callback.onLoading(false);
+                ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
+                    @Override
+                    public void onError(String message, int code) {
+                        if (callback != null) callback.onError(message, code);
+                    }
+
+                    @Override
+                    public void onTokenExpired() {
+                        // Not applicable for network errors
+                    }
+                });
+            }
+        });
+    }
 } 

@@ -45,6 +45,9 @@ import com.example.locket.common.models.moment.Moment;
 import com.example.locket.common.models.user.UserProfile;
 import com.example.locket.common.utils.AuthManager;
 import com.example.locket.common.utils.SharedPreferencesUser;
+import com.example.locket.MainActivity;
+import com.example.locket.common.repository.FriendshipRepository;
+import com.example.locket.common.models.friendship.FriendsListResponse;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -63,7 +66,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements MainActivity.FriendsListUpdateListener {
     private ViewPager2 viewPager;
     private LoginResponse loginResponse;
 
@@ -75,6 +78,7 @@ public class HomeFragment extends Fragment {
     private TextView txt_number_friends;
     private ImageView img_message;
     private MomentApiService momentApiService;
+    private FriendshipRepository friendshipRepository;
 
 
     public BroadcastReceiver createBroadcastReceiver() {
@@ -107,10 +111,12 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         momentApiService = LoginApiClient.getCheckEmailClient().create(MomentApiService.class);
+        friendshipRepository = new FriendshipRepository(requireContext());
         initViews(view);
         onCLick();
         conFigViews();
         getDataUser();
+        loadFriendsCount(); // Load initial friends count
     }
 
     private void getDataUser() {
@@ -118,6 +124,9 @@ public class HomeFragment extends Fragment {
         checkExpiresToken();
         setupViewPager();
         loadUserProfile(); // Load fresh user profile from API
+        
+        // Check for pending friend token after user data is loaded
+        checkPendingFriendToken();
     }
 
     private void initViews(View view) {
@@ -442,6 +451,74 @@ public class HomeFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(createBroadcastReceiver());
+    }
+
+    // ==================== FRIENDS LIST MANAGEMENT ====================
+
+    /**
+     * 👥 Load friends count from API
+     */
+    private void loadFriendsCount() {
+        friendshipRepository.getFriendsList(new FriendshipRepository.FriendsListCallback() {
+            @Override
+            public void onSuccess(FriendsListResponse friendsListResponse) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        int friendsCount = 0;
+                        if (friendsListResponse != null && friendsListResponse.getData() != null) {
+                            friendsCount = friendsListResponse.getData().size();
+                        }
+                        updateFriendsCountUI(friendsCount);
+                        Log.d("HomeFragment", "✅ Friends count loaded: " + friendsCount);
+                    });
+                }
+            }
+
+            @Override
+            public void onError(String message, int code) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Log.e("HomeFragment", "❌ Failed to load friends count: " + message);
+                        updateFriendsCountUI(0); // Show 0 as fallback
+                    });
+                }
+            }
+
+            @Override
+            public void onLoading(boolean isLoading) {
+                // Optional: Show loading indicator
+            }
+        });
+    }
+
+    /**
+     * 🎨 Update friends count in UI
+     */
+    @SuppressLint("SetTextI18n")
+    private void updateFriendsCountUI(int count) {
+        if (txt_number_friends != null) {
+            String friendsText = count == 1 ? count + " Bạn bè" : count + " Bạn bè";
+            txt_number_friends.setText(friendsText);
+        }
+    }
+
+    /**
+     * 🔄 Implementation of FriendsListUpdateListener
+     * Called when friends list is updated (e.g., after accepting friend invite)
+     */
+    @Override
+    public void onFriendsListUpdated() {
+        Log.d("HomeFragment", "🔄 Friends list updated, refreshing count...");
+        loadFriendsCount();
+    }
+
+    /**
+     * 🔍 Check for pending friend token and process it
+     */
+    private void checkPendingFriendToken() {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).checkPendingFriendToken();
+        }
     }
 }
 

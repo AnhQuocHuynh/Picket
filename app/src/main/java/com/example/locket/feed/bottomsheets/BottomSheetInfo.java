@@ -36,7 +36,7 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
     private final Activity activity;
 
     private TextView txt_edit_info;
-    private LinearLayout linear_logout, linear_new, linear_change_email;
+    private LinearLayout linear_logout, linear_new, linear_change_email, linear_friend_link;
 
     public BottomSheetInfo(Context context, Activity activity) {
         this.context = context;
@@ -72,6 +72,7 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
         RoundedImageView img_avatar_2 = bottomSheetDialog.findViewById(R.id.img_avatar_2);
         TextView txt_full_name = bottomSheetDialog.findViewById(R.id.txt_full_name);
         linear_change_email = bottomSheetDialog.findViewById(R.id.linear_change_email);
+        linear_friend_link = bottomSheetDialog.findViewById(R.id.linear_friend_link);
         linear_logout = bottomSheetDialog.findViewById(R.id.linear_logout);
 
         // Load user profile data
@@ -87,6 +88,7 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
 
         txt_edit_info.setOnClickListener(view -> openBottomSheetChangeName());
         linear_change_email.setOnClickListener(view -> openBottomSheetChangeEmail());
+        linear_friend_link.setOnClickListener(view -> openFriendLinkTest());
     }
 
     private void openBottomSheetRegisterUserName() {
@@ -111,6 +113,23 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
         dismiss();
         BottomSheetChangeName bottomSheetChangeName = new BottomSheetChangeName(context, activity);
         bottomSheetChangeName.show(getActivity().getSupportFragmentManager(), bottomSheetChangeName.getTag());
+    }
+
+    private void openFriendLinkTest() {
+        dismiss();
+        // Navigate to FriendLinkTestFragment
+        if (activity instanceof com.example.locket.MainActivity) {
+            com.example.locket.MainActivity mainActivity = (com.example.locket.MainActivity) activity;
+            androidx.fragment.app.FragmentManager fragmentManager = mainActivity.getSupportFragmentManager();
+            androidx.fragment.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
+            
+            com.example.locket.feed.fragments.FriendLinkTestFragment friendLinkTestFragment = 
+                new com.example.locket.feed.fragments.FriendLinkTestFragment();
+            
+            transaction.replace(android.R.id.content, friendLinkTestFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }
     }
 
     /**
