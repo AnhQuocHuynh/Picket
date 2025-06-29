@@ -1,107 +1,51 @@
 package com.example.locket.common.network;
 
-import com.example.locket.common.models.login.check_email.CheckEmailResponse;
+import com.example.locket.common.models.auth.LoginRequest;
+import com.example.locket.common.models.auth.LoginResponse;
+import com.example.locket.common.models.user.UserProfile;
 
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
+/**
+ * 🔑 LOGIN API SERVICE
+ * 
+ * ✅ COMPATIBLE WITH REAL BACKEND
+ * ❌ Removed non-existent endpoints
+ * 
+ * Base URL: http://10.0.2.2:3000/api/
+ */
 public interface LoginApiService {
 
-    //Check email
+    // ✅ USER LOGIN - Backend endpoint exists
     @Headers({
-            "Accept-Encoding: gzip",
-            "Connection: Keep-Alive",
-            "Content-Type: application/json; charset=utf-8",
-            "Host: api.locketcamera.com",
-            "User-Agent: okhttp/4.9.2",
+            "Content-Type: application/json"
     })
-    @POST("validateEmailAddress")
-    Call<CheckEmailResponse> CHECK_EMAIL_RESPONSE_CALL(@Body RequestBody body);
+    @POST("auth/login")
+    Call<LoginResponse> login(@Body LoginRequest request);
 
-    //Check phone
-    @Headers({
-            "Accept: */*",
-            "Accept-Encoding: gzip",
-            "Accept-Language: en",
-            "Connection: keep-alive",
-            "Content-Type: application/json; charset=utf-8"
-    })
-    @POST("sendVerificationCode")
-    Call<ResponseBody> CHECK_PHONE_RESPONSE_CALL(@Body RequestBody body);
+    // ✅ GET USER PROFILE - Backend endpoint exists  
+    @GET("auth/profile")
+    Call<UserProfile> getUserProfile(@Header("Authorization") String bearerToken);
 
+    // ❌ REMOVED ENDPOINTS (không tồn tại trong backend):
+    // - POST auth/check-email (backend không có)
+    // - POST auth/refresh (backend không support refresh token)
+    // - POST auth/profile (chỉ có GET, không có POST)
 
-    //Forgot password
-    @Headers({
-            "Accept-Encoding: gzip",
-            "Connection: keep-alive",
-            "Content-Type: application/json; charset=utf-8",
-            "Firebase-Instance-ID-Token: dTNmyvemRZa4oRGQQVW4yF:APA91bF1c7CTa3ytH5WBX3_0ZUxzEO0sJSrnWXN75_3HuFxo3QAlJpaa79uHscUzEx7uxXQEZRscbG54KgnWt3rhNmEscLvURvCCNVn6tQVyl79uydsiHoeDRGOa9G6zBLj3jO-ncYqK",
-            "Host: api.locketcamera.com",
-            "User-Agent: okhttp/4.9.2"
-    })
-    @POST("sendPasswordResetEmail")
-    Call<ResponseBody> FORGOT_PASSWORD_RESPONSE_CALL(@Body RequestBody body);
-
-
-    //Login
-    @Headers({
-            "Accept-Encoding: gzip",
-            "Accept-Language: vi-VN, en-US",
-            "Connection: Keep-Alive",
-            "Content-Type: application/json",
-            "Host: www.googleapis.com",
-            "User-Agent: Dalvik/2.1.0 (Linux; U; Android 11; sdk_gphone_x86 Build/RSR1.240422.006)",
-            "X-Android-Cert: 187A27D3D7364A044307F56E66230F973DCCD5B7",
-            "X-Android-Package: com.locket.Locket",
-            "X-Client-Version: Android/Fallback/X22002000/FirebaseCore-Android",
-            "X-Firebase-AppCheck: eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==",
-            "X-Firebase-Client: H4sIAAAAAAAAAKtWykhNLCpJSk0sKVayio7VUSpLLSrOzM9TslIyUqoFAFyivEQfAAAA",
-            "X-Firebase-GMPID: 1:641029076083:android:eac8183b796b856d4fa606"
-    })
-    @POST("identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyB5dTd-xiLD5dEfWq5OpptnQtnMpE0W0u8")
-    Call<ResponseBody> LOGIN_RESPONSE_CALL(@Body  RequestBody body);
-
-
-    //Account Info
-    @Headers({
-            "Accept-Encoding: gzip",
-            "Accept-Language: vi-VN, en-US",
-            "Connection: Keep-Alive",
-            "Content-Type: application/json",
-            "Host: www.googleapis.com",
-            "User-Agent: Dalvik/2.1.0 (Linux; U; Android 11; sdk_gphone_x86 Build/RSR1.240422.006)",
-            "X-Android-Cert: 187A27D3D7364A044307F56E66230F973DCCD5B7",
-            "X-Android-Package: com.locket.Locket",
-            "X-Client-Version: Android/Fallback/X22002000/FirebaseCore-Android",
-            "X-Firebase-AppCheck: eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==",
-            "X-Firebase-Client: H4sIAAAAAAAAAKtWykhNLCpJSk0sKVayio7VUSpLLSrOzM9TslIyUqoFAFyivEQfAAAA",
-            "X-Firebase-GMPID: 1:641029076083:android:eac8183b796b856d4fa606"
-    })
-    @POST("identitytoolkit/v3/relyingparty/getAccountInfo?key=AIzaSyB5dTd-xiLD5dEfWq5OpptnQtnMpE0W0u8")
-    Call<ResponseBody> ACCOUNT_INFO_RESPONSE_CALL(@Body RequestBody body);
-
-    //Account Info
-    @Headers({
-            "Accept-Encoding: gzip",
-            "Accept-Language: vi-VN, en-US",
-            "Connection: Keep-Alive",
-            "Content-Type: application/json",
-            "Host: securetoken.googleapis.com",
-            "User-Agent: Dalvik/2.1.0 (Linux; U; Android 11; sdk_gphone_x86 Build/RSR1.240422.006)",
-            "X-Android-Cert: 187A27D3D7364A044307F56E66230F973DCCD5B7",
-            "X-Android-Package: com.locket.Locket",
-            "X-Client-Version: Android/Fallback/X22002000/FirebaseCore-Android",
-            "X-Firebase-AppCheck: eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==",
-            "X-Firebase-Client: H4sIAAAAAAAAAKtWykhNLCpJSk0sKVayio7VUSpLLSrOzM9TslIyUqoFAFyivEQfAAAA",
-            "X-Firebase-GMPID: 1:641029076083:android:eac8183b796b856d4fa606"
-    })
-    @POST("v1/token?key=AIzaSyB5dTd-xiLD5dEfWq5OpptnQtnMpE0W0u8")
-    Call<ResponseBody> REFRESH_TOKEN_RESPONSE_CALL(@Body RequestBody body);
-
-
-}
-
+    /**
+     * 📝 USAGE EXAMPLES:
+     * 
+     * // Login
+     * LoginRequest request = new LoginRequest("user@example.com", "password123");
+     * Call<LoginResponse> call = loginService.login(request);
+     * 
+     * // Get Profile
+     * String token = "Bearer " + SharedPreferencesUser.getJWTToken(context);
+     * Call<UserProfile> profileCall = loginService.getUserProfile(token);
+     */
+} 

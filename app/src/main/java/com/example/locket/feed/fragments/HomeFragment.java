@@ -33,16 +33,17 @@ import com.example.locket.R;
 import com.example.locket.feed.adapters.HomeViewPager2Adapter;
 import com.example.locket.common.network.LoginApiService;
 import com.example.locket.common.network.MomentApiService;
-import com.example.locket.common.network.MockApiServer;
-import com.example.locket.common.network.MockLoginService;
+
 import com.example.locket.common.network.client.LoginApiClient;
 import com.example.locket.auth.fragments.LoginOrRegisterFragment;
 import com.example.locket.feed.bottomsheets.BottomSheetFriend;
 import com.example.locket.feed.bottomsheets.BottomSheetInfo;
 import com.example.locket.common.utils.ResponseUtils;
 import com.example.locket.common.models.auth.AuthResponse;
-import com.example.locket.common.models.auth.LoginRespone;
+import com.example.locket.common.models.auth.LoginResponse;
 import com.example.locket.common.models.moment.Moment;
+import com.example.locket.common.models.user.UserProfile;
+import com.example.locket.common.utils.AuthManager;
 import com.example.locket.common.utils.SharedPreferencesUser;
 
 import java.io.IOException;
@@ -64,7 +65,7 @@ import retrofit2.Retrofit;
 
 public class HomeFragment extends Fragment {
     private ViewPager2 viewPager;
-    private LoginRespone loginResponse;
+    private LoginResponse loginResponse;
 
     private RelativeLayout relative_profile;
     private RelativeLayout relative_send_friend;
@@ -116,7 +117,7 @@ public class HomeFragment extends Fragment {
         loginResponse = SharedPreferencesUser.getLoginResponse(requireContext());
         checkExpiresToken();
         setupViewPager();
-        setData();
+        loadUserProfile(); // Load fresh user profile from API
     }
 
     private void initViews(View view) {
@@ -147,7 +148,79 @@ public class HomeFragment extends Fragment {
     }
 
     private void setData() {
-        Glide.with(this).load(loginResponse.getProfilePicture()).into(img_profile);
+        // Fallback: Load from cached LoginResponse if UserProfile fails
+        if (loginResponse != null && loginResponse.getProfilePicture() != null) {
+            Glide.with(this).load(loginResponse.getProfilePicture()).into(img_profile);
+        }
+    }
+
+    /**
+     * 🔄 Load fresh user profile from backend API
+     */
+    private void loadUserProfile() {
+        AuthManager.getUserProfile(requireContext(), new AuthManager.ProfileCallback() {
+            @Override
+            public void onSuccess(UserProfile userProfile) {
+                if (userProfile != null && userProfile.getUser() != null) {
+                    // Save updated profile to SharedPreferences
+                    SharedPreferencesUser.saveUserProfile(requireContext(), userProfile);
+                    
+                    // Update UI with fresh data
+                    setDataFromUserProfile(userProfile);
+                    
+                    Log.d("HomeFragment", "✅ User profile loaded successfully");
+                } else {
+                    Log.w("HomeFragment", "⚠️ Empty user profile, using cached data");
+                    setData(); // Fallback to cached data
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage, int errorCode) {
+                Log.e("HomeFragment", "❌ Failed to load user profile: " + errorMessage);
+                // Fallback to cached LoginResponse data
+                setData();
+                
+                // Handle authentication errors
+                if (errorCode == 401) {
+                    Log.w("HomeFragment", "🔒 Token expired, redirecting to login");
+                    redirectToLogin();
+                }
+            }
+        });
+    }
+
+    /**
+     * 🎨 Set UI data from UserProfile (fresh from API)
+     */
+    private void setDataFromUserProfile(UserProfile userProfile) {
+        UserProfile.UserData userData = userProfile.getUser();
+        
+        // Load profile picture
+        if (userData.getProfilePicture() != null && !userData.getProfilePicture().isEmpty()) {
+            Glide.with(this)
+                    .load(userData.getProfilePicture())
+                    .placeholder(R.drawable.ic_widget_empty_icon) // Placeholder while loading
+                    .error(R.drawable.ic_widget_empty_icon) // Error fallback
+                    .into(img_profile);
+        } else {
+            // Set default avatar if no profile picture
+            img_profile.setImageResource(R.drawable.ic_widget_empty_icon);
+        }
+        
+        Log.d("HomeFragment", "🖼️ Profile picture loaded for user: " + userData.getDisplayName());
+    }
+
+    /**
+     * 🚪 Redirect to login screen when authentication fails
+     */
+    private void redirectToLogin() {
+        SharedPreferencesUser.clearAll(requireContext());
+        FragmentManager fragmentManager = getParentFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.frame_layout, new LoginOrRegisterFragment());
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        transaction.commit();
     }
 
     private void setupViewPager() {
@@ -206,19 +279,19 @@ public class HomeFragment extends Fragment {
     }
 
     private void refreshToken() {
-        Call<ResponseBody> call;
+        // ❌ Backend không có endpoint /auth/refresh - Tạm thời disable
+        Log.w("HomeFragment", "Refresh token endpoint not available, skipping refresh");
         
-        // Use mock service if in mock mode and token contains "mock"
-        if (MockLoginService.isMockMode() && loginResponse.getRefreshToken() != null && loginResponse.getRefreshToken().contains("mock")) {
-            Log.d("HomeFragment", "Using mock refresh token");
-            call = MockLoginService.mockRefreshToken(loginResponse.getRefreshToken());
-        } else {
-            // Use real API
-            Retrofit retrofit = LoginApiClient.getRefreshTokenClient();
-            LoginApiService loginApiService = retrofit.create(LoginApiService.class);
-            RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), createSignInJson("refresh_token", loginResponse.getRefreshToken()));
-            call = loginApiService.REFRESH_TOKEN_RESPONSE_CALL(requestBody);
-        }
+        // Thay vì refresh token, chỉ load data trực tiếp
+        getMomentV2(null);
+        return;
+        
+        /*
+        // Use real API
+        Retrofit retrofit = LoginApiClient.getRefreshTokenClient();
+        LoginApiService loginApiService = retrofit.create(LoginApiService.class);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), createSignInJson("refresh_token", loginResponse.getRefreshToken()));
+        Call<ResponseBody> call = loginApiService.REFRESH_TOKEN_RESPONSE_CALL(requestBody);
         
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -233,7 +306,7 @@ public class HomeFragment extends Fragment {
 
 
                         //save user
-                        LoginRespone newLoginResponse = SharedPreferencesUser.getLoginResponse(requireContext());
+                        LoginResponse newLoginResponse = SharedPreferencesUser.getLoginResponse(requireContext());
                         Log.d(">>>>>>>>>>>>>>>", "old Token: " + newLoginResponse.getIdToken());
                         Log.d(">>>>>>>>>>>>>>>", "new Token: " + authResponse.getIdToken());
 
@@ -260,6 +333,7 @@ public class HomeFragment extends Fragment {
             }
 
         });
+        */
     }
 
     @SuppressLint("DefaultLocale")
@@ -278,75 +352,65 @@ public class HomeFragment extends Fragment {
         );
     }
 
-    private void getMomentV2(List<String> excludedUsers) {
-        if (excludedUsers == null) {
-            excludedUsers = new ArrayList<>();
+    private void getMomentV2(String type) {
+        // ❌ Backend không có moments endpoints - Disable để tránh 404
+        Log.w("HomeFragment", "Moments endpoint not available, skipping moment fetch");
+        
+        // Tạm thời hiển thị empty state hoặc mock data
+        // moments.clear();
+        // momentAdapter.notifyDataSetChanged();
+        return;
+        
+        /* OLD CODE - Endpoint không tồn tại
+        Log.d(">>>>>>>>>>>>>", "getMomentV2: ");
+
+        if (loginResponse == null) {
+            Log.e("HomeFragment", "LoginResponse is null, cannot fetch moments");
+            return;
         }
 
-        String token = "Bearer " + loginResponse.getIdToken();
-        Log.d("HomeFragment", "getMomentV2: " + token);
-        
-        Call<ResponseBody> ResponseBodyCall;
-        
-        // Use mock service if in mock mode and token contains "mock"
-        if (MockLoginService.isMockMode() && token.contains("mock")) {
-            Log.d("HomeFragment", "Using mock moments API");
-            ResponseBodyCall = MockApiServer.getMockMomentsResponse();
-        } else {
-            // Use real API
-            RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=UTF-8"), createGetMomentV2ExcludedUsersJson(excludedUsers));
-            ResponseBodyCall = momentApiService.GET_MOMENT_V2(token, requestBody);
+        String idToken = loginResponse.getIdToken();
+        if (idToken == null || idToken.isEmpty()) {
+            Log.e("HomeFragment", "ID token is null or empty, cannot fetch moments");
+            return;
         }
-        
-        List<String> finalExcludedUsers = excludedUsers;
-        ResponseBodyCall.enqueue(new Callback<ResponseBody>() {
-            @SuppressLint("SetTextI18n")
+
+        // Use real API
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), createMomentJson(idToken, type));
+        Call<ResponseBody> getMomentCall = momentApiService.GET_MOMENT_RESPONSE_CALL(requestBody);
+
+        getMomentCall.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     try {
-                        String responseBody = response.body().string();
+                        String contentEncoding = response.headers().get("Content-Encoding");
+                        String responseBody = ResponseUtils.getResponseBody(response.body().byteStream(), contentEncoding);
+
+                        Log.d(">>>>>>>>>>>>>", "getMomentV2: " + responseBody);
+
                         Gson gson = new Gson();
-                        Moment moment = gson.fromJson(responseBody, Moment.class);
-                        
-                        // Handle mock mode differently - don't do recursive calls
-                        if (MockLoginService.isMockMode() && loginResponse.getIdToken().contains("mock")) {
-                            Log.d("HomeFragment", "Processing mock moments data");
-                            if (moment.getResult() != null && moment.getResult().getData() != null) {
-                                List<String> mockFriends = new ArrayList<>();
-                                for (Data data : moment.getResult().getData()) {
-                                    if (!mockFriends.contains(data.getUser())) {
-                                        mockFriends.add(data.getUser());
-                                    }
-                                }
-                                SharedPreferencesUser.saveUserFriends(requireContext(), mockFriends);
-                                txt_number_friends.setText(mockFriends.size() + " Bạn bè");
-                            } else {
-                                txt_number_friends.setText("0 Bạn bè");
-                            }
-                        } else {
-                            // Real API logic
-                            if (!moment.getResult().getData().isEmpty()) {
-                                finalExcludedUsers.add(moment.getResult().getData().get(0).getUser());
-                                getMomentV2(finalExcludedUsers); // Gọi đệ quy với danh sách đã cập nhật
-                            } else {
-                                SharedPreferencesUser.saveUserFriends(requireContext(), finalExcludedUsers);
-                                txt_number_friends.setText(finalExcludedUsers.size() + " Bạn bè");
-                            }
-                        }
+                        Result result = gson.fromJson(responseBody, Result.class);
+
+                        moments.clear();
+                        moments.addAll(result.getData());
+
+                        momentAdapter.notifyDataSetChanged();
+
                     } catch (IOException e) {
-                        Log.e("HomeFragment", "Error reading response body", e);
+                        Log.e("Moment", "Error reading response body", e);
                     }
                 } else {
-                    Log.e("HomeFragment", "Failed response from getMomentV2");
+                    Log.e("Moment", "Error: " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
-                Log.e("Response Error", "Unsuccessful response: " + throwable.getMessage());
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("Moment", "Error: " + t.getMessage());
             }
         });
+        */
     }
 
 

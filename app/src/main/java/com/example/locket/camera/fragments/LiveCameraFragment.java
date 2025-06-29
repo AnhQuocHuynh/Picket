@@ -44,8 +44,11 @@ import com.example.locket.R;
 import com.example.locket.common.network.ApiCaller;
 import com.example.locket.common.network.MomentApiService;
 import com.example.locket.camera.utils.ImageUtils;
-import com.example.locket.common.models.auth.LoginRespone;
+import com.example.locket.common.models.auth.LoginResponse;
 import com.example.locket.common.utils.SharedPreferencesUser;
+import com.example.locket.common.network.ImageUploadService;
+import com.example.locket.common.repository.PostRepository;
+import com.example.locket.common.models.post.PostResponse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -81,11 +84,15 @@ public class LiveCameraFragment extends Fragment {
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private CameraSelector cameraSelector;
     private boolean isBackCamera = false; // Flag to check current camera
-    private LoginRespone loginResponse;
+    private LoginResponse loginResponse;
     private MomentApiService momentApiService;
     private byte[] bytes;
     private ImageCapture imageCapture;
     private String edt_message;
+    
+    // New API components
+    private ImageUploadService imageUploadService;
+    private PostRepository postRepository;
 
 
     @Override
@@ -115,6 +122,10 @@ public class LiveCameraFragment extends Fragment {
 
     private void getDataUser() {
         loginResponse = SharedPreferencesUser.getLoginResponse(requireContext());
+        
+        // Initialize new API services
+        imageUploadService = new ImageUploadService(requireContext());
+        postRepository = new PostRepository(requireContext());
     }
 
     private void initViews(View view) {
@@ -337,45 +348,128 @@ public class LiveCameraFragment extends Fragment {
     }
 
     private void sendImage(byte[] imageData, String message) {
-        progress_bar.setVisibility(View.VISIBLE);
-        img_cancel.setVisibility(View.GONE);
-        img_send.setVisibility(View.GONE);
-        img_save_image.setVisibility(View.GONE);
-        linear_history.setVisibility(View.GONE);
-        edt_add_message.setEnabled(false);
+        if (imageData == null || imageData.length == 0) {
+            Toast.makeText(requireContext(), "Không có dữ liệu ảnh để gửi", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Show loading UI
+        setLoadingState(true);
+        
+        Log.d("LiveCamera", "🚀 Starting new API flow - Upload image first...");
+        
+        // Step 1: Upload image to server
+        imageUploadService.uploadImage(imageData, new ImageUploadService.UploadCallback() {
+            @Override
+            public void onUploadComplete(String imageUrl, boolean success) {
+                if (success && imageUrl != null) {
+                    Log.d("LiveCamera", "✅ Image uploaded successfully: " + imageUrl);
+                    // Step 2: Create post with uploaded image URL
+                    createPost(imageUrl, message);
+                } else {
+                    Log.e("LiveCamera", "❌ Image upload failed");
+                    getActivity().runOnUiThread(() -> {
+                        setLoadingState(false);
+                        Toast.makeText(requireContext(), "Upload ảnh thất bại", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
 
-        ApiCaller apiCaller = new ApiCaller(false);
-        apiCaller.postImage(loginResponse.getLocalId(), loginResponse.getIdToken(), message, imageData, (url, success) -> {
-            if (success) {
-                Log.d("TAG", "Image posted successfully: " + url);
-                lottie_check.setVisibility(View.VISIBLE);
-                lottie_check.playAnimation();
-                progress_bar.setVisibility(View.GONE);
+            @Override
+            public void onUploadProgress(int progress) {
+                Log.d("LiveCamera", "📤 Upload progress: " + progress + "%");
+                // You can update a progress bar here if needed
+            }
 
-                new Handler().postDelayed(() -> {
-                    bytes = null;
-                    edt_message = "";
-                    edt_add_message.setText("");
-
-                    edt_add_message.setEnabled(true);
-//                    relative_profile.setVisibility(View.VISIBLE);
-//                    relative_send_friend.setVisibility(View.GONE);
-
-                    layout_img_view.setVisibility(View.GONE);
-                    camera_view.setVisibility(View.VISIBLE);
-                    linear_controller_media.setVisibility(View.VISIBLE);
-                    linear_controller_send.setVisibility(View.GONE);
-                    progress_bar.setVisibility(View.GONE);
-                    img_cancel.setVisibility(View.VISIBLE);
-                    img_send.setVisibility(View.VISIBLE);
-                    lottie_check.setVisibility(View.GONE);
-                    img_save_image.setVisibility(View.VISIBLE);
-                    linear_history.setVisibility(View.VISIBLE);
-                }, 3000);
-            } else {
-                Log.e("sendImage", "Image posting failed");
+            @Override
+            public void onError(String message, int code) {
+                Log.e("LiveCamera", "❌ Upload error: " + message + " (Code: " + code + ")");
+                getActivity().runOnUiThread(() -> {
+                    setLoadingState(false);
+                    Toast.makeText(requireContext(), "Lỗi upload: " + message, Toast.LENGTH_SHORT).show();
+                });
             }
         });
+    }
+    
+    private void createPost(String imageUrl, String caption) {
+        Log.d("LiveCamera", "📝 Creating post with imageUrl: " + imageUrl);
+        
+        postRepository.createPost(imageUrl, caption, new PostRepository.PostCallback() {
+            @Override
+            public void onSuccess(PostResponse postResponse) {
+                Log.d("LiveCamera", "✅ Post created successfully!");
+                getActivity().runOnUiThread(() -> {
+                    setLoadingState(false);
+                    showSuccessState();
+                });
+            }
+
+            @Override
+            public void onError(String message, int code) {
+                Log.e("LiveCamera", "❌ Create post error: " + message + " (Code: " + code + ")");
+                getActivity().runOnUiThread(() -> {
+                    setLoadingState(false);
+                    Toast.makeText(requireContext(), "Tạo bài viết thất bại: " + message, Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onLoading(boolean isLoading) {
+                Log.d("LiveCamera", "⏳ Post creation loading: " + isLoading);
+                // Loading state is already handled by setLoadingState()
+            }
+        });
+    }
+    
+    private void setLoadingState(boolean isLoading) {
+        if (isLoading) {
+            progress_bar.setVisibility(View.VISIBLE);
+            img_cancel.setVisibility(View.GONE);
+            img_send.setVisibility(View.GONE);
+            img_save_image.setVisibility(View.GONE);
+            linear_history.setVisibility(View.GONE);
+            edt_add_message.setEnabled(false);
+        } else {
+            progress_bar.setVisibility(View.GONE);
+            img_cancel.setVisibility(View.VISIBLE);
+            img_send.setVisibility(View.VISIBLE);
+            img_save_image.setVisibility(View.VISIBLE);
+            linear_history.setVisibility(View.VISIBLE);
+            edt_add_message.setEnabled(true);
+        }
+    }
+    
+    private void showSuccessState() {
+        // Show success animation
+        lottie_check.setVisibility(View.VISIBLE);
+        lottie_check.playAnimation();
+        progress_bar.setVisibility(View.GONE);
+
+        // Reset to camera view after 3 seconds
+        new Handler().postDelayed(() -> {
+            resetToCameraView();
+        }, 3000);
+    }
+    
+    private void resetToCameraView() {
+        // Reset data
+        bytes = null;
+        edt_message = "";
+        edt_add_message.setText("");
+
+        // Reset UI to camera view
+        edt_add_message.setEnabled(true);
+        layout_img_view.setVisibility(View.GONE);
+        camera_view.setVisibility(View.VISIBLE);
+        linear_controller_media.setVisibility(View.VISIBLE);
+        linear_controller_send.setVisibility(View.GONE);
+        progress_bar.setVisibility(View.GONE);
+        img_cancel.setVisibility(View.VISIBLE);
+        img_send.setVisibility(View.VISIBLE);
+        lottie_check.setVisibility(View.GONE);
+        img_save_image.setVisibility(View.VISIBLE);
+        linear_history.setVisibility(View.VISIBLE);
     }
 
     @Override

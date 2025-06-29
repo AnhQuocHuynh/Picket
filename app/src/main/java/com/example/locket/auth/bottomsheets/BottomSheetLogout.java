@@ -19,6 +19,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.example.locket.R;
 import com.example.locket.auth.fragments.LoginOrRegisterFragment;
+import com.example.locket.common.utils.AuthManager;
 import com.example.locket.common.utils.SharedPreferencesUser;
 
 public class BottomSheetLogout extends BottomSheetDialogFragment {
@@ -55,13 +56,49 @@ public class BottomSheetLogout extends BottomSheetDialogFragment {
 
     private void onClick() {
         linear_logout.setOnClickListener(view -> {
-            SharedPreferencesUser.clearAll(requireContext());
-            dismiss();
-            releaseFragment();
+            performLogout();
         });
         linear_cancel.setOnClickListener(view -> {
             dismiss();
         });
+    }
+
+    /**
+     * 🚪 Perform logout with API call
+     */
+    private void performLogout() {
+        // Show loading state (you can add a progress indicator here)
+        linear_logout.setEnabled(false);
+        
+        AuthManager.logout(requireContext(), new AuthManager.AuthCallback() {
+            @Override
+            public void onSuccess(String message) {
+                // API logout successful
+                clearDataAndRedirect();
+            }
+
+            @Override
+            public void onError(String errorMessage, int errorCode) {
+                // Even if API logout fails, still clear local data
+                // This ensures user is logged out locally even if server is unreachable
+                clearDataAndRedirect();
+            }
+
+            @Override
+            public void onLoading(boolean isLoading) {
+                // Handle loading state if needed
+                linear_logout.setEnabled(!isLoading);
+            }
+        });
+    }
+
+    /**
+     * 🧹 Clear local data and redirect to login
+     */
+    private void clearDataAndRedirect() {
+        SharedPreferencesUser.clearAll(requireContext());
+        dismiss();
+        releaseFragment();
     }
 
     private void releaseFragment() {

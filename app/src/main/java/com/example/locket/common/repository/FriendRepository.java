@@ -12,14 +12,13 @@ import androidx.room.Room;
 
 import com.google.gson.Gson;
 import com.example.locket.common.network.MomentApiService;
-import com.example.locket.common.network.MockApiServer;
-import com.example.locket.common.network.MockLoginService;
+
 import com.example.locket.common.network.client.LoginApiClient;
 import com.example.locket.common.database.AppDatabase;
 import com.example.locket.common.database.dao.FriendDao;
 import com.example.locket.common.models.friend.Friend;
 import com.example.locket.common.models.friend.UserData;
-import com.example.locket.common.models.auth.LoginRespone;
+import com.example.locket.common.models.auth.LoginResponse;
 import com.example.locket.common.utils.SharedPreferencesUser;
 import com.example.locket.common.database.entities.FriendEntity;
 
@@ -38,7 +37,7 @@ public class FriendRepository {
     private final LiveData<List<FriendEntity>> allFriends;
     private final MomentApiService momentApiService;
     private final Context context;
-    private final LoginRespone loginResponse; // Giả sử đây là model chứa token (idToken, vv)
+    private final LoginResponse loginResponse; // Giả sử đây là model chứa token (idToken, vv)
 
     public FriendRepository(Application application) {
         this.context = application;
@@ -69,26 +68,29 @@ public class FriendRepository {
     }
 
     public void refreshDataFromServer(List<String> excludedUsers) {
+        // ❌ Backend không có friends/moments endpoints - Disable để tránh 404
+        Log.w("FriendRepository", "Friends/moments endpoint not available, skipping server refresh");
+        return;
+        
+        /* OLD CODE - Endpoints không tồn tại
         if (excludedUsers == null) {
             excludedUsers = new ArrayList<>();
         }
 
+        // Kiểm tra xem user đã login chưa
+        if (loginResponse == null) {
+            Log.w("FriendRepository", "User not logged in, skipping data refresh");
+            return;
+        }
+
         String token = "Bearer " + loginResponse.getIdToken();
         
-        Call<ResponseBody> responseBodyCall;
-        
-        // Use mock service if in mock mode and token contains "mock"
-        if (MockLoginService.isMockMode() && token.contains("mock")) {
-            Log.d("FriendRepository", "Using mock friends API");
-            responseBodyCall = MockApiServer.getMockFriendsResponse();
-        } else {
-            // Use real API
-            RequestBody requestBody = RequestBody.create(
-                    MediaType.parse("application/json; charset=UTF-8"),
-                    createGetMomentV2ExcludedUsersJson(excludedUsers)
-            );
-            responseBodyCall = momentApiService.GET_MOMENT_V2(token, requestBody);
-        }
+        // Use real API
+        RequestBody requestBody = RequestBody.create(
+                MediaType.parse("application/json; charset=UTF-8"),
+                createGetMomentV2ExcludedUsersJson(excludedUsers)
+        );
+        Call<ResponseBody> responseBodyCall = momentApiService.GET_MOMENT_V2(token, requestBody);
         
         // Lưu ý: Nếu bạn không cần gọi đệ quy (pagination) thì có thể bỏ logic cập nhật excludedUsers và gọi lại refreshDataFromServer
         List<String> finalExcludedUsers = excludedUsers;
@@ -131,16 +133,11 @@ public class FriendRepository {
                                 db.friendDao().insertAll(entityList);
                             }).start();
 
-                            // Handle mock mode differently - don't do recursive calls
-                            if (MockLoginService.isMockMode() && loginResponse.getIdToken().contains("mock")) {
-                                Log.d("FriendRepository", "Processing mock friends data - no recursive calls");
-                            } else {
-                                // Real API logic - recursive calls
-                                finalExcludedUsers.add(dataList.get(0).getUsername());
-                                Log.d("FriendRepository", "onResponse: "+dataList.get(0).getUsername());
-                                // Gọi lại API đệ quy để load thêm dữ liệu nếu cần
-                                refreshDataFromServer(finalExcludedUsers);
-                            }
+                            // Real API logic - recursive calls
+                            finalExcludedUsers.add(dataList.get(0).getUsername());
+                            Log.d("FriendRepository", "onResponse: "+dataList.get(0).getUsername());
+                            // Gọi lại API đệ quy để load thêm dữ liệu nếu cần
+                            refreshDataFromServer(finalExcludedUsers);
                         }
                     } catch (IOException e) {
                         Log.e("FriendRepository", "Error reading response body", e);
@@ -155,11 +152,55 @@ public class FriendRepository {
                 Log.e("FriendRepository", "Error fetching data", t);
             }
         });
+        */
     }
 
     // Phương thức overload nếu không cần truyền excludedUsers (bắt đầu mới)
     public void refreshDataFromServer() {
-        refreshDataFromServer(new ArrayList<>());
+        // ❌ Backend không có friends endpoints - Disable để tránh 404
+        Log.w("FriendRepository", "Friends endpoint not available, skipping server refresh");
+        return;
+        
+        /* OLD CODE - Endpoint không tồn tại
+        LoginResponse loginResponse = SharedPreferencesUser.getLoginResponse(context);
+        if (loginResponse == null) {
+            Log.e("FriendRepository", "No login response available");
+            return;
+        }
+        
+        String idToken = loginResponse.getIdToken();
+        if (idToken == null || idToken.isEmpty()) {
+            Log.e("FriendRepository", "No ID token available");
+            return;
+        }
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), createFriendJson(idToken));
+        Call<ResponseBody> call = friendApiService.GET_FRIEND_RESPONSE_CALL(requestBody);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String responseBody = ResponseUtils.getResponseBody(response.body().byteStream(), "");
+                        Gson gson = new Gson();
+                        // Parse friend data and save to database
+                        // Implementation depends on your Friend model structure
+                        
+                    } catch (IOException e) {
+                        Log.e("FriendRepository", "Error reading response body", e);
+                    }
+                } else {
+                    Log.e("FriendRepository", "Error: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("FriendRepository", "Network error: " + t.getMessage());
+            }
+        });
+        */
     }
 
     public LiveData<List<FriendEntity>> getAllFriends() {

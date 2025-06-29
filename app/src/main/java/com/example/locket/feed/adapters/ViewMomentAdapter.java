@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,7 @@ import com.example.locket.R;
 import com.example.locket.common.network.FriendApiService;
 import com.example.locket.common.network.client.LoginApiClient;
 import com.example.locket.common.models.friend.Friend;
-import com.example.locket.common.models.auth.LoginRespone;
+import com.example.locket.common.models.auth.LoginResponse;
 import com.example.locket.common.utils.SharedPreferencesUser;
 import com.example.locket.common.database.entities.MomentEntity;
 
@@ -44,7 +45,7 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
     private List<MomentEntity> itemList; // Đổi từ Moment sang MomentEntity
 
     private final Context context;
-    private final LoginRespone loginResponse;
+    private final LoginResponse loginResponse;
     private final FriendApiService friendApiService;
 
     public ViewMomentAdapter(Context context, List<MomentEntity> itemList) {
@@ -110,27 +111,8 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
                 txt_content.setVisibility(View.GONE);
             }
 
-
-            getFetchUserV2(moment.getUser(), new FetchUserCallback() {
-                @Override
-                public void onSuccess(Friend friend) {
-                    Glide.with(context)
-                            .load(friend.getResult().getData().getProfile_picture_url())
-                            .placeholder(R.drawable.background_btn)
-                            .into(rounded_imageview);
-                    txt_name.setText(friend.getResult().getData().getFirst_name());
-                }
-
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void onFailure(String errorMessage) {
-                    Glide.with(context)
-                            .load("")
-                            .placeholder(R.drawable.background_btn)
-                            .into(rounded_imageview);
-                    txt_name.setText("null");
-                }
-            });
+            // Disable friend API calls để tránh 404 errors
+            handleFriendAction(moment.getUser());
             txt_time.setText(formatDate(moment.getDateSeconds()));
         }
     }
@@ -189,7 +171,6 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
         return dateFormat.format(new Date(timeInMillis));
     }
 
-
     @SuppressLint("DefaultLocale")
     private String createGetFriendsJson(String user_id) {
         return String.format(
@@ -198,34 +179,33 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
         );
     }
 
-    // Phương thức gọi API getMomentV2
-    private void getFetchUserV2(String user_id, FetchUserCallback callback) {
+    // Disable friend API calls để tránh 404 errors
+    private void handleFriendAction(String userId) {
+        // ❌ Backend không có friends endpoints - Disable để tránh 404
+        Log.w("ViewMomentAdapter", "Friends endpoint not available, action disabled");
+        return;
+        
+        /* OLD CODE - Endpoint không tồn tại
         String token = "Bearer " + loginResponse.getIdToken();
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=UTF-8"), createGetFriendsJson(user_id));
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=UTF-8"), createFriendJson(userId));
         Call<ResponseBody> responseBodyCall = friendApiService.FETCH_USER_RESPONSE_CALL(token, requestBody);
+
         responseBodyCall.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String responseBody = response.body().string();
-                        Gson gson = new Gson();
-                        Friend friend = gson.fromJson(responseBody, Friend.class);
-                        // Gọi callback khi thành công
-                        callback.onSuccess(friend);
-                    } catch (IOException e) {
-                        callback.onFailure("Error reading response body: " + e.getMessage());
-                    }
+                    // Handle friend response
                 } else {
-                    callback.onFailure("Failed response from getFetchUserV2");
+                    Log.e("ViewMomentAdapter", "Error: " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable throwable) {
-                callback.onFailure("Unsuccessful response: " + throwable.getMessage());
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("ViewMomentAdapter", "Network error: " + throwable.getMessage());
             }
         });
+        */
     }
 }
 

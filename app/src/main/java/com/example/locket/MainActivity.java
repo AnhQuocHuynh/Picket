@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
-import com.example.locket.common.utils.TestDataInitializer;
+
 import com.example.locket.feed.fragments.HomeFragment;
 import com.example.locket.auth.fragments.LoginOrRegisterFragment;
 import com.example.locket.common.utils.SharedPreferencesUser;
@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        TestDataInitializer.initializeTestData(this);
+
 
         // eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeạo PeriodicWorkRequest để chạy công việc mỗi 15 phút
         PeriodicWorkRequest syncWorkRequest = new PeriodicWorkRequest.Builder(DataSyncWorker.class, 15, TimeUnit.MINUTES)
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.frame_layout, SharedPreferencesUser.getLoginResponse(this) != null ? new HomeFragment() : new LoginOrRegisterFragment())
+                    .replace(R.id.frame_layout, SharedPreferencesUser.isLoggedIn(this) ? new HomeFragment() : new LoginOrRegisterFragment())
                     .commit();
         }
 

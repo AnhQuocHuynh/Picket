@@ -23,10 +23,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.locket.R;
-import com.example.locket.common.network.LoginApiService;
-import com.example.locket.common.network.MockLoginService;
-import com.example.locket.common.network.client.LoginApiClient;
-import com.example.locket.common.models.login.check_email.CheckEmailResponse;
+import com.example.locket.common.network.AuthApiService;
+import com.example.locket.common.network.client.AuthApiClient;
+import com.example.locket.common.models.auth.AuthResponse;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -35,13 +34,14 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginEmailFragment extends Fragment {
+    private static final String TAG = "LoginEmailFragment";
     private ImageView img_back;
     private EditText edt_email;
     private TextView login_phone;
     private LinearLayout linear_continue;
     private TextView txt_continue;
     private ImageView img_continue;
-    private LoginApiService checkEmailApiService;
+    private AuthApiService authApiService;
     private String email;
 
     @Override
@@ -59,10 +59,13 @@ public class LoginEmailFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        checkEmailApiService = LoginApiClient.getCheckEmailClient().create(LoginApiService.class);
+        authApiService = AuthApiClient.getAuthClient().create(AuthApiService.class);
         initViews(view);
         conFigViews();
         onClick();
+        
+        // Test connection để debug
+        testBackendConnection();
     }
 
     private void initViews(View view) {
@@ -121,56 +124,52 @@ public class LoginEmailFragment extends Fragment {
             }
         });
         login_phone.setOnClickListener(view -> releaseFragment());
-        linear_continue.setOnClickListener(view -> checkEmail(email));
+        linear_continue.setOnClickListener(view -> {
+            // Skip email check và chuyển thẳng đến password screen
+            // Vì backend không có endpoint /api/auth/check-email
+            proceedToPasswordScreen(email);
+        });
     }
 
-    private String createSignInJson(String operation, String email) {
-        return String.format(
-                "{\"data\":{\"operation\":\"%s\",\"email\":\"%s\"}}",
-                operation, email
-        );
-    }
-
-    private void checkEmail(String email) {
-        Call<CheckEmailResponse> checkEmailResponseCall;
+    private void testBackendConnection() {
+        Log.d(TAG, "🔍 Testing backend connection...");
+        Log.d(TAG, "📡 Base URL: " + AuthApiClient.getCurrentBaseUrl());
         
-        // Use mock service if in mock mode and email is valid mock email
-        if (MockLoginService.isMockMode() && MockLoginService.isValidMockEmail(email)) {
-            Log.d("LoginEmailFragment", "Using mock service for email: " + email);
-            checkEmailResponseCall = MockLoginService.mockCheckEmail(email);
-        } else {
-            // Use real API
-            RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=UTF-8"), createSignInJson("sign_in", email));
-            checkEmailResponseCall = checkEmailApiService.CHECK_EMAIL_RESPONSE_CALL(requestBody);
+        // Test với endpoint GET /api/auth/profile thay vì check-email
+        // Vì backend không có check-email endpoint
+        Log.d(TAG, "ℹ️ Backend không có /api/auth/check-email endpoint");
+        Log.d(TAG, "ℹ️ Sẽ skip email validation và chuyển thẳng đến password screen");
+        Log.d(TAG, "✅ Available endpoints: /api/auth/login, /api/auth/register, /api/auth/profile");
+    }
+
+    private void proceedToPasswordScreen(String email) {
+        if (!isValidEmail(email)) {
+            showErrorDialog("Email không hợp lệ", "Vui lòng nhập email đúng định dạng.", false);
+            return;
         }
         
-        checkEmailResponseCall.enqueue(new Callback<CheckEmailResponse>() {
-            @Override
-            public void onResponse(Call<CheckEmailResponse> call, Response<CheckEmailResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    CheckEmailResponse apiResponse = response.body();
-                    if (apiResponse.getResult().getStatus() == 200) {
-                        releaseFragment(email);
-                        hideKeyboard();
-                    } else {
-                        // Show mock credentials hint if it's a mock mode
-                        if (MockLoginService.isMockMode()) {
-                            showAlertDialog("Email không tồn tại trong Mock", 
-                                MockLoginService.getMockCredentialsInfo());
-                        } else {
-                            showAlertDialog("Tài khoản với email này không tồn tại", "Hãy đảm bảo rằng bạn đã điền chính xác email của mình.");
-                        }
-                    }
-                } else {
-                    Log.d("LoginEmailFragment", "Unsuccessful response: " + response.body());
+        Log.d(TAG, "➡️ Proceeding to password screen for email: " + email);
+        Log.d(TAG, "ℹ️ Skipping email check vì backend không có endpoint này");
+        hideKeyboard();
+        releaseFragment(email);
+    }
+    
+    private void showErrorDialog(String title, String message, boolean showRetry) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+                
+        if (showRetry) {
+            builder.setNeutralButton("Thử lại", (dialog, which) -> {
+                dialog.dismiss();
+                if (isValidEmail(email)) {
+                    proceedToPasswordScreen(email);
                 }
-            }
-
-            @Override
-            public void onFailure(Call<CheckEmailResponse> call, Throwable throwable) {
-                Log.e("LoginEmailFragment", "Unsuccessful response: " + throwable.getMessage());
-            }
-        });
+            });
+        }
+        
+        builder.show();
     }
 
     public void hideKeyboard() {
@@ -220,15 +219,6 @@ public class LoginEmailFragment extends Fragment {
         // Xóa toàn bộ back stack để không quay lại các Fragment trước đó
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         transaction.commit();
-    }
-    private void showAlertDialog(String title, String content) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle(title)
-                .setMessage(content)
-                .setPositiveButton("OK", (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .show();
     }
 
     // Phương thức kiểm tra định dạng email

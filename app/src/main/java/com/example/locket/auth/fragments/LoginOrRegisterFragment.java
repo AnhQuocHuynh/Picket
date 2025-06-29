@@ -54,6 +54,25 @@ public class LoginOrRegisterFragment extends Fragment implements SlideAdapter.On
         view_pager2 = view.findViewById(R.id.view_pager2);
         txt_register = view.findViewById(R.id.txt_register);
         txt_login = view.findViewById(R.id.txt_login);
+        
+        // ✅ Thêm onClick listener cho nút "Tạo một tài khoản"
+        txt_register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.setCustomAnimations(
+                        R.anim.enter_from_right,
+                        R.anim.exit_to_left,
+                        R.anim.enter_from_left,
+                        R.anim.exit_to_right
+                );
+                transaction.replace(R.id.frame_layout, new RegisterEmailFragment());
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
+        
         txt_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

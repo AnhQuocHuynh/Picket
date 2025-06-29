@@ -5,38 +5,65 @@ import java.util.Map;
 
 public class HeaderConstants {
 
-    public static Map<String, String> getStartUploadHeaders(String idToken, int imageSize, boolean isVideo) {
+    // Standard headers for backend API calls with JWT token
+    public static Map<String, String> getAuthHeaders(String jwtToken) {
         Map<String, String> headers = new HashMap<>();
-        headers.put("content-type", "application/json; charset=UTF-8");
-        headers.put("authorization", "Bearer " + idToken);
-        headers.put("x-goog-upload-protocol", "resumable");
-        headers.put("accept", "*/*");
-        headers.put("x-goog-upload-command", "start");
-        headers.put("x-goog-upload-content-length", String.valueOf(imageSize));
-        headers.put("accept-language", "vi-VN,vi;q=0.9");
-        headers.put("x-firebase-storage-version", "ios/10.13.0");
-        headers.put("user-agent", "com.locket.Locket/1.43.1 iPhone/17.3 hw/iPhone15_3 (GTMSUF/1)");
-        headers.put("x-goog-upload-content-type", isVideo ? "video/mp4" : "image/webp");
-        headers.put("x-firebase-gmpid", "1:641029076083:ios:cc8eb46290d69b234fa609");
+        headers.put("content-type", "application/json");
+        headers.put("authorization", "Bearer " + jwtToken);
+        headers.put("accept", "application/json");
+        headers.put("user-agent", "Locket-Android/1.0");
         return headers;
     }
 
+    // Headers for file upload to backend
+    public static Map<String, String> getUploadHeaders(String jwtToken) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("authorization", "Bearer " + jwtToken);
+        headers.put("user-agent", "Locket-Android/1.0");
+        return headers;
+    }
+
+    // Headers for multipart form data
+    public static Map<String, String> getMultipartHeaders(String jwtToken) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("authorization", "Bearer " + jwtToken);
+        headers.put("content-type", "multipart/form-data");
+        headers.put("user-agent", "Locket-Android/1.0");
+        return headers;
+    }
+
+    // Legacy methods for backward compatibility với old API system
+
+    // Method được gọi trong ApiCaller.java
+    public static Map<String, String> getStartUploadHeaders(String idToken, int imageLength, boolean isVideo) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("authorization", "Bearer " + idToken);
+        headers.put("content-type", "application/json");
+        headers.put("content-length", String.valueOf(imageLength));
+        headers.put("user-agent", "Locket-Android/1.0");
+        if (isVideo) {
+            headers.put("x-media-type", "video");
+        } else {
+            headers.put("x-media-type", "image");
+        }
+        return headers;
+    }
+
+    // Method được gọi trong ApiCaller.java  
     public static Map<String, String> getUploadImageHeaders() {
         Map<String, String> headers = new HashMap<>();
         headers.put("content-type", "application/octet-stream");
-        headers.put("x-goog-upload-protocol", "resumable");
-        headers.put("x-goog-upload-offset", "0");
-        headers.put("x-goog-upload-command", "upload, finalize");
-        headers.put("upload-incomplete", "?0");
-        headers.put("upload-draft-interop-version", "3");
-        headers.put("user-agent", "com.locket.Locket/1.43.1 iPhone/17.3 hw/iPhone15_3 (GTMSUF/1)");
+        headers.put("user-agent", "Locket-Android/1.0");
         return headers;
     }
 
+    // Method được gọi trong ApiCaller.java
     public static Map<String, String> getPostHeaders(String idToken) {
         Map<String, String> headers = new HashMap<>();
-        headers.put("content-type", "application/json");
         headers.put("authorization", "Bearer " + idToken);
+        headers.put("content-type", "application/json");
+        headers.put("accept", "application/json");
+        headers.put("user-agent", "Locket-Android/1.0");
         return headers;
     }
 }

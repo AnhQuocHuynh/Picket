@@ -1,54 +1,60 @@
 package com.example.locket.common.models.auth;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.io.Serializable;
 
 public class AuthResponse implements Serializable {
-    @SerializedName("access_token")
-    private String accessToken;
-
-    @SerializedName("expires_in")
-    private String expiresIn;
-
-    @SerializedName("token_type")
-    private String tokenType;
-
-    @SerializedName("refresh_token")
-    private String refreshToken;
-
-    @SerializedName("id_token")
+    private boolean success;
+    private String message;
     private String idToken;
+    private String refreshToken;
+    private String token;
+    private Object data;
 
-    @SerializedName("user_id")
-    private String userId;
+    public AuthResponse() {}
 
-    @SerializedName("project_id")
-    private String projectId;
+    public AuthResponse(boolean success, String message) {
+        this.success = success;
+        this.message = message;
+    }
+
+    public AuthResponse(boolean success, String message, Object data) {
+        this.success = success;
+        this.message = message;
+        this.data = data;
+    }
 
     // Getters and Setters
-    public String getAccessToken() {
-        return accessToken;
+    public boolean isSuccess() {
+        return success;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 
-    public String getExpiresIn() {
-        return expiresIn;
+    public String getMessage() {
+        return message;
     }
 
-    public void setExpiresIn(String expiresIn) {
-        this.expiresIn = expiresIn;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    public String getTokenType() {
-        return tokenType;
+    public Object getData() {
+        return data;
     }
 
-    public void setTokenType(String tokenType) {
-        this.tokenType = tokenType;
+    public void setData(Object data) {
+        this.data = data;
+    }
+
+    public String getIdToken() {
+        return idToken != null ? idToken : token;
+    }
+
+    public void setIdToken(String idToken) {
+        this.idToken = idToken;
+        this.token = idToken;
     }
 
     public String getRefreshToken() {
@@ -59,27 +65,12 @@ public class AuthResponse implements Serializable {
         this.refreshToken = refreshToken;
     }
 
-    public String getIdToken() {
-        return idToken;
+    public String getToken() {
+        return token != null ? token : idToken;
     }
 
-    public void setIdToken(String idToken) {
-        this.idToken = idToken;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
+    public void setToken(String token) {
+        this.token = token;
+        this.idToken = token;
     }
 }

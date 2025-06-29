@@ -10,55 +10,62 @@ import retrofit2.http.POST;
 
 public interface UserApiService {
 
-    //Check email
+    // ❌ Backend không có user endpoints - Comment out tất cả để tránh 404
+    /*
     @Headers({
-            "Accept-Encoding: gzip",
-            "Connection: Keep-Alive",
-            "Content-Type: application/json; charset=utf-8",
-            "Firebase-Instance-ID-Token: dTNmyvemRZa4oRGQQVW4yF:APA91bH_VREpca_sHe-nCHxjR_O9jUlYtq2kEBY5DXmozxBRscqCojkc4HltOMIjtvVZHrgTAWY3WkWhH-hgAveHN6Q2-BqolZQp9FKAcZNOcHg86luXfaDh94dMsmOpBdGAJLzWuwGl",
-            "Host: api.locketcamera.com",
-            "User-Agent: okhttp/4.9.2",
+            "Content-Type: application/json"
     })
-    @POST("changeProfileInfo")
+    @POST("user/change-profile")
+    Call<ResponseBody> USER_CHANGE_PROFILE_RESPONSE_CALL(@Body RequestBody body);
+
+    @Headers({
+            "Content-Type: application/json"
+    })
+    @POST("user/validate-username")
+    Call<ResponseBody> USER_VALIDATE_USERNAME_RESPONSE_CALL(@Body RequestBody body);
+
+    @Headers({
+            "Content-Type: application/json"
+    })
+    @POST("user/discoverability")
+    Call<ResponseBody> USER_DISCOVERABILITY_RESPONSE_CALL(@Body RequestBody body);
+    */
+
+    // ✅ Placeholder - Backend chưa implement user management
+    // Tạm thời disable tất cả user-related API calls
+    // Sẽ enable khi backend có sẵn endpoints
+
+    // Change profile info
+    @Headers({
+            "Content-Type: application/json",
+            "User-Agent: Locket-Android/1.0"
+    })
+    @POST("user/change-profile")
     Call<ResponseBody> CHANGE_NAME_RESPONSE_CALL(
             @Header("Authorization") String token,
             @Body RequestBody body
     );
 
-    //Check User name
+    // Check username availability
     @Headers({
-            "Accept-Encoding: gzip",
-            "Connection: Keep-Alive",
-            "Content-Type: application/json; charset=utf-8",
-            "Firebase-Instance-ID-Token: dTNmyvemRZa4oRGQQVW4yF:APA91bH_VREpca_sHe-nCHxjR_O9jUlYtq2kEBY5DXmozxBRscqCojkc4HltOMIjtvVZHrgTAWY3WkWhH-hgAveHN6Q2-BqolZQp9FKAcZNOcHg86luXfaDh94dMsmOpBdGAJLzWuwGl",
-            "Host: api.locketcamera.com",
-            "User-Agent: okhttp/4.9.2",
+            "Content-Type: application/json",
+            "User-Agent: Locket-Android/1.0"
     })
-    @POST("validateUsername")
+    @POST("user/validate-username")
     Call<ResponseBody> CHECK_USERNAME_RESPONSE_CALL(
             @Header("Authorization") String token,
             @Body RequestBody body
     );
 
-    //Change Profile Info
+    // Update username discoverability
     @Headers({
-            "Accept-Encoding: gzip",
-            "Connection: Keep-Alive",
-            "Content-Type: application/json; charset=utf-8",
-            "Firebase-Instance-ID-Token: dTNmyvemRZa4oRGQQVW4yF:APA91bH_VREpca_sHe-nCHxjR_O9jUlYtq2kEBY5DXmozxBRscqCojkc4HltOMIjtvVZHrgTAWY3WkWhH-hgAveHN6Q2-BqolZQp9FKAcZNOcHg86luXfaDh94dMsmOpBdGAJLzWuwGl",
-            "Host: api.locketcamera.com",
-            "User-Agent: okhttp/4.9.2",
+            "Content-Type: application/json",
+            "User-Agent: Locket-Android/1.0"
     })
-    @POST("changeProfileInfo")
+    @POST("user/discoverability")
     Call<ResponseBody> username_discoverability_disabled(
             @Header("Authorization") String token,
             @Body RequestBody body
     );
-
-    //{
-    //  "data": {
-    //    "username_discoverability_disabled": true
-    //  }
-    //}
 
 }

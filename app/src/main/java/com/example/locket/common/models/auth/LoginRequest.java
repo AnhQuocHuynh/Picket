@@ -4,13 +4,20 @@ public class LoginRequest {
     private String email;
     private String password;
     private String clientType;
-    private boolean returnSecureToken;
+    private boolean rememberMe;
 
-    public LoginRequest(String email, String password, String clientType, boolean returnSecureToken) {
+    public LoginRequest() {}
+
+    public LoginRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
+    public LoginRequest(String email, String password, String clientType, boolean rememberMe) {
         this.email = email;
         this.password = password;
         this.clientType = clientType;
-        this.returnSecureToken = returnSecureToken;
+        this.rememberMe = rememberMe;
     }
 
     public String getEmail() {
@@ -37,12 +44,12 @@ public class LoginRequest {
         this.clientType = clientType;
     }
 
-    public boolean isReturnSecureToken() {
-        return returnSecureToken;
+    public boolean isRememberMe() {
+        return rememberMe;
     }
 
-    public void setReturnSecureToken(boolean returnSecureToken) {
-        this.returnSecureToken = returnSecureToken;
+    public void setRememberMe(boolean rememberMe) {
+        this.rememberMe = rememberMe;
     }
 }
 

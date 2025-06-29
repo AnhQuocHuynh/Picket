@@ -21,7 +21,7 @@ public class DataSyncWorker extends Worker {
     @Override
     public Result doWork() {
         // Gọi API để tải dữ liệu
-        momentRepository.refreshDataFromServer(new ArrayList<>()); // Hoặc truyền danh sách excludedUsers
+        momentRepository.refreshDataFromServer(); // Method signature đã thay đổi
 
         // Nếu công việc thành công
         return Result.success();

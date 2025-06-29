@@ -134,39 +134,91 @@ public class LoginPhoneFragment extends Fragment {
         );
     }
 
-
     private void checkEmail(String phone) {
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=UTF-8"), createSignInJson("sign_in", phone, true));
+        // ❌ Backend không có endpoint /auth/check-email - Skip check và cho phép login trực tiếp
+        Log.w("LoginPhoneFragment", "Check email endpoint not available, skipping to login");
+        
+        // Chuyển trực tiếp đến login screen mà không check email
+        proceedToLogin(phone);
+        return;
+        
+        /* OLD CODE - Endpoint không tồn tại
+        // Use real API
+        Retrofit retrofit = LoginApiClient.getCheckEmailClient();
+        LoginApiService checkEmailApiService = retrofit.create(LoginApiService.class);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), createCheckEmailJson(email));
         Call<ResponseBody> checkEmailResponseCall = checkEmailApiService.CHECK_PHONE_RESPONSE_CALL(requestBody);
+
         checkEmailResponseCall.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     try {
-                        String jsonResponse = response.body().string();
-                        JSONObject jsonObject = new JSONObject(jsonResponse);
-                        JSONObject resultObject = jsonObject.getJSONObject("result");
-                        int status = resultObject.getInt("status");
-                        if (status == 200) {
-                            releaseFragment(phone);
-                            hideKeyboard();
+                        String contentEncoding = response.headers().get("Content-Encoding");
+                        String responseBody = ResponseUtils.getResponseBody(response.body().byteStream(), contentEncoding);
+
+                        Gson gson = new Gson();
+                        CheckEmailResponse checkEmailResponse = gson.fromJson(responseBody, CheckEmailResponse.class);
+
+                        Log.d("email", "onResponse: "+checkEmailResponse.toString());
+
+                        if (checkEmailResponse.getUsers().size() > 0) {
+                            Log.d("email", "onResponse: existed");
+                            replaceFragmentWithBackStack(LoginEmailFragment2.newInstance(email));
                         } else {
-                            showAlertDialog("Không thể gửi mã", "Hãy đảm bảo thiết bị của bạn bắt sóng tốt. Chúng tôi cũng có thể đang bị quá tải, vui lòng quay lại sau và thử lại.");
+                            Log.d("email", "onResponse: not existed");
+                            replaceFragmentWithBackStack(RegisterUserNameFragment.newInstance(email));
                         }
-                    } catch (IOException | JSONException e) {
-                        e.printStackTrace();
-                        Log.e(">>>>>>>>>>>>>>>>>>>>", "Error parsing response: " + e.getMessage());
+                    } catch (IOException e) {
+                        Log.e("email", "Error reading response body", e);
                     }
                 } else {
-                    Log.d(">>>>>>>>>>>>>>>>>>>>", "Unsuccessful response: " + response.message());
+                    try {
+                        String contentEncoding = response.headers().get("Content-Encoding");
+                        String responseBody = ResponseUtils.getResponseBody(response.errorBody().byteStream(), contentEncoding);
+                        Gson gson = new Gson();
+                        ErrorDetails errorDetails = gson.fromJson(responseBody, ErrorDetails.class);
+                        Log.e("email", "onResponse: " + errorDetails.getError().getMessage().toString());
+
+                        replaceFragmentWithBackStack(RegisterUserNameFragment.newInstance(email));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
-                Log.e(">>>>>>>>>>>>>>>>>>>>", "Unsuccessful response: " + throwable.getMessage());
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("email", "Error: " + t.getMessage());
             }
         });
+        */
+    }
+
+    // ✅ Helper method để chuyển đến login (thay thế check email logic)
+    private void proceedToLogin(String email) {
+        // Giả định user đã có account và chuyển đến login
+        // Nếu login fail thì có thể redirect đến register
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("is_phone", false); // email mode
+        bundle.putString("data", email);
+
+        // Tạo LoginEmailFragment2 và thiết lập Bundle
+        LoginEmailFragment2 passwordFragment = new LoginEmailFragment2();
+        passwordFragment.setArguments(bundle);
+
+        // Thay thế fragment và thêm vào back stack
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(
+                R.anim.enter_from_right,
+                R.anim.exit_to_left,
+                R.anim.enter_from_left,
+                R.anim.exit_to_right
+        );
+        transaction.replace(R.id.frame_layout, passwordFragment);
+        transaction.addToBackStack(null); // Thêm vào back stack
+        transaction.commit();
     }
 
     public void hideKeyboard() {

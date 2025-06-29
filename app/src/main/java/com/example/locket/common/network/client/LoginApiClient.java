@@ -1,46 +1,25 @@
 package com.example.locket.common.network.client;
 
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoginApiClient {
-    private static Retrofit checkEmailRetrofit = null;
-    private static Retrofit loginRetrofit = null;
-    private static Retrofit refreshTokenRetrofit = null;
-    private static final String CHECK_EMAIL_BASE_URL = "https://api.locketcamera.com/";
-    private static final String LOGIN_BASE_URL = "https://www.googleapis.com/";
-    private static final String REFRESH_TOKEN_BASE_URL = "https://securetoken.googleapis.com/";
-
+    
+    // Sử dụng AuthApiClient để đảm bảo cùng cấu hình
+    // Tất cả các method sẽ trả về cùng một Retrofit instance từ AuthApiClient
+    
     // check email
     public static Retrofit getCheckEmailClient() {
-        if (checkEmailRetrofit == null) {
-            checkEmailRetrofit = new Retrofit.Builder()
-                    .baseUrl(CHECK_EMAIL_BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-        }
-        return checkEmailRetrofit;
+        return AuthApiClient.getAuthClient();
     }
 
     // Retrofit cho việc đăng nhập
     public static Retrofit getLoginClient() {
-        if (loginRetrofit == null) {
-            loginRetrofit = new Retrofit.Builder()
-                    .baseUrl(LOGIN_BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-        }
-        return loginRetrofit;
+        return AuthApiClient.getAuthClient();
     }
-    // Retrofit cho việc đăng nhập
+    
+    // Retrofit cho việc refresh token
     public static Retrofit getRefreshTokenClient() {
-        if (refreshTokenRetrofit == null) {
-            refreshTokenRetrofit = new Retrofit.Builder()
-                    .baseUrl(REFRESH_TOKEN_BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-        }
-        return refreshTokenRetrofit;
+        return AuthApiClient.getAuthClient();
     }
 }
 

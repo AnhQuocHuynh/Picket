@@ -25,30 +25,18 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.gson.Gson;
 import com.example.locket.R;
-import com.example.locket.common.network.FriendApiService;
-import com.example.locket.common.network.LoginApiService;
-import com.example.locket.common.network.MockLoginService;
-import com.example.locket.common.network.client.LoginApiClient;
-import com.example.locket.common.utils.ResponseUtils;
-import com.example.locket.common.models.friend.Friend;
-import com.example.locket.common.models.error.LoginError;
+import com.example.locket.common.network.AuthApiService;
+import com.example.locket.common.network.client.AuthApiClient;
 import com.example.locket.common.models.auth.LoginRequest;
-import com.example.locket.common.models.auth.LoginRespone;
-import com.example.locket.common.models.user.AccountInfo;
+import com.example.locket.common.models.auth.LoginResponse;
+import com.example.locket.common.models.auth.AuthResponse;
+import com.example.locket.common.models.user.UserProfile;
 import com.example.locket.common.utils.SharedPreferencesUser;
 import com.example.locket.feed.fragments.HomeFragment;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class LoginEmailFragment2 extends Fragment {
     private ImageView img_back;
@@ -59,9 +47,7 @@ public class LoginEmailFragment2 extends Fragment {
     private TextView txt_continue;
     private ImageView img_continue;
 
-    private Retrofit retrofit;
-    private LoginApiService loginApiService;
-    private FriendApiService friendApiService;
+    private AuthApiService authApiService;
     private String data, password;
     private boolean isPhone = false;
 
@@ -80,17 +66,15 @@ public class LoginEmailFragment2 extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //
-        loginApiService = LoginApiClient.getCheckEmailClient().create(LoginApiService.class);
-        friendApiService = LoginApiClient.getCheckEmailClient().create(FriendApiService.class);
-
-        retrofit = LoginApiClient.getLoginClient();
-        loginApiService = retrofit.create(LoginApiService.class);
+        authApiService = AuthApiClient.getAuthClient().create(AuthApiService.class);
 
         initViews(view);
         conFigViews();
         onClick();
         getDataBundle();
+        
+        // Test kết nối khi fragment được tạo
+        testConnection();
     }
 
     private void getDataBundle() {
@@ -158,221 +142,72 @@ public class LoginEmailFragment2 extends Fragment {
         });
     }
 
-    private String createJsonDataRequestForgotPassword(String data) {
-        return String.format("{\"data\": {\"email\": \"%s\"}}", data);
-    }
-
-    private void forgotPassword(String data) {
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=UTF-8"), createJsonDataRequestForgotPassword(data));
-        Call<ResponseBody> checkEmailResponseCall = loginApiService.FORGOT_PASSWORD_RESPONSE_CALL(requestBody);
-        checkEmailResponseCall.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String jsonResponse = response.body().string();
-                        JSONObject jsonObject = new JSONObject(jsonResponse);
-                        JSONObject resultObject = jsonObject.getJSONObject("result");
-                        int status = resultObject.getInt("status");
-                        if (status == 200) {
-                            txt_forgot_password.setVisibility(View.GONE);
-                            txt_forgot_password_send.setVisibility(View.VISIBLE);
-                        } else {
-                            Log.d(">>>>>>>>>>>>>>>>>>>>", "Status khác 200: Không thành công");
-                        }
-                    } catch (IOException | JSONException e) {
-                        e.printStackTrace();
-                        Log.e(">>>>>>>>>>>>>>>>>>>>", "Error parsing response: " + e.getMessage());
-                    }
-                } else {
-                    Log.d(">>>>>>>>>>>>>>>>>>>>", "Unsuccessful response: " + response.message());
-                }
-            }
-
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
-                Log.e(">>>>>>>>>>>>>>>>>>>>", "Unsuccessful response: " + throwable.getMessage());
-            }
-        });
-    }
-
-    private String createSignInJson(String email, String password) {
-        return String.format(
-                "{\"email\":\"%s\",\"password\":\"%s\",\"returnSecureToken\":true,\"clientType\":\"CLIENT_TYPE_ANDROID\"}",
-                email, password
-        );
+    private void forgotPassword(String email) {
+        // ❌ Backend không có forgot password endpoint - Tạm thời disable
+        Log.w("LoginEmailFragment2", "Forgot password endpoint not implemented in backend");
+        showAlertDialog("Thông báo", "Tính năng quên mật khẩu chưa được hỗ trợ. Vui lòng liên hệ admin để được hỗ trợ.");
+        return;
     }
 
     private void login(String email, String password) {
-        LoginRequest request = new LoginRequest(email, password, "CLIENT_TYPE_ANDROID", true);
+        // Log chi tiết request để debug
+        Log.d("Login", "Attempting login for email: " + email);
+        Log.d("Login", "API Base URL: " + AuthApiClient.getAuthClient().baseUrl());
         
-        Call<ResponseBody> call;
+        LoginRequest request = new LoginRequest(email, password);
+        Call<LoginResponse> call = authApiService.login(request);
         
-        // Use mock service if in mock mode
-        if (MockLoginService.isMockMode() && MockLoginService.isValidMockEmail(email)) {
-            Log.d("LoginEmailFragment2", "Using mock login for: " + email);
-            call = MockLoginService.mockLogin(email, password);
-        } else {
-            // Use real API
-            RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), createSignInJson(email, password));
-            call = loginApiService.LOGIN_RESPONSE_CALL(requestBody);
-        }
+        Log.d("Login", "Making API call to: " + call.request().url());
         
-        call.enqueue(new Callback<ResponseBody>() {
+        call.enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                // Log chi tiết response để debug
+                Log.d("Login", "Response received");
+                Log.d("Login", "Response code: " + response.code());
+                Log.d("Login", "Response message: " + response.message());
+                Log.d("Login", "Request URL: " + call.request().url());
+                
                 if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String contentEncoding = response.headers().get("Content-Encoding");
-                        String responseBody = ResponseUtils.getResponseBody(response.body().byteStream(), contentEncoding);
-
-                        Gson gson = new Gson();
-                        LoginRespone loginResponse = gson.fromJson(responseBody, LoginRespone.class);
-
-                        //save user
-                        // save LoginRequest để refreshToken trong Home
+                    LoginResponse loginResponse = response.body();
+                    Log.d("Login", "Response body received: " + loginResponse.isSuccess());
+                    
+                    if (loginResponse.isSuccess()) {
+                        // Save login data
                         SharedPreferencesUser.saveLoginRequest(requireContext(), request);
                         SharedPreferencesUser.saveLoginResponse(requireContext(), loginResponse);
+                        SharedPreferencesUser.saveJWTToken(requireContext(), loginResponse.getToken());
+                        SharedPreferencesUser.saveRefreshToken(requireContext(), loginResponse.getRefreshToken());
 
-                        getAccountInfo(loginResponse.getIdToken());
-                    } catch (IOException e) {
-                        Log.e("Auth", "Error reading response body", e);
-                    }
-                } else {
-                    try {
-                        String contentEncoding = response.headers().get("Content-Encoding");
-                        String responseBody = ResponseUtils.getResponseBody(response.errorBody().byteStream(), contentEncoding);
-                        Gson gson = new Gson();
-                        LoginError loginError = gson.fromJson(responseBody, LoginError.class);
-
-                        if (loginError.getError().getMessage().toString().equals("INVALID_PASSWORD")) {
-                            if (MockLoginService.isMockMode()) {
-                                showAlertDialog("Mật khẩu không đúng", MockLoginService.getMockCredentialsInfo());
-                            } else {
-                                showAlertDialog("Không thể đăng nhập vào tài khoản của bạn", "Hãy đảm bảo rằng bạn đã điền chính xác mật khẩu của mình.");
-                            }
-                        } else {
-                            showAlertDialog("Chặn đăng nhập", "Bạn đã bị chặn đăng nhập do nhiều lần nhập sai email. Vui lòng thử lại sau.");
-                        }
-                        Log.e("login", "onResponse: " + loginError.getError().getMessage().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e("login", "Error: " + t.getMessage());
-            }
-
-        });
-    }
-
-    private String createAccountInfoJson(String idToken) {
-        return String.format("{\"idToken\":\"%s\"}", idToken);
-    }
-
-    private void getAccountInfo(String token) {
-        Call<ResponseBody> call;
-        
-        // Use mock service if token contains "mock"
-        if (MockLoginService.isMockMode() && token.contains("mock")) {
-            Log.d("LoginEmailFragment2", "Using mock account info for token: " + token);
-            call = MockLoginService.mockGetAccountInfo(token);
-        } else {
-            // Use real API
-            Retrofit retrofit = LoginApiClient.getLoginClient();
-            LoginApiService loginApiService = retrofit.create(LoginApiService.class);
-            RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), createAccountInfoJson(token));
-            call = loginApiService.ACCOUNT_INFO_RESPONSE_CALL(requestBody);
-        }
-        
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String contentEncoding = response.headers().get("Content-Encoding");
-                        String responseBody = ResponseUtils.getResponseBody(response.body().byteStream(), contentEncoding);
-
-                        Gson gson = new Gson();
-                        AccountInfo accountInfo = gson.fromJson(responseBody, AccountInfo.class);
-
-                        SharedPreferencesUser.saveAccountInfo(requireContext(), accountInfo);
-                        checkUserName(accountInfo.getUsers().get(0).getLocalId(), token);
-                    } catch (IOException e) {
-                        Log.e("Auth", "Error reading response body", e);
-                    }
-                } else {
-                    String contentEncoding = response.headers().get("Content-Encoding");
-                    try {
-                        String responseBody = ResponseUtils.getResponseBody(response.errorBody().byteStream(), contentEncoding);
-                        Gson gson = new Gson();
-                        LoginError loginError = gson.fromJson(responseBody, LoginError.class);
-                        Log.e("login", "onResponse: " + loginError.getError().getMessage().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e("login", "Error: " + t.getMessage());
-            }
-
-        });
-    }
-
-    @SuppressLint("DefaultLocale")
-    private String createGetFriendsJson(String user_id) {
-        return String.format(
-                "{\"data\":{\"user_uid\":\"%s\"}}",
-                user_id
-        );
-    }
-
-    private void checkUserName(String local_id, String token) {
-        Call<ResponseBody> ResponseBodyCall;
-        
-        // Use mock service if in mock mode
-        if (MockLoginService.isMockMode() && local_id.contains("mock")) {
-            Log.d("LoginEmailFragment2", "Using mock fetch user for: " + local_id);
-            ResponseBodyCall = MockLoginService.mockFetchUser(local_id);
-        } else {
-            // Use real API
-            String bear_token = "Bearer " + token;
-            RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=UTF-8"), createGetFriendsJson(local_id));
-            ResponseBodyCall = friendApiService.FETCH_USER_RESPONSE_CALL(bear_token, requestBody);
-        }
-        
-        ResponseBodyCall.enqueue(new Callback<ResponseBody>() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String responseBody = response.body().string();
-                        Gson gson = new Gson();
-                        Friend friend = gson.fromJson(responseBody, Friend.class);
-                        if (friend.getResult().getData().getUsername() == null) {
+                        // Check if user needs to set username
+                        if (loginResponse.getUser().getUsername() == null || loginResponse.getUser().getUsername().isEmpty()) {
                             releaseFragment(new RegisterUserNameFragment());
                         } else {
                             releaseFragment(new HomeFragment());
                         }
-                    } catch (IOException e) {
-                        Log.e("Response Error", "Error reading response body", e);
+                    } else {
+                        showAlertDialog("Đăng nhập thất bại", loginResponse.getMessage());
                     }
                 } else {
-                    Log.e("Response Error", "Failed response from getMomentV2");
+                    // Handle error response
+                    Log.e("Login", "Error response body: " + response.errorBody());
+                    showAlertDialog("Không thể đăng nhập", "Email hoặc mật khẩu không chính xác. Vui lòng thử lại.");
+                    Log.e("Login", "Error response: " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
-                Log.e("Response Error", "Unsuccessful response: " + throwable.getMessage());
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                // Log chi tiết lỗi để debug
+                Log.e("Login", "Network error: " + t.getMessage());
+                Log.e("Login", "Error class: " + t.getClass().getSimpleName());
+                Log.e("Login", "Request URL: " + call.request().url());
+                
+                if (t.getCause() != null) {
+                    Log.e("Login", "Cause: " + t.getCause().getMessage());
+                }
+                
+                showAlertDialog("Lỗi kết nối", "Vui lòng kiểm tra kết nối internet và thử lại.\nChi tiết: " + t.getMessage());
             }
         });
     }
@@ -400,5 +235,29 @@ public class LoginEmailFragment2 extends Fragment {
         // Xóa toàn bộ back stack để không quay lại các Fragment trước đó
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         transaction.commit();
+    }
+
+    // Method test connection đến backend
+    private void testConnection() {
+        Log.d("ConnectionTest", "🔍 Testing backend connection...");
+        
+        // Log base URL để check
+        retrofit2.Retrofit client = AuthApiClient.getAuthClient();
+        Log.d("ConnectionTest", "📡 Base URL: " + client.baseUrl());
+        Log.d("ConnectionTest", "🔧 Network config loaded successfully");
+        
+        // Test với một request đơn giản để check server availability
+        testServerConnection();
+    }
+    
+    private void testServerConnection() {
+        // ❌ Backend không có check-email endpoint - Test với health check endpoint
+        Log.d("ConnectionTest", "🧪 Testing server connection with basic health check...");
+        
+        // Test với profile endpoint để check server availability
+        retrofit2.Retrofit client = AuthApiClient.getAuthClient();
+        Log.d("ConnectionTest", "📡 Testing connection to: " + client.baseUrl());
+        Log.d("ConnectionTest", "💡 Make sure backend server is running on port 3000");
+        Log.d("ConnectionTest", "💡 Expected URL: http://10.0.2.2:3000/api/");
     }
 }

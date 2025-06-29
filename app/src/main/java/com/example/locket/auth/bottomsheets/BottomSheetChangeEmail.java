@@ -23,14 +23,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.locket.common.network.LoginApiService;
+import com.example.locket.common.network.UserApiService;
+import com.example.locket.common.network.client.LoginApiClient;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.gson.Gson;
 import com.example.locket.R;
-import com.example.locket.common.network.LoginApiService;
-import com.example.locket.common.network.UserApiService;
-import com.example.locket.common.network.client.LoginApiClient;
 import com.example.locket.auth.fragments.ChangeEmailFragment;
 import com.example.locket.auth.fragments.CheckPassFragment;
 import com.example.locket.feed.bottomsheets.BottomSheetInfo;
@@ -40,6 +40,10 @@ import com.example.locket.common.models.auth.LoginRequest;
 import com.example.locket.common.models.auth.LoginRespone;
 import com.example.locket.common.models.user.AccountInfo;
 import com.example.locket.common.utils.SharedPreferencesUser;
+import com.example.locket.common.network.AuthApiService;
+import com.example.locket.common.network.client.AuthApiClient;
+import com.example.locket.common.models.auth.LoginResponse;
+import com.example.locket.common.models.user.UserProfile;
 
 import java.io.IOException;
 
@@ -151,52 +155,39 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
     }
 
     private void login(String email, String password) {
-        LoginRequest request = new LoginRequest(email, password, "CLIENT_TYPE_ANDROID", true);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), createSignInJson(email, password));
+        LoginRequest request = new LoginRequest(email, password);
+        Retrofit retrofit = AuthApiClient.getAuthClient();
+        AuthApiService authApiService = retrofit.create(AuthApiService.class);
 
-        Call<ResponseBody> call = loginApiService.LOGIN_RESPONSE_CALL(requestBody);
-        call.enqueue(new Callback<ResponseBody>() {
+        Call<LoginResponse> call = authApiService.login(request);
+        call.enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String contentEncoding = response.headers().get("Content-Encoding");
-                        String responseBody = ResponseUtils.getResponseBody(response.body().byteStream(), contentEncoding);
-
-                        Gson gson = new Gson();
-                        LoginRespone loginResponse = gson.fromJson(responseBody, LoginRespone.class);
-
-                        //save user
-                        // save LoginRequest để refreshToken trong Home
+                    LoginResponse loginResponse = response.body();
+                    
+                    if (loginResponse.isSuccess()) {
+                        // Save login data
                         SharedPreferencesUser.saveLoginRequest(requireContext(), request);
                         SharedPreferencesUser.saveLoginResponse(requireContext(), loginResponse);
+                        SharedPreferencesUser.saveJWTToken(requireContext(), loginResponse.getToken());
+                        SharedPreferencesUser.saveRefreshToken(requireContext(), loginResponse.getRefreshToken());
 
-                        getAccountInfo(loginResponse.getIdToken());
-                    } catch (IOException e) {
-                        Log.e("Auth", "Error reading response body", e);
+                        // Get user profile with JWT token
+                        getUserProfile(loginResponse.getToken());
+                    } else {
+                        showAlertDialog("Đăng nhập thất bại", loginResponse.getMessage());
                     }
                 } else {
-                    try {
-                        String contentEncoding = response.headers().get("Content-Encoding");
-                        String responseBody = ResponseUtils.getResponseBody(response.errorBody().byteStream(), contentEncoding);
-                        Gson gson = new Gson();
-                        LoginError loginError = gson.fromJson(responseBody, LoginError.class);
-
-                        if (loginError.getError().getMessage().toString().equals("INVALID_PASSWORD")) {
-                            showAlertDialog("Không thể đăng nhập vào tài khoản của bạn", "Hãy đảm bảo rằng bạn đã điền chính xác mật khẩu của mình.");
-                        } else {
-                            showAlertDialog("Chặn đăng nhập", "Bạn đã bị chặn đăng nhập do nhiều lần nhập sai email. Vui lòng thử lại sau.");
-                        }
-                        Log.e("login", "onResponse: " + loginError.getError().getMessage().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    showAlertDialog("Không thể đăng nhập", "Email hoặc mật khẩu không chính xác. Vui lòng thử lại.");
+                    Log.e("login", "Error response: " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e("login", "Error: " + t.getMessage());
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                Log.e("login", "Network error: " + t.getMessage());
+                showErrorDialog("Lỗi kết nối mạng");
             }
 
         });
@@ -206,55 +197,41 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
         return String.format("{\"idToken\":\"%s\"}", idToken);
     }
 
-    private void getAccountInfo(String token) {
-        Retrofit retrofit = LoginApiClient.getLoginClient();
-        LoginApiService loginApiService = retrofit.create(LoginApiService.class);
-
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), createAccountInfoJson(token));
-
-        Call<ResponseBody> call = loginApiService.ACCOUNT_INFO_RESPONSE_CALL(requestBody);
-        call.enqueue(new Callback<ResponseBody>() {
+    private void getUserProfile(String token) {
+        Retrofit retrofit = AuthApiClient.getAuthClient();
+        AuthApiService authApiService = retrofit.create(AuthApiService.class);
+        
+        String bearerToken = "Bearer " + token;
+        Call<UserProfile> call = authApiService.getUserProfile(bearerToken);
+        
+        call.enqueue(new Callback<UserProfile>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<UserProfile> call, Response<UserProfile> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String contentEncoding = response.headers().get("Content-Encoding");
-                        String responseBody = ResponseUtils.getResponseBody(response.body().byteStream(), contentEncoding);
-
-                        Gson gson = new Gson();
-                        AccountInfo accountInfo = gson.fromJson(responseBody, AccountInfo.class);
-
-                        SharedPreferencesUser.saveAccountInfo(requireContext(), accountInfo);
-
+                    UserProfile userProfile = response.body();
+                    if (userProfile.getUser() != null && userProfile.getUser().getEmail() != null) {
+                        Log.d("BottomSheetChangeEmail", "Profile loaded: " + userProfile.getUser().getEmail());
+                        // Note: editTextAccountName is not available in this context, 
+                        // this was called after login to transition to ChangeEmailFragment
                         replaceFragmentWithBackStack(new ChangeEmailFragment());
-
+                        
                         tool_bar.setVisibility(View.VISIBLE);
                         txt_continue.setText("Lưu");
                         linear_continue.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.background_btn_continue_check));
                         txt_continue.setTextColor(getResources().getColor(R.color.bg));
                         linear_continue.setEnabled(true);
-
-                    } catch (IOException e) {
-                        Log.e("Auth", "Error reading response body", e);
                     }
                 } else {
-                    String contentEncoding = response.headers().get("Content-Encoding");
-                    try {
-                        String responseBody = ResponseUtils.getResponseBody(response.errorBody().byteStream(), contentEncoding);
-                        Gson gson = new Gson();
-                        LoginError loginError = gson.fromJson(responseBody, LoginError.class);
-                        Log.e("login", "onResponse: " + loginError.getError().getMessage().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    Log.e("BottomSheetChangeEmail", "Error loading profile: " + response.code());
+                    showErrorDialog("Không thể tải thông tin tài khoản");
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e("login", "Error: " + t.getMessage());
+            public void onFailure(Call<UserProfile> call, Throwable t) {
+                Log.e("BottomSheetChangeEmail", "Network error: " + t.getMessage());
+                showErrorDialog("Lỗi kết nối mạng");
             }
-
         });
     }
 
@@ -263,6 +240,12 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
     }
 
     private void changeEmail(String email) {
+        // ❌ Backend không có endpoint để change email - Tạm thời disable
+        Log.w("BottomSheetChangeEmail", "Change email endpoint not implemented in backend");
+        showErrorDialog("Tính năng thay đổi email chưa được hỗ trợ");
+        return;
+        
+        /* OLD CODE - Endpoint không tồn tại
         Retrofit retrofit = LoginApiClient.getLoginClient();
         LoginApiService loginApiService = retrofit.create(LoginApiService.class);
 
@@ -312,6 +295,7 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
             }
 
         });
+        */
     }
 
     private void showAlertDialog(String title, String content) {
@@ -379,6 +363,14 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
         super.onDismiss(dialog);
         BottomSheetInfo bottomSheet1 = new BottomSheetInfo(context, activity);
         bottomSheet1.show(getParentFragmentManager(), bottomSheet1.getTag());
+    }
+
+    private void showErrorDialog(String message) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Lỗi")
+                .setMessage(message)
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }
 

@@ -26,6 +26,9 @@ import com.example.locket.auth.bottomsheets.BottomSheetChangeName;
 import com.example.locket.auth.bottomsheets.BottomSheetLogout;
 import com.example.locket.auth.bottomsheets.BottomSheetRegisterUserName;
 import com.example.locket.common.models.user.AccountInfo;
+import com.example.locket.common.models.user.UserProfile;
+import com.example.locket.common.models.auth.LoginResponse;
+import com.example.locket.common.utils.AuthManager;
 import com.example.locket.common.utils.SharedPreferencesUser;
 
 public class BottomSheetInfo extends BottomSheetDialogFragment {
@@ -71,10 +74,8 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
         linear_change_email = bottomSheetDialog.findViewById(R.id.linear_change_email);
         linear_logout = bottomSheetDialog.findViewById(R.id.linear_logout);
 
-        AccountInfo accountInfo = SharedPreferencesUser.getAccountInfo(requireContext());
-        txt_full_name.setText(accountInfo.getUsers().get(0).getDisplayName());
-        Glide.with(this).load(accountInfo.getUsers().get(0).getPhotoUrl()).into(img_avatar_2);
-        Glide.with(this).load(accountInfo.getUsers().get(0).getPhotoUrl()).into(img_capture);
+        // Load user profile data
+        loadUserProfileData(txt_full_name, img_avatar_2, img_capture);
     }
 
     private void onClick() {
@@ -110,6 +111,105 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
         dismiss();
         BottomSheetChangeName bottomSheetChangeName = new BottomSheetChangeName(context, activity);
         bottomSheetChangeName.show(getActivity().getSupportFragmentManager(), bottomSheetChangeName.getTag());
+    }
+
+    /**
+     * 🔄 Load user profile data from API or fallback to cached data
+     */
+    private void loadUserProfileData(TextView txtFullName, RoundedImageView imgAvatar2, RoundedImageView imgCapture) {
+        // First try to load from cached UserProfile
+        UserProfile cachedProfile = SharedPreferencesUser.getUserProfile(requireContext());
+        if (cachedProfile != null && cachedProfile.getUser() != null) {
+            setUserProfileData(cachedProfile, txtFullName, imgAvatar2, imgCapture);
+        }
+
+        // Then load fresh data from API
+        AuthManager.getUserProfile(requireContext(), new AuthManager.ProfileCallback() {
+            @Override
+            public void onSuccess(UserProfile userProfile) {
+                if (userProfile != null && userProfile.getUser() != null) {
+                    // Save updated profile
+                    SharedPreferencesUser.saveUserProfile(requireContext(), userProfile);
+                    // Update UI
+                    setUserProfileData(userProfile, txtFullName, imgAvatar2, imgCapture);
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage, int errorCode) {
+                // Fallback to LoginResponse if UserProfile fails
+                LoginResponse loginResponse = SharedPreferencesUser.getLoginResponse(requireContext());
+                if (loginResponse != null) {
+                    setLoginResponseData(loginResponse, txtFullName, imgAvatar2, imgCapture);
+                } else {
+                    // Last fallback to AccountInfo (for backward compatibility)
+                    AccountInfo accountInfo = SharedPreferencesUser.getAccountInfo(requireContext());
+                    if (accountInfo != null && accountInfo.getUsers() != null && !accountInfo.getUsers().isEmpty()) {
+                        txtFullName.setText(accountInfo.getUsers().get(0).getDisplayName());
+                        Glide.with(BottomSheetInfo.this).load(accountInfo.getUsers().get(0).getPhotoUrl()).into(imgAvatar2);
+                        Glide.with(BottomSheetInfo.this).load(accountInfo.getUsers().get(0).getPhotoUrl()).into(imgCapture);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * 🎨 Set UI data from UserProfile
+     */
+    private void setUserProfileData(UserProfile userProfile, TextView txtFullName, RoundedImageView imgAvatar2, RoundedImageView imgCapture) {
+        UserProfile.UserData userData = userProfile.getUser();
+        
+        // Set display name
+        String displayName = userData.getDisplayName();
+        if (displayName == null || displayName.isEmpty()) {
+            displayName = userData.getUsername();
+        }
+        if (displayName == null || displayName.isEmpty()) {
+            displayName = userData.getEmail();
+        }
+        txtFullName.setText(displayName);
+
+        // Load profile pictures
+        String profilePictureUrl = userData.getProfilePicture();
+        if (profilePictureUrl != null && !profilePictureUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(profilePictureUrl)
+                    .placeholder(R.drawable.ic_widget_empty_icon)
+                    .error(R.drawable.ic_widget_empty_icon)
+                    .into(imgAvatar2);
+            
+            Glide.with(this)
+                    .load(profilePictureUrl)
+                    .placeholder(R.drawable.ic_widget_empty_icon)
+                    .error(R.drawable.ic_widget_empty_icon)
+                    .into(imgCapture);
+        } else {
+            imgAvatar2.setImageResource(R.drawable.ic_widget_empty_icon);
+            imgCapture.setImageResource(R.drawable.ic_widget_empty_icon);
+        }
+    }
+
+    /**
+     * 🔄 Fallback: Set UI data from LoginResponse
+     */
+    private void setLoginResponseData(LoginResponse loginResponse, TextView txtFullName, RoundedImageView imgAvatar2, RoundedImageView imgCapture) {
+        // Set display name
+        String displayName = loginResponse.getDisplayName();
+        if (displayName == null || displayName.isEmpty()) {
+            displayName = loginResponse.getEmail();
+        }
+        txtFullName.setText(displayName);
+
+        // Load profile pictures
+        String profilePictureUrl = loginResponse.getProfilePicture();
+        if (profilePictureUrl != null && !profilePictureUrl.isEmpty()) {
+            Glide.with(this).load(profilePictureUrl).into(imgAvatar2);
+            Glide.with(this).load(profilePictureUrl).into(imgCapture);
+        } else {
+            imgAvatar2.setImageResource(R.drawable.ic_widget_empty_icon);
+            imgCapture.setImageResource(R.drawable.ic_widget_empty_icon);
+        }
     }
 }
 

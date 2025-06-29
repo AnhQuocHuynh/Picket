@@ -29,7 +29,7 @@ import com.example.locket.profile.adapters.FriendsAdapter;
 import com.example.locket.common.network.FriendApiService;
 import com.example.locket.common.network.client.LoginApiClient;
 import com.example.locket.common.models.friend.Friend;
-import com.example.locket.common.models.auth.LoginRespone;
+import com.example.locket.common.models.auth.LoginResponse;
 import com.example.locket.common.utils.SharedPreferencesUser;
 
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class BottomSheetFriend extends BottomSheetDialogFragment {
     private final Activity activity;
     private BottomSheetDialog bottomSheetDialog;
 
-    private LoginRespone loginResponse;
+    private LoginResponse loginResponse;
     private List<String> user_id;
     private FriendApiService friendApiService;
     private ArrayList<Friend> friendArrayList;
@@ -144,6 +144,15 @@ public class BottomSheetFriend extends BottomSheetDialogFragment {
 
     // Phương thức gọi API getMomentV2
     private void getFetchUserV2(List<String> user_id) {
+        // ❌ Backend không có friends endpoints - Disable để tránh 404
+        Log.w("BottomSheetFriend", "Friends endpoint not available, using empty friend list");
+        
+        // Tạm thời sử dụng empty list
+        friendArrayList.clear();
+        friendsAdapter.setFilterList(friendArrayList);
+        return;
+        
+        /* OLD CODE - Endpoint không tồn tại
         String token = "Bearer " + loginResponse.getIdToken();
         int totalUsers = user_id.size();
         int[] completedRequests = {0}; // Biến đếm số lượng yêu cầu hoàn thành
@@ -182,6 +191,50 @@ public class BottomSheetFriend extends BottomSheetDialogFragment {
             });
         }
         friendsAdapter.setFilterList(friendArrayList);
+        */
+    }
+
+    private void fetchUser(String username) {
+        // ❌ Backend không có friends endpoints - Disable để tránh 404
+        Log.w("BottomSheetFriend", "Friends endpoint not available, showing mock data");
+        
+        // Tạm thời hiển thị thông báo hoặc mock data
+        showErrorMessage("Tính năng tìm bạn bè chưa được hỗ trợ");
+        return;
+        
+        /* OLD CODE - Endpoint không tồn tại
+        String token = "Bearer " + loginResponse.getIdToken();
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=UTF-8"), createSearchUserJson(username));
+        Call<ResponseBody> ResponseBodyCall = friendApiService.FETCH_USER_RESPONSE_CALL(token, requestBody);
+
+        ResponseBodyCall.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String responseBody = response.body().string();
+                        Gson gson = new Gson();
+                        // Parse friend data
+                        // Show friend list
+                    } catch (IOException e) {
+                        Log.e("BottomSheetFriend", "Error reading response body", e);
+                    }
+                } else {
+                    Log.e("BottomSheetFriend", "Error: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("BottomSheetFriend", "Network error: " + throwable.getMessage());
+            }
+        });
+        */
+    }
+
+    private void showErrorMessage(String message) {
+        // Add UI code to show error message to user
+        Log.w("BottomSheetFriend", message);
     }
 
 }
