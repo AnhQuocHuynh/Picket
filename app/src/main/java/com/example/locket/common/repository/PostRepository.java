@@ -3,17 +3,16 @@ package com.example.locket.common.repository;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.locket.common.models.post.CreatePostRequest;
-import com.example.locket.common.models.post.PostResponse;
-import com.example.locket.common.models.post.PostsResponse;
-import com.example.locket.common.models.post.LikeResponse;
 import com.example.locket.common.models.post.CommentRequest;
 import com.example.locket.common.models.post.CommentResponse;
-import com.example.locket.common.models.common.ApiResponse;
+import com.example.locket.common.models.post.CreatePostRequest;
+import com.example.locket.common.models.post.LikeResponse;
+import com.example.locket.common.models.post.PostResponse;
+import com.example.locket.common.models.post.PostsResponse;
 import com.example.locket.common.network.PostApiService;
 import com.example.locket.common.network.client.AuthApiClient;
-import com.example.locket.common.utils.AuthManager;
 import com.example.locket.common.utils.ApiErrorHandler;
+import com.example.locket.common.utils.AuthManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;

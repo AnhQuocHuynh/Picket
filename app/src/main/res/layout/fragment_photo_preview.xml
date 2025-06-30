@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:orientation="vertical">
+
+    <!-- Photo Preview Section -->
+    <RelativeLayout
+        android:id="@+id/layout_preview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:layout_marginHorizontal="@dimen/_20sdp">
+
+        <ImageView
+            android:id="@+id/img_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="@drawable/background_camera" />
+
+        <!-- Message Input -->
+        <EditText
+            android:id="@+id/edt_add_message"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/_35sdp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginHorizontal="@dimen/_30sdp"
+            android:layout_marginBottom="@dimen/_15sdp"
+            android:background="@drawable/background_text_view"
+            android:gravity="center"
+            android:hint="Add a message"
+            android:maxLength="100"
+            android:paddingHorizontal="@dimen/_12sdp"
+            android:textAppearance="@style/HintTextAppearance2"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            android:textSize="@dimen/_14ssp" />
+
+    </RelativeLayout>
+
+    <!-- Control Buttons Section -->
+    <LinearLayout
+        android:id="@+id/layout_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/_30sdp"
+        android:layout_marginVertical="@dimen/_20sdp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- Cancel Button -->
+        <ImageView
+            android:id="@+id/img_cancel"
+            android:layout_width="@dimen/_45sdp"
+            android:layout_height="@dimen/_45sdp"
+            android:background="@drawable/background_btn"
+            android:padding="@dimen/_10sdp"
+            android:src="@drawable/close_24px"
+            app:tint="@color/white" />
+
+        <!-- Spacer -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- Send Button - Primary Action (Center) -->
+        <LinearLayout
+            android:id="@+id/layout_send"
+            android:layout_width="@dimen/_70sdp"
+            android:layout_height="@dimen/_70sdp"
+            android:background="@drawable/background_btn_continue_un_check"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/img_send"
+                android:layout_width="@dimen/_35sdp"
+                android:layout_height="@dimen/_35sdp"
+                android:rotation="-45"
+                android:src="@drawable/send_24px"
+                android:visibility="visible"
+                app:tint="@color/white" />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottie_check"
+                android:layout_width="@dimen/_70sdp"
+                android:layout_height="@dimen/_70sdp"
+                android:visibility="gone"
+                app:lottie_rawRes="@raw/check" />
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="@dimen/_50sdp"
+                android:layout_height="@dimen/_50sdp"
+                android:indeterminateTint="@color/white"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <!-- Spacer -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- Retake Button -->
+        <ImageView
+            android:id="@+id/img_retake"
+            android:layout_width="@dimen/_45sdp"
+            android:layout_height="@dimen/_45sdp"
+            android:background="@drawable/background_btn"
+            android:padding="@dimen/_10sdp"
+            android:src="@drawable/cached_24px"
+            app:tint="@color/white" />
+
+    </LinearLayout>
+
+    <!-- Friends Selection Section -->
+    <LinearLayout
+        android:id="@+id/layout_friends_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/_20sdp"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/_16sdp">
+
+        <!-- Recipient Count Text -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/_8sdp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/txt_friends_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+                android:text="Friends"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_14ssp" />
+
+            <TextView
+                android:id="@+id/txt_recipient_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_4sdp"
+                android:background="@drawable/bg_circle_border"
+                android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+                android:gravity="center"
+                android:minWidth="@dimen/_20sdp"
+                android:minHeight="@dimen/_20sdp"
+                android:paddingHorizontal="@dimen/_6sdp"
+                android:paddingVertical="@dimen/_2sdp"
+                android:text="(2)"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_10ssp" />
+
+        </LinearLayout>
+
+        <!-- Horizontal Friends List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_friends_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+
+    </LinearLayout>
+
+</LinearLayout> 

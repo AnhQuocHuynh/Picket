@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/_8sdp"
+    android:gravity="center"
+    android:minWidth="48dp"
+    android:minHeight="48dp"
+    android:background="?android:attr/selectableItemBackground"
+    android:focusable="true"
+    android:clickable="true">
+
+    <FrameLayout
+        android:layout_width="@dimen/_60sdp"
+        android:layout_height="@dimen/_60sdp">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/img_all_avatar"
+            android:layout_width="@dimen/_60sdp"
+            android:layout_height="@dimen/_60sdp"
+            android:scaleType="centerCrop"
+            android:background="@drawable/bg_widget_empty_circle_outline"
+            android:src="@drawable/group_24px"
+            android:padding="@dimen/_18sdp"
+            app:riv_corner_radius="@dimen/_30sdp"
+            app:tint="@color/white" />
+
+        <!-- Selection Badge -->
+        <ImageView
+            android:id="@+id/img_all_selected_badge"
+            android:layout_width="@dimen/_20sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="@dimen/_2sdp"
+            android:layout_marginEnd="@dimen/_2sdp"
+            android:background="@drawable/bg_circle_border"
+            android:padding="@dimen/_3sdp"
+            android:src="@drawable/check_24px"
+            android:visibility="visible"
+            app:tint="@color/white"
+            android:contentDescription="Selected" />
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/txt_all_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+        android:text="Tất cả"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_12ssp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:maxWidth="@dimen/_65sdp"
+        android:contentDescription="Send to all friends" />
+
+</LinearLayout> 

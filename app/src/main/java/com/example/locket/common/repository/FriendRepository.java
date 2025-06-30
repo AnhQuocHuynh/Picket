@@ -3,35 +3,21 @@ package com.example.locket.common.repository;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
-
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.room.Room;
 
-import com.google.gson.Gson;
-import com.example.locket.common.network.MomentApiService;
-
-import com.example.locket.common.network.client.LoginApiClient;
 import com.example.locket.common.database.AppDatabase;
 import com.example.locket.common.database.dao.FriendDao;
-import com.example.locket.common.models.friend.Friend;
-import com.example.locket.common.models.friend.UserData;
-import com.example.locket.common.models.auth.LoginResponse;
-import com.example.locket.common.utils.SharedPreferencesUser;
 import com.example.locket.common.database.entities.FriendEntity;
+import com.example.locket.common.models.auth.LoginResponse;
+import com.example.locket.common.network.MomentApiService;
+import com.example.locket.common.network.client.LoginApiClient;
+import com.example.locket.common.utils.SharedPreferencesUser;
+import com.google.gson.Gson;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class FriendRepository {
     private final LiveData<List<FriendEntity>> allFriends;

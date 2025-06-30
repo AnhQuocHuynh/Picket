@@ -5,32 +5,20 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.room.Room;
 
-import com.google.gson.Gson;
-import com.example.locket.common.network.MomentApiService;
-
-import com.example.locket.common.network.client.LoginApiClient;
 import com.example.locket.common.database.AppDatabase;
 import com.example.locket.common.database.dao.MomentDao;
 import com.example.locket.common.database.entities.MomentEntity;
 import com.example.locket.common.models.auth.LoginResponse;
-import com.example.locket.common.models.moment.Data;
-import com.example.locket.common.models.moment.Moment;
+import com.example.locket.common.network.MomentApiService;
+import com.example.locket.common.network.client.LoginApiClient;
 import com.example.locket.common.utils.SharedPreferencesUser;
+import com.google.gson.Gson;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MomentRepository {
     private final LiveData<List<MomentEntity>> allMoments;

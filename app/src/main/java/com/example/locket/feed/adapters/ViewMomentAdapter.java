@@ -15,29 +15,20 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.material.imageview.ShapeableImageView;
-import com.google.gson.Gson;
-import com.makeramen.roundedimageview.RoundedImageView;
 import com.example.locket.R;
+import com.example.locket.common.database.entities.MomentEntity;
+import com.example.locket.common.models.auth.LoginResponse;
+import com.example.locket.common.models.friend.Friend;
 import com.example.locket.common.network.FriendApiService;
 import com.example.locket.common.network.client.LoginApiClient;
-import com.example.locket.common.models.friend.Friend;
-import com.example.locket.common.models.auth.LoginResponse;
 import com.example.locket.common.utils.SharedPreferencesUser;
-import com.example.locket.common.database.entities.MomentEntity;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.makeramen.roundedimageview.RoundedImageView;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 // ItemAdapter.java
 public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.ItemViewHolder> {

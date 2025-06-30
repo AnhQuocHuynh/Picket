@@ -23,11 +23,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.locket.R;
-import org.json.JSONObject;
+
 import org.json.JSONArray;
-import com.example.locket.common.utils.AuthManager;
-import com.example.locket.common.models.auth.AuthResponse;
-import com.example.locket.common.utils.SharedPreferencesUser;
+import org.json.JSONObject;
 
 public class RegisterEmailFragment extends Fragment {
     private static final String TAG = "RegisterEmailFragment";

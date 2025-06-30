@@ -7,13 +7,27 @@
     android:padding="@dimen/_12sdp"
     android:background="?android:attr/selectableItemBackground">
 
-    <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/img_avatar"
+    <FrameLayout
         android:layout_width="@dimen/_40sdp"
         android:layout_height="@dimen/_40sdp"
-        android:layout_gravity="center_vertical"
-        android:scaleType="centerCrop"
-        app:riv_corner_radius="@dimen/_20sdp" />
+        android:layout_gravity="center_vertical">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/img_avatar"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerCrop"
+            app:riv_corner_radius="@dimen/_20sdp" />
+
+        <!-- Selection Border -->
+        <View
+            android:id="@+id/view_selection_border"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:background="@drawable/friend_avatar_border_selected"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="0dp"

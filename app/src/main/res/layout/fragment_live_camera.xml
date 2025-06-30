@@ -145,37 +145,33 @@
                         android:id="@+id/layout_send"
                         android:layout_width="@dimen/_70sdp"
                         android:layout_height="@dimen/_70sdp"
-                        android:background="@drawable/background_btn_continue_un_check">
+                        android:background="@drawable/background_btn_continue_un_check"
+                        android:gravity="center">
 
                         <ImageView
                             android:id="@+id/img_send"
-                            app:tint="@color/white"
-                            android:layout_width="@dimen/_70sdp"
-                            android:layout_height="@dimen/_70sdp"
-                            android:paddingStart="@dimen/_15sdp"
-                            android:paddingTop="@dimen/_15sdp"
-                            android:paddingEnd="@dimen/_10sdp"
-                            android:paddingBottom="@dimen/_15sdp"
+                            android:layout_width="@dimen/_35sdp"
+                            android:layout_height="@dimen/_35sdp"
                             android:rotation="-45"
                             android:src="@drawable/send_24px"
-                            android:visibility="visible" />
+                            android:visibility="visible"
+                            app:tint="@color/white" />
 
                         <com.airbnb.lottie.LottieAnimationView
                             android:id="@+id/lottie_check"
-                            app:lottie_rawRes="@raw/check"
                             android:layout_width="@dimen/_70sdp"
                             android:layout_height="@dimen/_70sdp"
-                            android:visibility="gone" />
+                            android:visibility="gone"
+                            app:lottie_rawRes="@raw/check" />
 
                         <ProgressBar
                             android:id="@+id/progress_bar"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_width="@dimen/_50sdp"
+                            android:layout_height="@dimen/_50sdp"
                             android:indeterminateTint="@color/white"
-                            android:padding="@dimen/_20sdp"
                             android:visibility="gone" />
-                    </LinearLayout>
 
+                    </LinearLayout>
 
                 </LinearLayout>
 

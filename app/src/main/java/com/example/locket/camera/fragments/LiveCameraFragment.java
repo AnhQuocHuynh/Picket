@@ -37,18 +37,19 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.example.locket.R;
+import com.example.locket.camera.utils.ImageUtils;
+import com.example.locket.camera.fragments.PhotoPreviewFragment;
+import com.example.locket.common.models.auth.LoginResponse;
+import com.example.locket.common.models.post.PostResponse;
+import com.example.locket.common.network.ImageUploadService;
+import com.example.locket.common.network.MomentApiService;
+import com.example.locket.common.repository.PostRepository;
+import com.example.locket.common.utils.SharedPreferencesUser;
+import com.example.locket.common.utils.SuccessNotificationDialog;
 import com.google.android.gms.common.util.IOUtils;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.makeramen.roundedimageview.RoundedImageView;
-import com.example.locket.R;
-import com.example.locket.common.network.ApiCaller;
-import com.example.locket.common.network.MomentApiService;
-import com.example.locket.camera.utils.ImageUtils;
-import com.example.locket.common.models.auth.LoginResponse;
-import com.example.locket.common.utils.SharedPreferencesUser;
-import com.example.locket.common.network.ImageUploadService;
-import com.example.locket.common.repository.PostRepository;
-import com.example.locket.common.models.post.PostResponse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -93,6 +94,7 @@ public class LiveCameraFragment extends Fragment {
     // New API components
     private ImageUploadService imageUploadService;
     private PostRepository postRepository;
+    private SuccessNotificationDialog successDialog;
 
 
     @Override
@@ -126,6 +128,7 @@ public class LiveCameraFragment extends Fragment {
         // Initialize new API services
         imageUploadService = new ImageUploadService(requireContext());
         postRepository = new PostRepository(requireContext());
+        successDialog = new SuccessNotificationDialog(requireContext());
     }
 
     private void initViews(View view) {
@@ -290,17 +293,7 @@ public class LiveCameraFragment extends Fragment {
 
         // 1. Lấy ảnh preview từ PreviewView (chụp nhanh, dùng để hiển thị ngay lập tức)
         Bitmap previewBitmap = camera_view.getBitmap();
-        if (previewBitmap != null) {
-            // Hiển thị preview ngay lập tức trên UI
-            getActivity().runOnUiThread(() -> {
-                img_view.setImageBitmap(previewBitmap);
-                layout_img_view.setVisibility(View.VISIBLE);
-                camera_view.setVisibility(View.GONE);
-                linear_controller_media.setVisibility(View.GONE);
-                linear_controller_send.setVisibility(View.VISIBLE);
-            });
-        }
-
+        
         // 2. Chụp ảnh chất lượng cao bằng ImageCapture (xử lý ở background, upload sau)
         imageCapture.takePicture(ContextCompat.getMainExecutor(requireContext()),
                 new ImageCapture.OnImageCapturedCallback() {
@@ -317,6 +310,11 @@ public class LiveCameraFragment extends Fragment {
                             try {
                                 bytes = bitmapToByteArray(fullBitmap);
                                 Log.d("Debug", "Chuyển đổi thành công, kích thước: " + bytes.length + " bytes");
+                                
+                                // Navigate to PhotoPreviewFragment
+                                getActivity().runOnUiThread(() -> {
+                                    navigateToPhotoPreview(previewBitmap, bytes);
+                                });
                             } catch (Exception e) {
                                 Log.e("Debug", "Lỗi khi chuyển đổi Bitmap thành byte array", e);
                             }
@@ -441,15 +439,17 @@ public class LiveCameraFragment extends Fragment {
     }
     
     private void showSuccessState() {
-        // Show success animation
-        lottie_check.setVisibility(View.VISIBLE);
-        lottie_check.playAnimation();
+        // Hide loading state
         progress_bar.setVisibility(View.GONE);
-
-        // Reset to camera view after 3 seconds
-        new Handler().postDelayed(() -> {
-            resetToCameraView();
-        }, 3000);
+        
+        // Show custom success dialog
+        successDialog.show("Gửi thành công!", "Ảnh của bạn đã được chia sẻ với bạn bè", new SuccessNotificationDialog.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                // Reset to camera view after dialog dismisses
+                resetToCameraView();
+            }
+        });
     }
     
     private void resetToCameraView() {
@@ -499,5 +499,38 @@ public class LiveCameraFragment extends Fragment {
     public void onResume() {
         super.onResume();
         checkCameraPermission();
+    }
+    
+    // Navigate to PhotoPreviewFragment
+    private void navigateToPhotoPreview(Bitmap previewBitmap, byte[] imageBytes) {
+        if (getParentFragmentManager() != null) {
+            PhotoPreviewFragment photoPreviewFragment = PhotoPreviewFragment.newInstance(previewBitmap, imageBytes);
+            photoPreviewFragment.setPhotoPreviewListener(new PhotoPreviewFragment.PhotoPreviewListener() {
+                @Override
+                public void onCancel() {
+                    // Go back to camera
+                    getParentFragmentManager().popBackStack();
+                }
+
+                @Override
+                public void onRetake() {
+                    // Go back to camera
+                    getParentFragmentManager().popBackStack();
+                }
+
+                @Override
+                public void onSendComplete() {
+                    // Go back to camera and reset
+                    getParentFragmentManager().popBackStack();
+                    resetToCameraView();
+                }
+            });
+            
+            getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.frame_layout, photoPreviewFragment)
+                .addToBackStack("photo_preview")
+                .commit();
+        }
     }
 }

@@ -26,47 +26,31 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
-import com.example.locket.common.models.moment.Data;
-import com.makeramen.roundedimageview.RoundedImageView;
+import com.example.locket.MainActivity;
 import com.example.locket.R;
-import com.example.locket.feed.adapters.HomeViewPager2Adapter;
-import com.example.locket.common.network.LoginApiService;
-import com.example.locket.common.network.MomentApiService;
-
-import com.example.locket.common.network.client.LoginApiClient;
 import com.example.locket.auth.fragments.LoginOrRegisterFragment;
-import com.example.locket.feed.bottomsheets.BottomSheetFriend;
-import com.example.locket.feed.bottomsheets.BottomSheetInfo;
-import com.example.locket.common.utils.ResponseUtils;
-import com.example.locket.common.models.auth.AuthResponse;
 import com.example.locket.common.models.auth.LoginResponse;
-import com.example.locket.common.models.moment.Moment;
+import com.example.locket.common.models.friendship.FriendsListResponse;
 import com.example.locket.common.models.user.UserProfile;
+import com.example.locket.common.network.MomentApiService;
+import com.example.locket.common.network.client.LoginApiClient;
+import com.example.locket.common.repository.FriendshipRepository;
 import com.example.locket.common.utils.AuthManager;
 import com.example.locket.common.utils.SharedPreferencesUser;
-import com.example.locket.MainActivity;
-import com.example.locket.common.repository.FriendshipRepository;
-import com.example.locket.common.models.friendship.FriendsListResponse;
+import com.example.locket.feed.adapters.HomeViewPager2Adapter;
+import com.example.locket.feed.bottomsheets.BottomSheetFriend;
+import com.example.locket.feed.bottomsheets.BottomSheetInfo;
+import com.google.gson.Gson;
+import com.makeramen.roundedimageview.RoundedImageView;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-
-public class HomeFragment extends Fragment implements MainActivity.FriendsListUpdateListener {
+public class HomeFragment extends Fragment implements MainActivity.FriendsListUpdateListener, BottomSheetFriend.FriendBottomSheetListener {
     private ViewPager2 viewPager;
     private LoginResponse loginResponse;
 
@@ -148,8 +132,14 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
     private void onCLick() {
         linear_friends.setOnClickListener(view -> {
             BottomSheetFriend bottomSheetFriend = new BottomSheetFriend(requireContext(), getActivity());
+            bottomSheetFriend.setFriendBottomSheetListener(this);
             bottomSheetFriend.show(getParentFragmentManager(), bottomSheetFriend.getTag());
         });
+        
+        img_message.setOnClickListener(view -> {
+            // TODO: Tích hợp tin nhắn với bạn bè
+        });
+        
         img_profile.setOnClickListener(view -> {
             BottomSheetInfo bottomSheetInfo = new BottomSheetInfo(requireContext(), getActivity());
             bottomSheetInfo.show(getParentFragmentManager(), bottomSheetInfo.getTag());
@@ -519,6 +509,25 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).checkPendingFriendToken();
         }
+    }
+    
+    // ==================== BOTTOMSHEET CALLBACKS ====================
+    
+    /**
+     * 🔗 Implementation of BottomSheetFriend.FriendBottomSheetListener
+     * Called when user clicks "Gửi link kết bạn" in friend bottom sheet
+     */
+    @Override
+    public void onSendFriendLinkClicked() {
+        // Navigate to Friend Link Test Fragment
+        FriendLinkTestFragment friendLinkTestFragment = new FriendLinkTestFragment();
+        FragmentManager fragmentManager = getParentFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.frame_layout, friendLinkTestFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+        
+        Log.d("HomeFragment", "🔗 Navigating to Friend Link Fragment");
     }
 }
 

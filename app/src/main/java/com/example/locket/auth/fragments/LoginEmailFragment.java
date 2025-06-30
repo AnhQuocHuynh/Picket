@@ -25,13 +25,6 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.locket.R;
 import com.example.locket.common.network.AuthApiService;
 import com.example.locket.common.network.client.AuthApiClient;
-import com.example.locket.common.models.auth.AuthResponse;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LoginEmailFragment extends Fragment {
     private static final String TAG = "LoginEmailFragment";

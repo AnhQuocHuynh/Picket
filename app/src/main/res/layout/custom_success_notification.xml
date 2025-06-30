@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="@dimen/_20sdp"
+    app:cardElevation="@dimen/_12sdp"
+    android:layout_margin="@dimen/_16sdp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/_24sdp"
+        android:minWidth="@dimen/_200sdp">
+
+        <!-- Success Icon -->
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottie_success_icon"
+            android:layout_width="@dimen/_64sdp"
+            android:layout_height="@dimen/_64sdp"
+            android:layout_marginBottom="@dimen/_16sdp"
+            app:lottie_rawRes="@raw/check"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="false" />
+
+        <!-- Success Title -->
+        <TextView
+            android:id="@+id/txt_success_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/_8sdp"
+            android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+            android:text="Gửi thành công!"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_16ssp"
+            android:gravity="center" />
+
+        <!-- Success Message -->
+        <TextView
+            android:id="@+id/txt_success_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/assets_fonts_proximasoft_proximasoft"
+            android:text="Ảnh của bạn đã được gửi đến bạn bè"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_12ssp"
+            android:gravity="center"
+            android:alpha="0.7" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView> 

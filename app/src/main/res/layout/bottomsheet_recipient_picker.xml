@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/background_bottomsheet_option_song">
+
+    <!-- Handle Bar -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="@dimen/_30sdp"
+        android:layout_height="@dimen/_4sdp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/_10sdp"
+        app:cardBackgroundColor="@color/item_bottom_sheet" />
+
+    <!-- Content -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/_16sdp"
+        android:paddingTop="@dimen/_20sdp"
+        android:paddingBottom="@dimen/_20sdp">
+
+        <!-- Header -->
+        <TextView
+            android:id="@+id/txt_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+            android:gravity="center"
+            android:text="Send to..."
+            android:textColor="@color/white"
+            android:textSize="@dimen/_20ssp" />
+
+        <!-- Search Input -->
+        <LinearLayout
+            android:id="@+id/linear_search_view"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_45sdp"
+            android:layout_marginTop="@dimen/_20sdp"
+            android:background="@drawable/background_edit_text"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/_12sdp">
+
+            <ImageView
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:layout_marginEnd="@dimen/_8sdp"
+                android:src="@drawable/search_24px"
+                app:tint="@color/hint" />
+
+            <EditText
+                android:id="@+id/edt_search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+                android:hint="Tìm hoặc thêm bạn bè"
+                android:textAppearance="@style/HintTextAppearance"
+                android:textColor="@color/white"
+                android:textColorHint="@color/hint"
+                android:textCursorDrawable="@drawable/cursor_color"
+                android:textSize="@dimen/_14ssp" />
+
+        </LinearLayout>
+
+        <!-- Tab Bar (Optional - for filter categories) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_16sdp"
+            android:orientation="horizontal"
+            android:visibility="gone" />
+
+        <!-- Friends List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_friends"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="@dimen/_16sdp"
+            android:maxHeight="@dimen/_400sdp" />
+
+        <!-- Footer -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_16sdp"
+            android:orientation="vertical">
+
+            <!-- Selected Count -->
+            <TextView
+                android:id="@+id/txt_selected_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+                android:text="Chưa chọn ai"
+                android:textColor="@color/hint"
+                android:textSize="@dimen/_14ssp" />
+
+            <!-- Send Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_send"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_50sdp"
+                android:layout_marginTop="@dimen/_12sdp"
+                android:background="@drawable/background_btn_continue_check"
+                android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+                android:text="Send to All"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_16ssp"
+                app:backgroundTint="@null" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout> 

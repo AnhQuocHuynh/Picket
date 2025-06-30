@@ -3,9 +3,8 @@ package com.example.locket.common.network;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.locket.common.utils.AuthManager;
-import com.example.locket.common.utils.ApiErrorHandler;
 import com.example.locket.common.network.client.AuthApiClient;
+import com.example.locket.common.utils.AuthManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,7 +13,6 @@ import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

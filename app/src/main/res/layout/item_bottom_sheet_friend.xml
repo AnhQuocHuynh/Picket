@@ -409,9 +409,12 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/relative_send_friend_link"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_10sdp">
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="@dimen/_5sdp">
 
                     <com.makeramen.roundedimageview.RoundedImageView
                         android:layout_width="@dimen/_45sdp"
@@ -419,11 +422,11 @@
                         android:layout_gravity="center"
                         android:background="@drawable/background_item_app"
                         android:padding="@dimen/_3sdp"
-                        android:src="@color/hint"
+                        android:src="@color/green"
                         app:riv_corner_radius="@dimen/_50sdp" />
 
                     <ImageView
-                        android:id="@+id/img_other2"
+                        android:id="@+id/img_send_link"
                         android:layout_width="@dimen/_45sdp"
                         android:layout_height="@dimen/_45sdp"
                         android:layout_gravity="center"
@@ -437,9 +440,9 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="@dimen/_5sdp"
-                        android:layout_toEndOf="@id/img_other2"
+                        android:layout_toEndOf="@id/img_send_link"
                         android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Các ứng dụng khác"
+                        android:text="Gửi link kết bạn"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_13ssp" />
 

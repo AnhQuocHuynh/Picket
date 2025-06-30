@@ -1,6 +1,5 @@
 package com.example.locket.auth.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
@@ -23,14 +22,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.gson.Gson;
 import com.example.locket.R;
-import com.example.locket.common.network.AuthApiService;
-import com.example.locket.common.network.client.AuthApiClient;
 import com.example.locket.common.models.auth.LoginRequest;
 import com.example.locket.common.models.auth.LoginResponse;
-import com.example.locket.common.models.auth.AuthResponse;
-import com.example.locket.common.models.user.UserProfile;
+import com.example.locket.common.network.AuthApiService;
+import com.example.locket.common.network.client.AuthApiClient;
 import com.example.locket.common.utils.SharedPreferencesUser;
 import com.example.locket.feed.fragments.HomeFragment;
 

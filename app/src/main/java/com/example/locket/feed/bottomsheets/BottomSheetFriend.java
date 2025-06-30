@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -32,6 +33,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BottomSheetFriend extends BottomSheetDialogFragment {
+    
+    // Interface for callbacks
+    public interface FriendBottomSheetListener {
+        void onSendFriendLinkClicked();
+    }
+    
+    private FriendBottomSheetListener listener;
     private final Context context;
     private final Activity activity;
     private BottomSheetDialog bottomSheetDialog;
@@ -45,10 +53,15 @@ public class BottomSheetFriend extends BottomSheetDialogFragment {
     private TextView txt_number_friends;
     private EditText edt_search_friend;
     private RecyclerView rv_friends;
+    private RelativeLayout relative_send_friend_link;
 
     public BottomSheetFriend(Context context, Activity activity) {
         this.context = context;
         this.activity = activity;
+    }
+    
+    public void setFriendBottomSheetListener(FriendBottomSheetListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -86,6 +99,7 @@ public class BottomSheetFriend extends BottomSheetDialogFragment {
         txt_cancel = bottomSheetDialog.findViewById(R.id.txt_cancel);
         txt_number_friends = bottomSheetDialog.findViewById(R.id.txt_number_friends);
         rv_friends = bottomSheetDialog.findViewById(R.id.rv_friends);
+        relative_send_friend_link = bottomSheetDialog.findViewById(R.id.relative_send_friend_link);
     }
 
     private void setAdapters() {
@@ -109,6 +123,14 @@ public class BottomSheetFriend extends BottomSheetDialogFragment {
         txt_cancel.setOnClickListener(view -> {
             linear_view1.setVisibility(View.VISIBLE);
             linear_view2.setVisibility(View.GONE);
+        });
+        
+        relative_send_friend_link.setOnClickListener(view -> {
+            // Dismiss bottom sheet and call listener
+            dismiss();
+            if (listener != null) {
+                listener.onSendFriendLinkClicked();
+            }
         });
     }
 

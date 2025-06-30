@@ -3,16 +3,15 @@ package com.example.locket.common.repository;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.locket.common.models.friendship.FriendRequest;
-import com.example.locket.common.models.friendship.FriendshipResponse;
-import com.example.locket.common.models.friendship.FriendsListResponse;
-import com.example.locket.common.models.friendship.GenerateLinkResponse;
 import com.example.locket.common.models.friendship.AcceptLinkRequest;
-import com.example.locket.common.models.common.ApiResponse;
+import com.example.locket.common.models.friendship.FriendRequest;
+import com.example.locket.common.models.friendship.FriendsListResponse;
+import com.example.locket.common.models.friendship.FriendshipResponse;
+import com.example.locket.common.models.friendship.GenerateLinkResponse;
 import com.example.locket.common.network.FriendshipApiService;
 import com.example.locket.common.network.client.AuthApiClient;
-import com.example.locket.common.utils.AuthManager;
 import com.example.locket.common.utils.ApiErrorHandler;
+import com.example.locket.common.utils.AuthManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
