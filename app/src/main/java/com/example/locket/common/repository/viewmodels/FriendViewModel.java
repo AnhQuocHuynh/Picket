@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.locket.common.database.entities.FriendEntity;
 import com.example.locket.common.models.common.ApiResponse;
+import com.example.locket.common.models.friendship.FriendRequestResponse;
 import com.example.locket.common.models.friendship.FriendshipResponse;
 import com.example.locket.common.models.friendship.FriendsListResponse;
 import com.example.locket.common.models.friendship.GenerateLinkResponse;
@@ -33,8 +34,8 @@ public class FriendViewModel extends AndroidViewModel {
     private final MutableLiveData<UserSearchResponse> _userSearchResults = new MutableLiveData<>();
     public final LiveData<UserSearchResponse> userSearchResults = _userSearchResults;
 
-    private final MutableLiveData<FriendsListResponse> _receivedFriendRequests = new MutableLiveData<>();
-    public final LiveData<FriendsListResponse> receivedFriendRequests = _receivedFriendRequests;
+    private final MutableLiveData<FriendRequestResponse> _receivedFriendRequests = new MutableLiveData<>();
+    public final LiveData<FriendRequestResponse> receivedFriendRequests = _receivedFriendRequests;
 
     private final MutableLiveData<FriendsListResponse> _sentFriendRequests = new MutableLiveData<>();
     public final LiveData<FriendsListResponse> sentFriendRequests = _sentFriendRequests;
@@ -197,10 +198,10 @@ public class FriendViewModel extends AndroidViewModel {
     }
 
     public void fetchReceivedFriendRequests() {
-        friendshipRepository.getReceivedFriendRequests(new FriendshipRepository.FriendsListCallback() {
+        friendshipRepository.getReceivedFriendRequests(new FriendshipRepository.FriendRequestCallback() {
             @Override
-            public void onSuccess(FriendsListResponse friendsListResponse) {
-                _receivedFriendRequests.postValue(friendsListResponse);
+            public void onSuccess(FriendRequestResponse friendRequestResponse) {
+                _receivedFriendRequests.postValue(friendRequestResponse);
             }
 
             @Override

@@ -50,7 +50,7 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
     private EditText edt_search_friend;
     private RecyclerView rv_friends, rv_search_results, rv_friend_requests_received, rv_friend_requests_sent;
     private TextView txt_number_friends, txt_cancel, txt_friend_requests_title, txt_sent_requests_title;
-    private LinearLayout linear_view1, linear_view2, txt_friendlist_title, txt_share_title;
+    private LinearLayout linear_view1, linear_view2, txt_friendlist_title, txt_share_title, send_link_layout;
     private RelativeLayout relative_send_friend_link;
 
     public void setFriendBottomSheetListener(FriendBottomSheetListener listener) {
@@ -99,6 +99,8 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
         txt_sent_requests_title = view.findViewById(R.id.txt_sent_requests_title);
         txt_friendlist_title = view.findViewById(R.id.txt_friendlist_title);
         txt_share_title = view.findViewById(R.id.txt_share_title);
+        send_link_layout = view.findViewById(R.id.send_link_layout);
+
     }
 
     private void setupAdapters() {
@@ -156,11 +158,15 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
                 if (query.isEmpty()) {
                     rv_friends.setVisibility(View.VISIBLE);
                     rv_search_results.setVisibility(View.GONE);
+                    txt_friendlist_title.setVisibility(View.VISIBLE);
+                    txt_share_title.setVisibility(View.VISIBLE);
+                    send_link_layout.setVisibility(View.VISIBLE);
                     userSearchAdapter.updateUsers(new ArrayList<>());
                 } else {
                     rv_friends.setVisibility(View.GONE);
                     txt_friendlist_title.setVisibility(View.GONE);
                     txt_share_title.setVisibility(View.GONE);
+                    send_link_layout.setVisibility(View.GONE);
                     rv_search_results.setVisibility(View.VISIBLE);
                     if (query.length() > 2) {
                         friendViewModel.searchUsers(query);

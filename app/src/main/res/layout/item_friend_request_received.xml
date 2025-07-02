@@ -12,29 +12,42 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:padding="10dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/img_avatar"
             android:layout_width="56dp"
             android:layout_height="56dp"
+            android:layout_marginStart="4dp"
             android:src="@mipmap/ic_launcher"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/txt_full_name"
             android:layout_width="0dp"
-            android:text="User Name"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
+            android:text="User Name"
             android:textAppearance="?attr/textAppearanceTitleMedium"
             android:textColor="?attr/colorOnSurface"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@id/img_avatar"
             app:layout_constraintTop_toTopOf="@id/img_avatar"
-            app:layout_constraintEnd_toEndOf="parent"
             tools:text="User Name" />
+
+        <TextView
+            android:id="@+id/txt_send_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceCaption"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintStart_toStartOf="@+id/txt_full_name"
+            app:layout_constraintTop_toBottomOf="@+id/txt_full_name"
+            tools:text="Message" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_accept"
@@ -42,9 +55,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Accept"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/txt_full_name"
-            app:layout_constraintStart_toStartOf="@id/txt_full_name" />
+            app:layout_constraintStart_toStartOf="@id/txt_full_name"
+            app:layout_constraintTop_toBottomOf="@+id/txt_send_message" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_decline"
