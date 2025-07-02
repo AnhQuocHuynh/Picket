@@ -61,11 +61,11 @@ public class NewFriendsAdapter extends RecyclerView.Adapter<NewFriendsAdapter.Vi
         if (friend.getProfilePicture() != null && !friend.getProfilePicture().isEmpty()) {
             Glide.with(context)
                     .load(friend.getProfilePicture())
-                    .placeholder(R.drawable.ic_widget_empty_icon)
-                    .error(R.drawable.ic_widget_empty_icon)
+                    .placeholder(R.drawable.avatar_placeholder)
+                    .error(R.drawable.empty_icon)
                     .into(holder.img_avatar);
         } else {
-            holder.img_avatar.setImageResource(R.drawable.ic_widget_empty_icon);
+            holder.img_avatar.setImageResource(R.drawable.avatar_placeholder);
         }
 
         // Remove friend click listener (you can implement this later)

@@ -37,8 +37,8 @@ public class FriendViewModel extends AndroidViewModel {
     private final MutableLiveData<FriendRequestResponse> _receivedFriendRequests = new MutableLiveData<>();
     public final LiveData<FriendRequestResponse> receivedFriendRequests = _receivedFriendRequests;
 
-    private final MutableLiveData<FriendsListResponse> _sentFriendRequests = new MutableLiveData<>();
-    public final LiveData<FriendsListResponse> sentFriendRequests = _sentFriendRequests;
+    private final MutableLiveData<FriendRequestResponse> _sentFriendRequests = new MutableLiveData<>();
+    public final LiveData<FriendRequestResponse> sentFriendRequests = _sentFriendRequests;
 
     private final MutableLiveData<ApiResponse> _actionResponse = new MutableLiveData<>();
     public final LiveData<ApiResponse> actionResponse = _actionResponse;
@@ -251,10 +251,10 @@ public class FriendViewModel extends AndroidViewModel {
     }
 
     public void fetchSentFriendRequests() {
-        friendshipRepository.getSentFriendRequests(new FriendshipRepository.FriendsListCallback() {
+        friendshipRepository.getSentFriendRequests(new FriendshipRepository.FriendRequestCallback() {
             @Override
-            public void onSuccess(FriendsListResponse friendsListResponse) {
-                _sentFriendRequests.postValue(friendsListResponse);
+            public void onSuccess(FriendRequestResponse friendRequestResponse) {
+                _sentFriendRequests.postValue(friendRequestResponse);
             }
 
             @Override

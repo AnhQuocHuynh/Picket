@@ -9,20 +9,21 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.locket.R;
+import com.example.locket.common.models.friendship.FriendRequestResponse;
 import com.example.locket.common.models.friendship.FriendsListResponse;
 import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SentFriendRequestAdapter extends RecyclerView.Adapter<SentFriendRequestAdapter.ViewHolder> {
 
-    private List<FriendsListResponse.FriendData> requests;
+    private List<FriendRequestResponse.FriendRequest> requests;
     private final OnRequestActionListener listener;
 
     public interface OnRequestActionListener {
         void onCancel(String friendshipId);
     }
 
-    public SentFriendRequestAdapter(List<FriendsListResponse.FriendData> requests, OnRequestActionListener listener) {
+    public SentFriendRequestAdapter(List<FriendRequestResponse.FriendRequest> requests, OnRequestActionListener listener) {
         this.requests = requests;
         this.listener = listener;
     }
@@ -44,7 +45,7 @@ public class SentFriendRequestAdapter extends RecyclerView.Adapter<SentFriendReq
         return requests.size();
     }
 
-    public void updateRequests(List<FriendsListResponse.FriendData> newRequests) {
+    public void updateRequests(List<FriendRequestResponse.FriendRequest> newRequests) {
         this.requests = newRequests;
         notifyDataSetChanged();
     }
@@ -61,12 +62,13 @@ public class SentFriendRequestAdapter extends RecyclerView.Adapter<SentFriendReq
             btnCancel = itemView.findViewById(R.id.btn_cancel_request);
         }
 
-        void bind(final FriendsListResponse.FriendData request, final OnRequestActionListener listener) {
-            txtFullName.setText(request.getDisplayName());
+        void bind(final FriendRequestResponse.FriendRequest request, final OnRequestActionListener listener) {
+            FriendRequestResponse.PersonData recipient = request.getRecipientAsPerson();
+            txtFullName.setText(recipient.getUsername());
             Glide.with(itemView.getContext())
-                    .load(request.getProfilePicture())
-                    .placeholder(R.mipmap.ic_launcher)
-                    .into(imgAvatar);
+                .load(recipient.getProfilePicture())
+                .placeholder(R.mipmap.ic_launcher)
+                .into(imgAvatar);
 
             btnCancel.setOnClickListener(v -> listener.onCancel(request.getId()));
         }

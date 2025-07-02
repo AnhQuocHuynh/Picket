@@ -71,7 +71,7 @@ public interface FriendshipApiService {
 
     // 📤 GET SENT FRIEND REQUESTS (pending)
     @GET("friendship/pending/sent")
-    Call<FriendsListResponse> getSentFriendRequests(
+    Call<FriendRequestResponse> getSentFriendRequests(
             @Header("Authorization") String bearerToken
     );
 

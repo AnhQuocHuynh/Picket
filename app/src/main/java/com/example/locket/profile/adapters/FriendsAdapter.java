@@ -52,7 +52,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
         holder.txt_full_name.setText(friend.getResult().getData().getFirst_name() + " " + friend.getResult().getData().getLast_name());
         Glide.with(context)
                 .load(friend.getResult().getData().getProfile_picture_url())
-                .placeholder(R.color.bg_btn)
+                .placeholder(R.mipmap.ic_launcher)
                 .into(holder.img_avatar);
         holder.img_un_friend.setOnClickListener(view -> {
             ///
