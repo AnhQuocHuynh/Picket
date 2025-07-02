@@ -14,11 +14,75 @@
         android:layout_marginTop="@dimen/_50sdp"
         android:visibility="gone">
 
+        <!-- Header with Filter Bar -->
+        <LinearLayout
+            android:id="@+id/layout_header_all_moments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical"
+            android:background="@color/bg"
+            android:paddingBottom="@dimen/_5sdp">
+
+            <!-- Title and Back Button -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:paddingHorizontal="@dimen/_15sdp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/img_back_all_moments"
+                    android:layout_width="@dimen/_24sdp"
+                    android:layout_height="@dimen/_24sdp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/arrow_back_ios_24px"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/_2sdp"
+                    app:tint="@color/text" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+                    android:text="Tất cả khoảnh khắc"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/_16ssp" />
+
+            </RelativeLayout>
+
+            <!-- Category Filter Bar -->
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:overScrollMode="never">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_category_filter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="@dimen/_10sdp"
+                    android:paddingVertical="@dimen/_5sdp"
+                    android:clipToPadding="false" />
+
+            </androidx.core.widget.NestedScrollView>
+
+        </LinearLayout>
+
+        <!-- Moments Grid -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_view_all_moment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" />
+            android:layout_below="@id/layout_header_all_moments"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/_5sdp"
+            android:paddingTop="@dimen/_5sdp"
+            android:clipToPadding="false" />
 
     </RelativeLayout>
 
@@ -28,12 +92,19 @@
         android:layout_height="match_parent"
         android:visibility="visible">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_view_moment"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" />
+            android:layout_above="@id/linear_bottom">
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_view_moment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <LinearLayout
             android:id="@+id/linear_bottom"

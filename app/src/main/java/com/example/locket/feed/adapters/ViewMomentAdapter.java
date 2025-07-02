@@ -96,17 +96,35 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
             // 🔧 FIX: Sử dụng CloudinaryImageLoader để tối ưu và giữ đúng tỷ lệ ảnh
             com.example.locket.common.utils.CloudinaryImageLoader.loadMomentImage(
                     context, 
-                    moment.getThumbnailUrl(), 
+                    moment.getImageUrl(), // Sử dụng imageUrl thay vì thumbnailUrl
                     shapeable_imageview
             );
+            
+            // 📝 Hiển thị caption từ overlays hoặc caption field
             if (moment.getOverlays() != null && !moment.getOverlays().isEmpty()) {
                 txt_content.setText(checkOverlayId(moment.getOverlays().get(0).getOverlay_id(), moment.getOverlays().get(0).getAlt_text(), txt_content));
+                txt_content.setVisibility(View.VISIBLE);
+            } else if (moment.getCaption() != null && !moment.getCaption().trim().isEmpty()) {
+                txt_content.setText(moment.getCaption());
+                txt_content.setVisibility(View.VISIBLE);
             } else {
                 txt_content.setVisibility(View.GONE);
             }
 
-            // Disable friend API calls để tránh 404 errors
-            handleFriendAction(moment.getUser());
+            // 👤 Hiển thị thông tin user
+            if (moment.getUser() != null && !moment.getUser().isEmpty()) {
+                txt_name.setText(moment.getUser());
+                txt_name.setVisibility(View.VISIBLE);
+                
+                // 🔧 Load default avatar - có thể mở rộng để load real avatar sau
+                rounded_imageview.setImageResource(R.drawable.default_avatar);
+                rounded_imageview.setVisibility(View.VISIBLE);
+            } else {
+                txt_name.setVisibility(View.GONE);
+                rounded_imageview.setVisibility(View.GONE);
+            }
+            
+            // ⏰ Hiển thị thời gian
             txt_time.setText(formatDate(moment.getDateSeconds()));
         }
     }
@@ -136,6 +154,9 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
             }
             txt_content.setTextColor(ContextCompat.getColor(context, R.color.white));
             alt_text = "\ud83e\udd70 " + alt_text;
+        } else if (overlay_id.equals("caption:text")) {
+            // 📝 Default text caption - no special formatting
+            // Keep original text and styling
         }
         return alt_text;
     }
@@ -173,7 +194,7 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
         );
     }
 
-    // Disable friend API calls để tránh 404 errors
+    // 🚫 Disable friend API calls để tránh 404 errors - sẽ được enable sau khi có endpoint
     private void handleFriendAction(String userId) {
         // ❌ Backend không có friends endpoints - Disable để tránh 404
         Log.w("ViewMomentAdapter", "Friends endpoint not available, action disabled");

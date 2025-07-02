@@ -3,7 +3,7 @@ package com.example.locket.common.database;
 import androidx.room.TypeConverter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.example.locket.common.models.moment.Overlay;
+import com.example.locket.common.database.entities.MomentEntity;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -11,13 +11,21 @@ import java.util.List;
 public class Converters {
 
     @TypeConverter
-    public static List<Overlay> fromString(String value) {
-        Type listType = new TypeToken<List<Overlay>>() {}.getType();
-        return new Gson().fromJson(value, listType);
+    public static String fromOverlayList(List<MomentEntity.Overlay> overlays) {
+        if (overlays == null) {
+            return null;
+        }
+        Gson gson = new Gson();
+        return gson.toJson(overlays);
     }
 
     @TypeConverter
-    public static String fromList(List<Overlay> list) {
-        return new Gson().toJson(list);
+    public static List<MomentEntity.Overlay> toOverlayList(String overlaysString) {
+        if (overlaysString == null) {
+            return null;
+        }
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<MomentEntity.Overlay>>() {}.getType();
+        return gson.fromJson(overlaysString, listType);
     }
 }

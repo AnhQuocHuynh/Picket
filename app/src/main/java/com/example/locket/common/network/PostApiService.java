@@ -3,6 +3,7 @@ package com.example.locket.common.network;
 import com.example.locket.common.models.post.CreatePostRequest;
 import com.example.locket.common.models.post.PostResponse;
 import com.example.locket.common.models.post.PostsResponse;
+import com.example.locket.common.models.post.CategoriesResponse;
 import com.example.locket.common.models.post.LikeResponse;
 import com.example.locket.common.models.post.CommentRequest;
 import com.example.locket.common.models.post.CommentResponse;
@@ -106,5 +107,11 @@ public interface PostApiService {
             @Path("userId") String userId,
             @Query("page") int page,
             @Query("limit") int limit
+    );
+
+    // 🏷️ GET AVAILABLE CATEGORIES - Only categories that have posts
+    @GET("posts/categories/available")
+    Call<CategoriesResponse> getAvailableCategories(
+            @Header("Authorization") String bearerToken
     );
 } 
