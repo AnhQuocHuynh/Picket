@@ -59,7 +59,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/relative_avatar"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="15dp"
+                android:text="Van Tien Dat"
                 android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_18ssp" />
@@ -81,65 +82,11 @@
                 android:textSize="@dimen/_12ssp" />
 
             <LinearLayout
-                android:id="@+id/linear_new"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/txt_edit_info"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginBottom="@dimen/_10sdp"
-                android:background="@drawable/background_item_bottom_sheet"
-                android:orientation="horizontal"
-                android:padding="@dimen/_10sdp">
-
-                <com.makeramen.roundedimageview.RoundedImageView
-                    android:id="@+id/img_avatar_2"
-                    android:layout_width="@dimen/_40sdp"
-                    android:layout_height="@dimen/_40sdp"
-                    android:background="@drawable/bg_widget_empty_circle_outline"
-                    android:padding="@dimen/_4sdp"
-                    android:src="@color/white"
-                    app:riv_corner_radius="@dimen/_50sdp" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="@dimen/_10sdp"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Mới"
-                        android:textColor="@color/app"
-                        android:textSize="@dimen/_12ssp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Đăng ký tên người dùng của bạn"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="@dimen/_16sdp"
-                    android:layout_height="@dimen/_16sdp"
-                    android:layout_gravity="center"
-                    android:rotation="180"
-                    android:src="@drawable/arrow_back_ios_24px"
-                    app:tint="@color/text" />
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/linear_add_utilities"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/linear_new"
-                android:layout_marginTop="@dimen/_10sdp">
+                android:layout_below="@+id/txt_edit_info"
+                android:layout_marginTop="30dp">
 
                 <ImageView
                     android:layout_width="@dimen/_18sdp"
@@ -201,43 +148,7 @@
                         app:tint="@color/text" />
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/bg" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/_10sdp">
-
-                    <ImageView
-                        android:layout_width="@dimen/_18sdp"
-                        android:layout_height="@dimen/_18sdp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_question_mark"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_10sdp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Hướng dẫn về Tiện ích"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
-
-                    <ImageView
-                        android:layout_width="@dimen/_16sdp"
-                        android:layout_height="@dimen/_16sdp"
-                        android:layout_gravity="center"
-                        android:rotation="180"
-                        android:src="@drawable/arrow_back_ios_24px"
-                        app:tint="@color/text" />
-                </LinearLayout>
 
             </LinearLayout>
 
@@ -261,7 +172,7 @@
                     android:layout_gravity="center"
                     android:layout_marginStart="@dimen/_10sdp"
                     android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                    android:text="Tổng quát"
+                    android:text="Bạn bè"
                     android:textColor="@color/text"
                     android:textSize="@dimen/_12ssp" />
             </LinearLayout>
@@ -274,9 +185,8 @@
                 android:layout_marginTop="@dimen/_10sdp"
                 android:background="@drawable/background_item_bottom_sheet"
                 android:orientation="vertical">
-
                 <LinearLayout
-                    android:id="@+id/linear_change_email"
+                    android:id="@+id/friendlistbtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -286,7 +196,7 @@
                         android:layout_width="@dimen/_18sdp"
                         android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_baseline_email_24"
+                        android:src="@drawable/favorite_24px"
                         app:tint="@color/white" />
 
                     <TextView
@@ -296,7 +206,7 @@
                         android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
                         android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Thay đổi địa chỉ email"
+                        android:text="Danh sách bạn bè"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
 
@@ -347,388 +257,15 @@
                         android:src="@drawable/arrow_back_ios_24px"
                         app:tint="@color/text" />
                 </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/bg" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/_10sdp">
-
-                    <ImageView
-                        android:layout_width="@dimen/_18sdp"
-                        android:layout_height="@dimen/_18sdp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_paperplane_fill"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_10sdp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Chia sẻ phản hồi"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
-
-                    <ImageView
-                        android:layout_width="@dimen/_16sdp"
-                        android:layout_height="@dimen/_16sdp"
-                        android:layout_gravity="center"
-                        android:rotation="180"
-                        android:src="@drawable/arrow_back_ios_24px"
-                        app:tint="@color/text" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/bg" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/_10sdp">
-
-                    <ImageView
-                        android:layout_width="@dimen/_18sdp"
-                        android:layout_height="@dimen/_18sdp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_exclamationmark_circle_fill"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_10sdp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Báo cáo sự cố"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
-
-                    <ImageView
-                        android:layout_width="@dimen/_16sdp"
-                        android:layout_height="@dimen/_16sdp"
-                        android:layout_gravity="center"
-                        android:rotation="180"
-                        android:src="@drawable/arrow_back_ios_24px"
-                        app:tint="@color/text" />
-                </LinearLayout>
-
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/linear_title_introduce"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/linear_general"
-                android:layout_marginTop="@dimen/_20sdp">
-
-                <ImageView
-                    android:layout_width="@dimen/_18sdp"
-                    android:layout_height="@dimen/_18sdp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/favorite_24px"
-                    app:tint="@color/text" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/_10sdp"
-                    android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                    android:text="Giới thiệu"
-                    android:textColor="@color/text"
-                    android:textSize="@dimen/_12ssp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/linear_introduce"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/linear_title_introduce"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:background="@drawable/background_item_bottom_sheet"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/_10sdp">
-
-                    <ImageView
-                        android:layout_width="@dimen/_18sdp"
-                        android:layout_height="@dimen/_18sdp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_tiktok"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_10sdp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="TikTok"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
-
-                    <ImageView
-                        android:layout_width="@dimen/_16sdp"
-                        android:layout_height="@dimen/_16sdp"
-                        android:layout_gravity="center"
-                        android:rotation="180"
-                        android:src="@drawable/arrow_back_ios_24px"
-                        app:tint="@color/text" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/bg" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/_10sdp">
-
-                    <ImageView
-                        android:layout_width="@dimen/_18sdp"
-                        android:layout_height="@dimen/_18sdp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_instagram"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_10sdp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Instagram"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
-
-                    <ImageView
-                        android:layout_width="@dimen/_16sdp"
-                        android:layout_height="@dimen/_16sdp"
-                        android:layout_gravity="center"
-                        android:rotation="180"
-                        android:src="@drawable/arrow_back_ios_24px"
-                        app:tint="@color/text" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/bg" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/_10sdp">
-
-                    <ImageView
-                        android:layout_width="@dimen/_18sdp"
-                        android:layout_height="@dimen/_18sdp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_twitter"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_10sdp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Twitter"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
-
-                    <ImageView
-                        android:layout_width="@dimen/_16sdp"
-                        android:layout_height="@dimen/_16sdp"
-                        android:layout_gravity="center"
-                        android:rotation="180"
-                        android:src="@drawable/arrow_back_ios_24px"
-                        app:tint="@color/text" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/bg" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/_10sdp">
-
-                    <ImageView
-                        android:layout_width="@dimen/_18sdp"
-                        android:layout_height="@dimen/_18sdp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_share"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_10sdp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Chia sẻ Locket"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
-
-                    <ImageView
-                        android:layout_width="@dimen/_16sdp"
-                        android:layout_height="@dimen/_16sdp"
-                        android:layout_gravity="center"
-                        android:rotation="180"
-                        android:src="@drawable/arrow_back_ios_24px"
-                        app:tint="@color/text" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/bg" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/_10sdp">
-
-                    <ImageView
-                        android:layout_width="@dimen/_18sdp"
-                        android:layout_height="@dimen/_18sdp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_star"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_10sdp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Đánh giá Locket"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
-
-                    <ImageView
-                        android:layout_width="@dimen/_16sdp"
-                        android:layout_height="@dimen/_16sdp"
-                        android:layout_gravity="center"
-                        android:rotation="180"
-                        android:src="@drawable/arrow_back_ios_24px"
-                        app:tint="@color/text" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/bg" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/_10sdp">
-
-                    <ImageView
-                        android:layout_width="@dimen/_18sdp"
-                        android:layout_height="@dimen/_18sdp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_signature"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_10sdp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Điều khoản dịch vụ"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
-
-                    <ImageView
-                        android:layout_width="@dimen/_16sdp"
-                        android:layout_height="@dimen/_16sdp"
-                        android:layout_gravity="center"
-                        android:rotation="180"
-                        android:src="@drawable/arrow_back_ios_24px"
-                        app:tint="@color/text" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/bg" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/_10sdp">
-
-                    <ImageView
-                        android:layout_width="@dimen/_18sdp"
-                        android:layout_height="@dimen/_18sdp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_lock_fill"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_10sdp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Chính sách quyền riêng tư"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
-
-                    <ImageView
-                        android:layout_width="@dimen/_16sdp"
-                        android:layout_height="@dimen/_16sdp"
-                        android:layout_gravity="center"
-                        android:rotation="180"
-                        android:src="@drawable/arrow_back_ios_24px"
-                        app:tint="@color/text" />
-                </LinearLayout>
-
-            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/linear_title_danger"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/linear_introduce"
-                android:layout_marginTop="@dimen/_20sdp">
+                android:layout_below="@+id/linear_general"
+                android:layout_marginTop="30dp">
 
                 <ImageView
                     android:layout_width="@dimen/_18sdp"
@@ -743,7 +280,7 @@
                     android:layout_gravity="center"
                     android:layout_marginStart="@dimen/_10sdp"
                     android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                    android:text="Vùng nguy hiểm"
+                    android:text="Tài khoản"
                     android:textColor="@color/text"
                     android:textSize="@dimen/_12ssp" />
             </LinearLayout>
@@ -756,9 +293,8 @@
                 android:layout_marginTop="@dimen/_10sdp"
                 android:background="@drawable/background_item_bottom_sheet"
                 android:orientation="vertical">
-
                 <LinearLayout
-                    android:id="@+id/linear_logout"
+                    android:id="@+id/linear_change_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -768,7 +304,7 @@
                         android:layout_width="@dimen/_18sdp"
                         android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_handwave_fill"
+                        android:src="@drawable/ic_baseline_email_24"
                         app:tint="@color/white" />
 
                     <TextView
@@ -778,7 +314,7 @@
                         android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
                         android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Đăng xuất"
+                        android:text="Thay đổi địa chỉ email"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
 
@@ -795,8 +331,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/bg" />
-
                 <LinearLayout
+                    android:id="@+id/linear_change_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -806,7 +342,45 @@
                         android:layout_width="@dimen/_18sdp"
                         android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_trash"
+                        android:src="@drawable/lock_24px"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+                        android:text="Đổi mật khẩu"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_12ssp" />
+
+                    <ImageView
+                        android:layout_width="@dimen/_16sdp"
+                        android:layout_height="@dimen/_16sdp"
+                        android:layout_gravity="center"
+                        android:rotation="180"
+                        android:src="@drawable/arrow_back_ios_24px"
+                        app:tint="@color/text" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/bg" />
+                <LinearLayout
+                    android:id="@+id/linear_logout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/_10sdp">
+
+                    <ImageView
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_handwave_fill"
                         app:tint="@color/red" />
 
                     <TextView
@@ -816,7 +390,7 @@
                         android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
                         android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Xóa tài khoản"
+                        android:text="Đăng xuất"
                         android:textColor="@color/red"
                         android:textSize="@dimen/_12ssp" />
 
@@ -828,6 +402,8 @@
                         android:src="@drawable/arrow_back_ios_24px"
                         app:tint="@color/text" />
                 </LinearLayout>
+
+
 
             </LinearLayout>
         </RelativeLayout>

@@ -67,16 +67,15 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
 
     private void initViews(BottomSheetDialog bottomSheetDialog) {
         txt_edit_info = bottomSheetDialog.findViewById(R.id.txt_edit_info);
-        linear_new = bottomSheetDialog.findViewById(R.id.linear_new);
+
         RoundedImageView img_capture = bottomSheetDialog.findViewById(R.id.img_capture);
-        RoundedImageView img_avatar_2 = bottomSheetDialog.findViewById(R.id.img_avatar_2);
         TextView txt_full_name = bottomSheetDialog.findViewById(R.id.txt_full_name);
         linear_change_email = bottomSheetDialog.findViewById(R.id.linear_change_email);
         linear_friend_link = bottomSheetDialog.findViewById(R.id.linear_friend_link);
         linear_logout = bottomSheetDialog.findViewById(R.id.linear_logout);
 
         // Load user profile data
-        loadUserProfileData(txt_full_name, img_avatar_2, img_capture);
+        loadUserProfileData(txt_full_name, img_capture);
     }
 
     private void onClick() {
@@ -84,7 +83,7 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
         linear_logout.setOnClickListener(view -> {
             openBottomSheetLogout();
         });
-        linear_new.setOnClickListener(view -> openBottomSheetRegisterUserName());
+//        linear_new.setOnClickListener(view -> openBottomSheetRegisterUserName());
 
         txt_edit_info.setOnClickListener(view -> openBottomSheetChangeName());
         linear_change_email.setOnClickListener(view -> openBottomSheetChangeEmail());
@@ -135,11 +134,11 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
     /**
      * 🔄 Load user profile data from API or fallback to cached data
      */
-    private void loadUserProfileData(TextView txtFullName, RoundedImageView imgAvatar2, RoundedImageView imgCapture) {
+    private void loadUserProfileData(TextView txtFullName, RoundedImageView imgCapture) {
         // First try to load from cached UserProfile
         UserProfile cachedProfile = SharedPreferencesUser.getUserProfile(requireContext());
         if (cachedProfile != null && cachedProfile.getUser() != null) {
-            setUserProfileData(cachedProfile, txtFullName, imgAvatar2, imgCapture);
+            setUserProfileData(cachedProfile, txtFullName, imgCapture);
         }
 
         // Then load fresh data from API
@@ -150,7 +149,7 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
                     // Save updated profile
                     SharedPreferencesUser.saveUserProfile(requireContext(), userProfile);
                     // Update UI
-                    setUserProfileData(userProfile, txtFullName, imgAvatar2, imgCapture);
+                    setUserProfileData(userProfile, txtFullName, imgCapture);
                 }
             }
 
@@ -159,13 +158,12 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
                 // Fallback to LoginResponse if UserProfile fails
                 LoginResponse loginResponse = SharedPreferencesUser.getLoginResponse(requireContext());
                 if (loginResponse != null) {
-                    setLoginResponseData(loginResponse, txtFullName, imgAvatar2, imgCapture);
+                    setLoginResponseData(loginResponse, txtFullName, imgCapture);
                 } else {
                     // Last fallback to AccountInfo (for backward compatibility)
                     AccountInfo accountInfo = SharedPreferencesUser.getAccountInfo(requireContext());
                     if (accountInfo != null && accountInfo.getUsers() != null && !accountInfo.getUsers().isEmpty()) {
                         txtFullName.setText(accountInfo.getUsers().get(0).getDisplayName());
-                        Glide.with(BottomSheetInfo.this).load(accountInfo.getUsers().get(0).getPhotoUrl()).into(imgAvatar2);
                         Glide.with(BottomSheetInfo.this).load(accountInfo.getUsers().get(0).getPhotoUrl()).into(imgCapture);
                     }
                 }
@@ -176,7 +174,7 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
     /**
      * 🎨 Set UI data from UserProfile
      */
-    private void setUserProfileData(UserProfile userProfile, TextView txtFullName, RoundedImageView imgAvatar2, RoundedImageView imgCapture) {
+    private void setUserProfileData(UserProfile userProfile, TextView txtFullName, RoundedImageView imgCapture) {
         UserProfile.UserData userData = userProfile.getUser();
         
         // Set display name
@@ -192,11 +190,6 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
         // Load profile pictures
         String profilePictureUrl = userData.getProfilePicture();
         if (profilePictureUrl != null && !profilePictureUrl.isEmpty()) {
-            Glide.with(this)
-                    .load(profilePictureUrl)
-                    .placeholder(R.drawable.ic_widget_empty_icon)
-                    .error(R.drawable.ic_widget_empty_icon)
-                    .into(imgAvatar2);
             
             Glide.with(this)
                     .load(profilePictureUrl)
@@ -204,15 +197,14 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
                     .error(R.drawable.ic_widget_empty_icon)
                     .into(imgCapture);
         } else {
-            imgAvatar2.setImageResource(R.drawable.ic_widget_empty_icon);
-            imgCapture.setImageResource(R.drawable.ic_widget_empty_icon);
+            imgCapture.setImageResource(R.drawable.assets_png_image_watermark);
         }
     }
 
     /**
      * 🔄 Fallback: Set UI data from LoginResponse
      */
-    private void setLoginResponseData(LoginResponse loginResponse, TextView txtFullName, RoundedImageView imgAvatar2, RoundedImageView imgCapture) {
+    private void setLoginResponseData(LoginResponse loginResponse, TextView txtFullName, RoundedImageView imgCapture) {
         // Set display name
         String displayName = loginResponse.getDisplayName();
         if (displayName == null || displayName.isEmpty()) {
@@ -223,11 +215,9 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
         // Load profile pictures
         String profilePictureUrl = loginResponse.getProfilePicture();
         if (profilePictureUrl != null && !profilePictureUrl.isEmpty()) {
-            Glide.with(this).load(profilePictureUrl).into(imgAvatar2);
             Glide.with(this).load(profilePictureUrl).into(imgCapture);
         } else {
-            imgAvatar2.setImageResource(R.drawable.ic_widget_empty_icon);
-            imgCapture.setImageResource(R.drawable.ic_widget_empty_icon);
+            imgCapture.setImageResource(R.drawable.assets_png_image_watermark);
         }
     }
 }

@@ -167,6 +167,57 @@ public class FriendshipRepository {
     }
 
     /**
+     * ❌ Decline friend request
+     */
+    public void declineFriendRequest(String friendshipId, DeleteCallback callback) {
+        String authHeader = AuthManager.getAuthHeader(context);
+        if (authHeader == null) {
+            if (callback != null) callback.onError("No authentication token", 401);
+            return;
+        }
+
+        Call<com.example.locket.common.models.common.ApiResponse> call = friendshipApiService.declineFriendRequest(authHeader, friendshipId);
+
+        call.enqueue(new Callback<com.example.locket.common.models.common.ApiResponse>() {
+            @Override
+            public void onResponse(Call<com.example.locket.common.models.common.ApiResponse> call, Response<com.example.locket.common.models.common.ApiResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Decline friend request successful");
+                    if (callback != null) callback.onSuccess(response.body().getMessage());
+                } else {
+                    ApiErrorHandler.handleError(response, new ApiErrorHandler.ErrorCallback() {
+                        @Override
+                        public void onError(String message, int code) {
+                            if (callback != null) callback.onError(message, code);
+                        }
+
+                        @Override
+                        public void onTokenExpired() {
+                            ApiErrorHandler.clearAuthenticationData(context);
+                            if (callback != null) callback.onError("Session expired", 401);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<com.example.locket.common.models.common.ApiResponse> call, Throwable t) {
+                ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
+                    @Override
+                    public void onError(String message, int code) {
+                        if (callback != null) callback.onError(message, code);
+                    }
+
+                    @Override
+                    public void onTokenExpired() {
+                        // Not applicable for network errors
+                    }
+                });
+            }
+        });
+    }
+
+    /**
      * 👥 Get friends list
      */
     public void getFriendsList(FriendsListCallback callback) {
@@ -325,6 +376,200 @@ public class FriendshipRepository {
                     public void onTokenExpired() {
                         // Not applicable for network errors
                     }
+                });
+            }
+        });
+    }
+
+    /**
+     * 🚫 Cancel sent friend request
+     */
+    public void cancelFriendRequest(String friendshipId, DeleteCallback callback) {
+        String authHeader = AuthManager.getAuthHeader(context);
+        if (authHeader == null) {
+            if (callback != null) callback.onError("No authentication token", 401);
+            return;
+        }
+
+        Call<com.example.locket.common.models.common.ApiResponse> call = friendshipApiService.cancelFriendRequest(authHeader, friendshipId);
+        call.enqueue(new Callback<com.example.locket.common.models.common.ApiResponse>() {
+            @Override
+            public void onResponse(Call<com.example.locket.common.models.common.ApiResponse> call, Response<com.example.locket.common.models.common.ApiResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    if (callback != null) callback.onSuccess(response.body().getMessage());
+                } else {
+                    ApiErrorHandler.handleError(response, new ApiErrorHandler.ErrorCallback() {
+                        @Override
+                        public void onError(String message, int code) {
+                            if (callback != null) callback.onError(message, code);
+                        }
+
+                        @Override
+                        public void onTokenExpired() {
+                            ApiErrorHandler.clearAuthenticationData(context);
+                            if (callback != null) callback.onError("Session expired", 401);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<com.example.locket.common.models.common.ApiResponse> call, Throwable t) {
+                ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
+                    @Override
+                    public void onError(String message, int code) {
+                        if (callback != null) callback.onError(message, code);
+                    }
+
+                    @Override
+                    public void onTokenExpired() {}
+                });
+            }
+        });
+    }
+
+    /**
+     * 💔 Remove friend
+     */
+    public void removeFriend(String friendUserId, DeleteCallback callback) {
+        String authHeader = AuthManager.getAuthHeader(context);
+        if (authHeader == null) {
+            if (callback != null) callback.onError("No authentication token", 401);
+            return;
+        }
+
+        Call<com.example.locket.common.models.common.ApiResponse> call = friendshipApiService.removeFriend(authHeader, friendUserId);
+        call.enqueue(new Callback<com.example.locket.common.models.common.ApiResponse>() {
+            @Override
+            public void onResponse(Call<com.example.locket.common.models.common.ApiResponse> call, Response<com.example.locket.common.models.common.ApiResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    if (callback != null) callback.onSuccess(response.body().getMessage());
+                } else {
+                    ApiErrorHandler.handleError(response, new ApiErrorHandler.ErrorCallback() {
+                        @Override
+                        public void onError(String message, int code) {
+                            if (callback != null) callback.onError(message, code);
+                        }
+
+                        @Override
+                        public void onTokenExpired() {
+                            ApiErrorHandler.clearAuthenticationData(context);
+                            if (callback != null) callback.onError("Session expired", 401);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<com.example.locket.common.models.common.ApiResponse> call, Throwable t) {
+                ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
+                    @Override
+                    public void onError(String message, int code) {
+                        if (callback != null) callback.onError(message, code);
+                    }
+
+                    @Override
+                    public void onTokenExpired() {}
+                });
+            }
+        });
+    }
+
+    /**
+     * 📥 Get received friend requests (pending)
+     */
+    public void getReceivedFriendRequests(FriendsListCallback callback) {
+        String authHeader = AuthManager.getAuthHeader(context);
+        if (authHeader == null) {
+            if (callback != null) callback.onError("No authentication token", 401);
+            return;
+        }
+        if (callback != null) callback.onLoading(true);
+
+        Call<FriendsListResponse> call = friendshipApiService.getReceivedFriendRequests(authHeader);
+        call.enqueue(new Callback<FriendsListResponse>() {
+            @Override
+            public void onResponse(Call<FriendsListResponse> call, Response<FriendsListResponse> response) {
+                if (callback != null) callback.onLoading(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    if (callback != null) callback.onSuccess(response.body());
+                } else {
+                    ApiErrorHandler.handleError(response, new ApiErrorHandler.ErrorCallback() {
+                        @Override
+                        public void onError(String message, int code) {
+                            if (callback != null) callback.onError(message, code);
+                        }
+
+                        @Override
+                        public void onTokenExpired() {
+                             ApiErrorHandler.clearAuthenticationData(context);
+                            if (callback != null) callback.onError("Session expired", 401);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FriendsListResponse> call, Throwable t) {
+                if (callback != null) callback.onLoading(false);
+                ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
+                     @Override
+                    public void onError(String message, int code) {
+                        if (callback != null) callback.onError(message, code);
+                    }
+
+                    @Override
+                    public void onTokenExpired() {}
+                });
+            }
+        });
+    }
+
+    /**
+     * 📤 Get sent friend requests (pending)
+     */
+    public void getSentFriendRequests(FriendsListCallback callback) {
+        String authHeader = AuthManager.getAuthHeader(context);
+        if (authHeader == null) {
+            if (callback != null) callback.onError("No authentication token", 401);
+            return;
+        }
+        if (callback != null) callback.onLoading(true);
+
+        Call<FriendsListResponse> call = friendshipApiService.getSentFriendRequests(authHeader);
+        call.enqueue(new Callback<FriendsListResponse>() {
+            @Override
+            public void onResponse(Call<FriendsListResponse> call, Response<FriendsListResponse> response) {
+                if (callback != null) callback.onLoading(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    if (callback != null) callback.onSuccess(response.body());
+                } else {
+                    ApiErrorHandler.handleError(response, new ApiErrorHandler.ErrorCallback() {
+                        @Override
+                        public void onError(String message, int code) {
+                            if (callback != null) callback.onError(message, code);
+                        }
+
+                        @Override
+                        public void onTokenExpired() {
+                             ApiErrorHandler.clearAuthenticationData(context);
+                            if (callback != null) callback.onError("Session expired", 401);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FriendsListResponse> call, Throwable t) {
+                if (callback != null) callback.onLoading(false);
+                ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
+                     @Override
+                    public void onError(String message, int code) {
+                        if (callback != null) callback.onError(message, code);
+                    }
+
+                    @Override
+                    public void onTokenExpired() {}
                 });
             }
         });

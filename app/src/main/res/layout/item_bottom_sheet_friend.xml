@@ -74,7 +74,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Thêm một người bạn"
+                        android:text="Tìm kiếm bạn bè"
                         android:textColor="@color/hint"
                         android:textSize="@dimen/_14ssp" />
                 </LinearLayout>
@@ -121,188 +121,13 @@
                 </LinearLayout>
             </LinearLayout>
 
-
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_search_results"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_20sdp"
-                android:orientation="horizontal">
+                android:layout_marginTop="10dp" />
 
-                <ImageView
-                    android:layout_width="@dimen/_20sdp"
-                    android:layout_height="@dimen/_20sdp"
-                    android:layout_marginEnd="@dimen/_5sdp"
-                    android:src="@drawable/person_add_24px"
-                    app:tint="@color/white" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                    android:text="Tìm bạn bè từ các ứng dụng khác"
-                    android:textColor="@color/hint"
-                    android:textSize="@dimen/_13ssp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:background="@drawable/background_edit_text"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:padding="@dimen/_10sdp">
-
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:layout_width="@dimen/_45sdp"
-                        android:layout_height="@dimen/_45sdp"
-                        android:layout_centerHorizontal="true"
-                        android:background="@drawable/background_item_app"
-                        android:padding="@dimen/_3sdp"
-                        android:src="@drawable/assets_png_messenger_background"
-                        app:riv_corner_radius="@dimen/_50sdp" />
-
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:id="@+id/img_messenger"
-                        android:layout_width="@dimen/_45sdp"
-                        android:layout_height="@dimen/_45sdp"
-                        android:layout_centerHorizontal="true"
-                        android:background="@drawable/background_item_app"
-                        android:padding="@dimen/_14sdp"
-                        android:src="@drawable/assets_png_messenger_invite_logo" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/img_messenger"
-                        android:layout_centerInParent="true"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Mess"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_13ssp" />
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:padding="@dimen/_10sdp">
-
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:layout_width="@dimen/_45sdp"
-                        android:layout_height="@dimen/_45sdp"
-                        android:layout_centerHorizontal="true"
-                        android:background="@drawable/background_item_app"
-                        android:padding="@dimen/_3sdp"
-                        android:src="@color/white"
-                        app:riv_corner_radius="@dimen/_50sdp" />
-
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:id="@+id/img_zalo"
-                        android:layout_width="@dimen/_45sdp"
-                        android:layout_height="@dimen/_45sdp"
-                        android:layout_centerHorizontal="true"
-                        android:background="@drawable/background_item_app"
-                        android:padding="@dimen/_14sdp"
-                        android:src="@drawable/assets_png_zalo_invite_logo" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/img_zalo"
-                        android:layout_centerInParent="true"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Zalo"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_13ssp" />
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:padding="@dimen/_10sdp">
-
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:layout_width="@dimen/_45sdp"
-                        android:layout_height="@dimen/_45sdp"
-                        android:layout_centerHorizontal="true"
-                        android:background="@drawable/background_item_app"
-                        android:padding="@dimen/_3sdp"
-                        android:src="@drawable/assets_png_instagram_background"
-                        app:riv_corner_radius="@dimen/_50sdp" />
-
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:id="@+id/img_insta"
-                        android:layout_width="@dimen/_45sdp"
-                        android:layout_height="@dimen/_45sdp"
-                        android:layout_centerHorizontal="true"
-                        android:background="@drawable/background_item_app"
-                        android:padding="@dimen/_14sdp"
-                        android:src="@drawable/assets_png_instagram_logo" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/img_insta"
-                        android:layout_centerInParent="true"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Insta"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_13ssp" />
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:padding="@dimen/_10sdp">
-
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:layout_width="@dimen/_45sdp"
-                        android:layout_height="@dimen/_45sdp"
-                        android:layout_centerHorizontal="true"
-                        android:background="@drawable/background_item_app"
-                        android:padding="@dimen/_3sdp"
-                        android:src="@color/hint"
-                        app:riv_corner_radius="@dimen/_50sdp" />
-
-                    <ImageView
-                        android:id="@+id/img_other"
-                        android:layout_width="@dimen/_45sdp"
-                        android:layout_height="@dimen/_45sdp"
-                        android:layout_centerHorizontal="true"
-                        android:background="@drawable/background_item_app"
-                        android:padding="@dimen/_13sdp"
-                        android:src="@drawable/link_24px"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/img_other"
-                        android:layout_centerInParent="true"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Khác"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_13ssp" />
-
-                </RelativeLayout>
-
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -363,66 +188,22 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
 
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:layout_width="@dimen/_45sdp"
-                        android:layout_height="@dimen/_45sdp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/background_item_app"
-                        android:padding="@dimen/_3sdp"
-                        android:src="@color/green"
-                        app:riv_corner_radius="@dimen/_50sdp" />
-
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:id="@+id/img_messages"
-                        android:layout_width="@dimen/_45sdp"
-                        android:layout_height="@dimen/_45sdp"
-                        android:layout_gravity="center"
-                        android:padding="@dimen/_14sdp"
-                        android:src="@drawable/assets_png_messages_invite_logo" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="@dimen/_5sdp"
-                        android:layout_toEndOf="@id/img_messages"
-                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-                        android:text="Messages"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/_13ssp" />
-
-                    <ImageView
-                        android:layout_width="@dimen/_16sdp"
-                        android:layout_height="@dimen/_16sdp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:layout_gravity="center"
-                        android:layout_marginEnd="@dimen/_20sdp"
-                        android:rotation="180"
-                        android:src="@drawable/arrow_back_ios_24px"
-                        app:tint="@color/text" />
-
-                </RelativeLayout>
 
                 <RelativeLayout
                     android:id="@+id/relative_send_friend_link"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_10sdp"
                     android:background="?attr/selectableItemBackground"
-                    android:padding="@dimen/_5sdp">
+                    android:padding="@dimen/_3sdp">
 
                     <com.makeramen.roundedimageview.RoundedImageView
                         android:layout_width="@dimen/_45sdp"
                         android:layout_height="@dimen/_45sdp"
                         android:layout_gravity="center"
                         android:background="@drawable/background_item_app"
-                        android:padding="@dimen/_3sdp"
-                        android:src="@color/green"
+                        android:padding="@dimen/_2sdp"
+                        android:src="@color/gray"
                         app:riv_corner_radius="@dimen/_50sdp" />
 
                     <ImageView
