@@ -57,19 +57,6 @@
             android:textColor="@color/white"
             android:textColorHint="@color/hint" />
 
-        <TextView
-            android:id="@+id/login_phone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/_10sdp"
-            android:background="@drawable/background_text_view"
-            android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-            android:paddingHorizontal="@dimen/_10sdp"
-            android:paddingVertical="@dimen/_5sdp"
-            android:text="Sử dụng số điện thoại thay cho cách này"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_13ssp" />
     </LinearLayout>
 
     <LinearLayout
@@ -117,6 +104,16 @@
                 android:src="@drawable/arrow_right_alt"
                 app:tint="@color/hint" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_google_signin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Đăng nhập bằng Google"
+            android:background="@drawable/background_btn_register"
+            android:textColor="@color/bg"
+            android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold" />
 
     </LinearLayout>
 

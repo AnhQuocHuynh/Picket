@@ -69,7 +69,7 @@ public class LoginEmailFragment2 extends Fragment {
         conFigViews();
         onClick();
         getDataBundle();
-        
+
         // Test kết nối khi fragment được tạo
         testConnection();
     }
@@ -150,12 +150,12 @@ public class LoginEmailFragment2 extends Fragment {
         // Log chi tiết request để debug
         Log.d("Login", "Attempting login for email: " + email);
         Log.d("Login", "API Base URL: " + AuthApiClient.getAuthClient().baseUrl());
-        
+
         LoginRequest request = new LoginRequest(email, password);
         Call<LoginResponse> call = authApiService.login(request);
-        
+
         Log.d("Login", "Making API call to: " + call.request().url());
-        
+
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
@@ -164,11 +164,11 @@ public class LoginEmailFragment2 extends Fragment {
                 Log.d("Login", "Response code: " + response.code());
                 Log.d("Login", "Response message: " + response.message());
                 Log.d("Login", "Request URL: " + call.request().url());
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
                     Log.d("Login", "Response body received: " + loginResponse.isSuccess());
-                    
+
                     if (loginResponse.isSuccess()) {
                         // Save login data
                         SharedPreferencesUser.saveLoginRequest(requireContext(), request);
@@ -202,11 +202,11 @@ public class LoginEmailFragment2 extends Fragment {
                 Log.e("Login", "Network error: " + t.getMessage());
                 Log.e("Login", "Error class: " + t.getClass().getSimpleName());
                 Log.e("Login", "Request URL: " + call.request().url());
-                
+
                 if (t.getCause() != null) {
                     Log.e("Login", "Cause: " + t.getCause().getMessage());
                 }
-                
+
                 showAlertDialog("Lỗi kết nối", "Vui lòng kiểm tra kết nối internet và thử lại.\nChi tiết: " + t.getMessage());
             }
         });
@@ -240,20 +240,20 @@ public class LoginEmailFragment2 extends Fragment {
     // Method test connection đến backend
     private void testConnection() {
         Log.d("ConnectionTest", "🔍 Testing backend connection...");
-        
+
         // Log base URL để check
         retrofit2.Retrofit client = AuthApiClient.getAuthClient();
         Log.d("ConnectionTest", "📡 Base URL: " + client.baseUrl());
         Log.d("ConnectionTest", "🔧 Network config loaded successfully");
-        
+
         // Test với một request đơn giản để check server availability
         testServerConnection();
     }
-    
+
     private void testServerConnection() {
         // ❌ Backend không có check-email endpoint - Test với health check endpoint
         Log.d("ConnectionTest", "🧪 Testing server connection with basic health check...");
-        
+
         // Test với profile endpoint để check server availability
         retrofit2.Retrofit client = AuthApiClient.getAuthClient();
         Log.d("ConnectionTest", "📡 Testing connection to: " + client.baseUrl());
