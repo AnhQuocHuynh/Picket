@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.locket.R;
 import com.example.locket.common.models.friendship.FriendsListResponse;
-import com.makeramen.roundedimageview.RoundedImageView;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import java.util.List;
 
@@ -119,7 +119,7 @@ public class HorizontalFriendsAdapter extends RecyclerView.Adapter<RecyclerView.
     }
 
     class FriendViewHolder extends RecyclerView.ViewHolder {
-        private final RoundedImageView img_avatar;
+        private final CircleImageView img_avatar;
         private final TextView txt_name;
         private final View view_selection_border;
         private final ImageView img_selected_badge;
@@ -259,7 +259,7 @@ public class HorizontalFriendsAdapter extends RecyclerView.Adapter<RecyclerView.
     }
 
     class AllViewHolder extends RecyclerView.ViewHolder {
-        private final RoundedImageView img_all_avatar;
+        private final CircleImageView img_all_avatar;
         private final TextView txt_all_label;
         private final ImageView img_all_selected_badge;
 

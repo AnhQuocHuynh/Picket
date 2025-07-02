@@ -2,10 +2,13 @@ package com.example.locket.common.models.user;
 
 import java.io.Serializable;
 import java.util.List;
+import com.google.gson.annotations.SerializedName;
 
 public class AccountInfoUser implements Serializable {
+    @SerializedName("_id")
     private String localId;
     private String email;
+    @SerializedName("username")
     private String displayName;
     private String photoUrl;
     private String passwordHash;

@@ -13,7 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.makeramen.roundedimageview.RoundedImageView;
+import com.google.android.material.button.MaterialButton;
+import de.hdodenhof.circleimageview.CircleImageView;
 import com.example.locket.R;
 import com.example.locket.common.models.friendship.FriendsListResponse;
 
@@ -68,7 +69,7 @@ public class NewFriendsAdapter extends RecyclerView.Adapter<NewFriendsAdapter.Vi
         }
 
         // Remove friend click listener (you can implement this later)
-        holder.img_un_friend.setOnClickListener(view -> {
+        holder.btn_un_friend.setOnClickListener(view -> {
             // TODO: Implement remove friend functionality
             // You can call FriendshipRepository.removeFriend() here
         });
@@ -80,15 +81,15 @@ public class NewFriendsAdapter extends RecyclerView.Adapter<NewFriendsAdapter.Vi
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final RoundedImageView img_avatar;
+        private final CircleImageView img_avatar;
         private final TextView txt_full_name;
-        private final ImageView img_un_friend;
+        private final MaterialButton btn_un_friend;
 
         public ViewHolder(View itemView) {
             super(itemView);
             img_avatar = itemView.findViewById(R.id.img_avatar);
             txt_full_name = itemView.findViewById(R.id.txt_full_name);
-            img_un_friend = itemView.findViewById(R.id.img_un_friend);
+            btn_un_friend = itemView.findViewById(R.id.img_un_friend);
         }
     }
 } 

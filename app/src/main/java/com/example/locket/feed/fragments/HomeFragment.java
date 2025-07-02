@@ -131,7 +131,7 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
 
     private void onCLick() {
         linear_friends.setOnClickListener(view -> {
-            BottomSheetFriend bottomSheetFriend = new BottomSheetFriend(requireContext(), getActivity());
+            BottomSheetFriend bottomSheetFriend = new BottomSheetFriend();
             bottomSheetFriend.setFriendBottomSheetListener(this);
             bottomSheetFriend.show(getParentFragmentManager(), bottomSheetFriend.getTag());
         });

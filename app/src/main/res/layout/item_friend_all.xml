@@ -4,59 +4,54 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingHorizontal="@dimen/_8sdp"
+    android:padding="8dp"
     android:gravity="center"
-    android:minWidth="48dp"
-    android:minHeight="48dp"
-    android:background="?android:attr/selectableItemBackground"
+    android:minWidth="80dp"
+    android:background="?android:attr/selectableItemBackgroundBorderless"
     android:focusable="true"
     android:clickable="true">
 
     <FrameLayout
-        android:layout_width="@dimen/_60sdp"
-        android:layout_height="@dimen/_60sdp">
+        android:layout_width="64dp"
+        android:layout_height="64dp">
 
-        <com.makeramen.roundedimageview.RoundedImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/img_all_avatar"
-            android:layout_width="@dimen/_60sdp"
-            android:layout_height="@dimen/_60sdp"
-            android:scaleType="centerCrop"
-            android:background="@drawable/bg_widget_empty_circle_outline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:src="@drawable/group_24px"
-            android:padding="@dimen/_18sdp"
-            app:riv_corner_radius="@dimen/_30sdp"
-            app:tint="@color/white" />
+            app:civ_circle_background_color="?attr/colorSurfaceVariant"
+            android:padding="18dp"
+            app:civ_border_width="2dp"
+            app:civ_border_color="?attr/colorOutlineVariant"/>
 
         <!-- Selection Badge -->
         <ImageView
             android:id="@+id/img_all_selected_badge"
-            android:layout_width="@dimen/_20sdp"
-            android:layout_height="@dimen/_20sdp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_gravity="bottom|end"
-            android:layout_marginBottom="@dimen/_2sdp"
-            android:layout_marginEnd="@dimen/_2sdp"
-            android:background="@drawable/bg_circle_border"
-            android:padding="@dimen/_3sdp"
+            android:background="@drawable/bg_circle_badge"
+            android:padding="4dp"
             android:src="@drawable/check_24px"
             android:visibility="visible"
-            app:tint="@color/white"
+            app:tint="?attr/colorOnPrimary"
             android:contentDescription="Selected" />
 
     </FrameLayout>
 
     <TextView
         android:id="@+id/txt_all_label"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginTop="4dp"
         android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
         android:text="Tất cả"
         android:gravity="center"
-        android:textColor="@color/white"
-        android:textSize="@dimen/_12ssp"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:textColor="?attr/colorOnSurface"
         android:maxLines="1"
         android:ellipsize="end"
-        android:maxWidth="@dimen/_65sdp"
         android:contentDescription="Send to all friends" />
 
 </LinearLayout> 

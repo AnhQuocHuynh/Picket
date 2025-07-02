@@ -12,16 +12,26 @@ import com.example.locket.common.database.AppDatabase;
 import com.example.locket.common.database.dao.FriendDao;
 import com.example.locket.common.database.entities.FriendEntity;
 import com.example.locket.common.models.auth.LoginResponse;
+import com.example.locket.common.models.user.UserSearchResponse;
 import com.example.locket.common.network.MomentApiService;
+import com.example.locket.common.network.UserApiService;
+import com.example.locket.common.network.client.AuthApiClient;
 import com.example.locket.common.network.client.LoginApiClient;
+import com.example.locket.common.utils.ApiErrorHandler;
+import com.example.locket.common.utils.AuthManager;
 import com.example.locket.common.utils.SharedPreferencesUser;
 import com.google.gson.Gson;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class FriendRepository {
     private final LiveData<List<FriendEntity>> allFriends;
     private final MomentApiService momentApiService;
+    private final UserApiService userApiService;
     private final Context context;
     private final LoginResponse loginResponse; // Giả sử đây là model chứa token (idToken, vv)
 
@@ -33,6 +43,7 @@ public class FriendRepository {
         FriendDao friendDao = db.friendDao();
         allFriends = friendDao.getAllFriends();
         momentApiService = LoginApiClient.getCheckEmailClient().create(MomentApiService.class);
+        userApiService = AuthApiClient.getAuthClient().create(UserApiService.class);
         loginResponse = SharedPreferencesUser.getLoginResponse(application);
     }
 
@@ -191,6 +202,71 @@ public class FriendRepository {
 
     public LiveData<List<FriendEntity>> getAllFriends() {
         return allFriends;
+    }
+
+    // ==================== CALLBACKS ====================
+    public interface UserSearchCallback {
+        void onSuccess(UserSearchResponse response);
+        void onError(String message, int code);
+        void onLoading(boolean isLoading);
+    }
+
+    // ==================== USER OPERATIONS ====================
+
+    /**
+     * 🔍 Search for users by query
+     */
+    public void searchUsers(String query, UserSearchCallback callback) {
+        String authHeader = AuthManager.getAuthHeader(context);
+        if (authHeader == null) {
+            if (callback != null) callback.onError("No authentication token", 401);
+            return;
+        }
+
+        if (callback != null) callback.onLoading(true);
+
+        Call<UserSearchResponse> call = userApiService.searchUsers(authHeader, query);
+        call.enqueue(new Callback<UserSearchResponse>() {
+            @Override
+            public void onResponse(Call<UserSearchResponse> call, Response<UserSearchResponse> response) {
+                if (callback != null) callback.onLoading(false);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("FriendRepository", "User search successful");
+                    if (callback != null) callback.onSuccess(response.body());
+                } else {
+                    ApiErrorHandler.handleError(response, new ApiErrorHandler.ErrorCallback() {
+                        @Override
+                        public void onError(String message, int code) {
+                            if (callback != null) callback.onError(message, code);
+                        }
+
+                        @Override
+                        public void onTokenExpired() {
+                            ApiErrorHandler.clearAuthenticationData(context);
+                            if (callback != null) callback.onError("Session expired", 401);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserSearchResponse> call, Throwable t) {
+                if (callback != null) callback.onLoading(false);
+                ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
+                    @Override
+                    public void onError(String message, int code) {
+                        if (callback != null) callback.onError(message, code);
+                    }
+
+                    @Override
+                    public void onTokenExpired() {
+                        ApiErrorHandler.clearAuthenticationData(context);
+                        if (callback != null) callback.onError("Session expired", 401);
+                    }
+                });
+            }
+        });
     }
 }
 

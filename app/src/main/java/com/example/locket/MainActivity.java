@@ -159,11 +159,11 @@ public class MainActivity extends AppCompatActivity {
         }
         
         // Also notify any open BottomSheetFriend dialogs
-        getSupportFragmentManager().getFragments().forEach(fragment -> {
-            if (fragment instanceof BottomSheetFriend) {
-                ((BottomSheetFriend) fragment).refreshFriendsList();
-            }
-        });
+//        getSupportFragmentManager().getFragments().forEach(fragment -> {
+//            if (fragment instanceof BottomSheetFriend) {
+//                ((BottomSheetFriend) fragment).refreshFriendsList();
+//            }
+//        });
     }
 
     /**

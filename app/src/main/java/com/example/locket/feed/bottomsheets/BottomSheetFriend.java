@@ -1,23 +1,24 @@
 package com.example.locket.feed.bottomsheets;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,108 +26,85 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.example.locket.R;
+import com.example.locket.common.repository.viewmodels.FriendViewModel;
 import com.example.locket.profile.adapters.NewFriendsAdapter;
-import com.example.locket.common.repository.FriendshipRepository;
-import com.example.locket.common.models.friendship.FriendsListResponse;
+import com.example.locket.profile.adapters.UserSearchAdapter;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class BottomSheetFriend extends BottomSheetDialogFragment {
-    
-    // Interface for callbacks
+public class BottomSheetFriend extends BottomSheetDialogFragment implements UserSearchAdapter.OnAddFriendClickListener {
+
     public interface FriendBottomSheetListener {
         void onSendFriendLinkClicked();
     }
-    
+
     private FriendBottomSheetListener listener;
-    private final Context context;
-    private final Activity activity;
-    private BottomSheetDialog bottomSheetDialog;
-
-    private FriendshipRepository friendshipRepository;
-    private List<FriendsListResponse.FriendData> friendList;
+    private FriendViewModel friendViewModel;
     private NewFriendsAdapter friendsAdapter;
+    private UserSearchAdapter userSearchAdapter;
 
-    private LinearLayout linear_view1, linear_view2;
-    private TextView txt_cancel;
-    private TextView txt_number_friends;
     private EditText edt_search_friend;
-    private RecyclerView rv_friends;
+    private RecyclerView rv_friends, rv_search_results;
+    private TextView txt_number_friends, txt_cancel;
+    private LinearLayout linear_view1, linear_view2;
     private RelativeLayout relative_send_friend_link;
 
-    public BottomSheetFriend(Context context, Activity activity) {
-        this.context = context;
-        this.activity = activity;
-    }
-    
     public void setFriendBottomSheetListener(FriendBottomSheetListener listener) {
         this.listener = listener;
     }
 
     @Override
     public int getTheme() {
-        return R.style.CustomBottomSheetDialogTheme; // Áp dụng theme tùy chỉnh
+        return R.style.CustomBottomSheetDialogTheme;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
-    @SuppressLint("SetTextI18n")
-    @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        bottomSheetDialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
-        @SuppressLint("InflateParams") View view = LayoutInflater.from(getContext()).inflate(R.layout.item_bottom_sheet_friend, null);
-        bottomSheetDialog.setContentView(view);
-        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from((View) view.getParent());
-        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-
-        // Initialize repository and data
-        friendshipRepository = new FriendshipRepository(context);
-        friendList = new ArrayList<>();
-
-        initViews(bottomSheetDialog);
-        setAdapters();
-        onClick();
-        loadFriendsList();
-
-        return bottomSheetDialog;
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        friendViewModel = new ViewModelProvider(requireActivity()).get(FriendViewModel.class);
     }
 
-    private void initViews(BottomSheetDialog bottomSheetDialog) {
-        linear_view1 = bottomSheetDialog.findViewById(R.id.linear_view1);
-        linear_view2 = bottomSheetDialog.findViewById(R.id.linear_view2);
-        edt_search_friend = bottomSheetDialog.findViewById(R.id.edt_search_friend);
-        txt_cancel = bottomSheetDialog.findViewById(R.id.txt_cancel);
-        txt_number_friends = bottomSheetDialog.findViewById(R.id.txt_number_friends);
-        rv_friends = bottomSheetDialog.findViewById(R.id.rv_friends);
-        relative_send_friend_link = bottomSheetDialog.findViewById(R.id.relative_send_friend_link);
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.item_bottom_sheet_friend, container, false);
     }
 
-    private void setAdapters() {
-        rv_friends.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
-        friendsAdapter = new NewFriendsAdapter(friendList, requireActivity(), requireContext());
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initViews(view);
+        setupAdapters();
+        setupClickListeners();
+        setupSearch();
+        observeViewModel();
+    }
+
+    private void initViews(View view) {
+        linear_view1 = view.findViewById(R.id.linear_view1);
+        linear_view2 = view.findViewById(R.id.linear_view2);
+        edt_search_friend = view.findViewById(R.id.edt_search_friend);
+        txt_cancel = view.findViewById(R.id.txt_cancel);
+        txt_number_friends = view.findViewById(R.id.txt_number_friends);
+        rv_friends = view.findViewById(R.id.rv_friends);
+        relative_send_friend_link = view.findViewById(R.id.relative_send_friend_link);
+        rv_search_results = view.findViewById(R.id.rv_search_results);
+    }
+
+    private void setupAdapters() {
+        rv_friends.setLayoutManager(new LinearLayoutManager(getContext()));
+        friendsAdapter = new NewFriendsAdapter(new ArrayList<>(), getActivity(), getContext());
         rv_friends.setAdapter(friendsAdapter);
+
+        rv_search_results.setLayoutManager(new LinearLayoutManager(getContext()));
+        userSearchAdapter = new UserSearchAdapter(new ArrayList<>(), this);
+        rv_search_results.setAdapter(userSearchAdapter);
     }
 
-    private void onClick() {
-        linear_view1.setOnClickListener(view -> {
-            linear_view1.setVisibility(View.GONE);
-            linear_view2.setVisibility(View.VISIBLE);
-            edt_search_friend.requestFocus();
-
-            requireActivity().getWindow().getDecorView().post(() -> {
-                InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(edt_search_friend, InputMethodManager.SHOW_IMPLICIT);
-            });
-        });
-        
-        txt_cancel.setOnClickListener(view -> {
-            linear_view1.setVisibility(View.VISIBLE);
-            linear_view2.setVisibility(View.GONE);
-        });
-        
-        relative_send_friend_link.setOnClickListener(view -> {
-            // Dismiss bottom sheet and call listener
+    private void setupClickListeners() {
+        linear_view1.setOnClickListener(v -> toggleSearchView(true));
+        txt_cancel.setOnClickListener(v -> toggleSearchView(false));
+        relative_send_friend_link.setOnClickListener(v -> {
             dismiss();
             if (listener != null) {
                 listener.onSendFriendLinkClicked();
@@ -134,65 +112,94 @@ public class BottomSheetFriend extends BottomSheetDialogFragment {
         });
     }
 
-    /**
-     * 👥 Load friends list from API
-     */
-    private void loadFriendsList() {
-        friendshipRepository.getFriendsList(new FriendshipRepository.FriendsListCallback() {
+    private void toggleSearchView(boolean showSearch) {
+        linear_view1.setVisibility(showSearch ? View.GONE : View.VISIBLE);
+        linear_view2.setVisibility(showSearch ? View.VISIBLE : View.GONE);
+        rv_friends.setVisibility(showSearch ? View.GONE : View.VISIBLE);
+        rv_search_results.setVisibility(showSearch ? View.VISIBLE : View.GONE);
+        if (showSearch) {
+            edt_search_friend.requestFocus();
+            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(edt_search_friend, InputMethodManager.SHOW_IMPLICIT);
+        } else {
+            edt_search_friend.setText("");
+            userSearchAdapter.updateUsers(new ArrayList<>()); // Clear search results
+            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(edt_search_friend.getWindowToken(), 0);
+        }
+    }
+
+    private void setupSearch() {
+        edt_search_friend.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onSuccess(FriendsListResponse friendsListResponse) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        if (friendsListResponse != null && friendsListResponse.getData() != null) {
-                            friendList.clear();
-                            friendList.addAll(friendsListResponse.getData());
-                            friendsAdapter.updateFriendsList(friendList);
-                            updateFriendsCount();
-                            Log.d("BottomSheetFriend", "✅ Friends list loaded: " + friendList.size() + " friends");
-                        } else {
-                            Log.w("BottomSheetFriend", "⚠️ Empty friends list response");
-                            updateFriendsCount();
-                        }
-                    });
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.toString().trim().length() > 2) {
+                    friendViewModel.searchUsers(s.toString().trim());
+                } else {
+                    userSearchAdapter.updateUsers(new ArrayList<>()); // Clear if query is too short
                 }
             }
 
             @Override
-            public void onError(String message, int code) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        Log.e("BottomSheetFriend", "❌ Failed to load friends: " + message);
-                        updateFriendsCount();
-                        // Optionally show error message to user
-                    });
-                }
-            }
+            public void afterTextChanged(Editable s) {}
+        });
+    }
 
-            @Override
-            public void onLoading(boolean isLoading) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        if (isLoading) {
-                            Log.d("BottomSheetFriend", "🔄 Loading friends list...");
-                        }
-                    });
-                }
+    @Override
+    public void onStart() {
+        super.onStart();
+        Dialog dialog = getDialog();
+        if (dialog != null) {
+            View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior.from(bottomSheet).setState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+        }
+    }
+
+    private void observeViewModel() {
+        friendViewModel.myFriends.observe(getViewLifecycleOwner(), friends -> {
+            if (friends != null && friends.getData() != null) {
+                friendsAdapter.updateFriendsList(friends.getData());
+                updateFriendsCount(friends.getData().size());
+            }
+        });
+
+        friendViewModel.userSearchResults.observe(getViewLifecycleOwner(), searchResults -> {
+            if (searchResults != null && searchResults.getUsers() != null) {
+                userSearchAdapter.updateUsers(searchResults.getUsers());
+            } else {
+                userSearchAdapter.updateUsers(new ArrayList<>()); // Clear list on null response
+            }
+        });
+
+        friendViewModel.friendshipResponse.observe(getViewLifecycleOwner(), response -> {
+            if (response != null && response.getMessage() != null) {
+                Toast.makeText(getContext(), "Friend request sent!", Toast.LENGTH_SHORT).show();
+                // After a successful friend request, clear the search and go back
+                toggleSearchView(false);
+            }
+        });
+
+        friendViewModel.errorMessage.observe(getViewLifecycleOwner(), error -> {
+            if (error != null) {
+                Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    /**
-     * 🔄 Refresh friends list (call this after successful friend operations)
-     */
-    public void refreshFriendsList() {
-        Log.d("BottomSheetFriend", "🔄 Refreshing friends list...");
-        loadFriendsList();
+    @SuppressLint("SetTextI18n")
+    private void updateFriendsCount(int count) {
+        txt_number_friends.setText(count + " / 20 friends added");
     }
 
-    @SuppressLint("SetTextI18n")
-    private void updateFriendsCount() {
-        int friendsCount = friendList.size();
-        txt_number_friends.setText(friendsCount + " / 20 người bạn đã được bổ sung");
+    @Override
+    public void onAddFriendClick(String userId) {
+        friendViewModel.sendFriendRequest(userId);
     }
 }
+
 

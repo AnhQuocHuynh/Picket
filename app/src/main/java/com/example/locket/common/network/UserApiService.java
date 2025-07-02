@@ -1,14 +1,25 @@
 package com.example.locket.common.network;
 
+import com.example.locket.common.models.user.UserSearchResponse;
+
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 public interface UserApiService {
+
+    // 🔍 SEARCH USERS
+    @GET("user/search")
+    Call<UserSearchResponse> searchUsers(
+            @Header("Authorization") String bearerToken,
+            @Query("q") String query
+    );
 
     // ❌ Backend không có user endpoints - Comment out tất cả để tránh 404
     /*

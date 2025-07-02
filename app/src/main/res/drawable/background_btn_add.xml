@@ -6,7 +6,7 @@
         android:width="@dimen/_3sdp"
         android:color="@color/bg_bottom_sheet" />
 
-    <solid android:color="@color/app" />
+    <solid android:color="@color/primary_material_light" />
 
     <corners
        android:radius="@dimen/_100sdp" />
