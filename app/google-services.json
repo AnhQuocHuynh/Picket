@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "347851337541",
+    "project_id": "picket-se104",
+    "storage_bucket": "picket-se104.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347851337541:android:a3b6da7ee09ffc25c4582c",
+        "android_client_info": {
+          "package_name": "com.example.locket"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEnvvNyx9szgsR5VXahjcY7UT8_-aE1_U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

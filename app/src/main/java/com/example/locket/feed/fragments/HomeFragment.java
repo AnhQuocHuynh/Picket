@@ -137,7 +137,8 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
         });
         
         img_message.setOnClickListener(view -> {
-            // TODO: Tích hợp tin nhắn với bạn bè
+            Intent intent = new Intent(getActivity(), com.example.locket.friends.FriendsListActivity.class);
+            startActivity(intent);
         });
         
         img_profile.setOnClickListener(view -> {
@@ -350,6 +351,8 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
                 true
         );
     }
+
+
 
     private void getMomentV2(String type) {
         // ❌ Backend không có moments endpoints - Disable để tránh 404

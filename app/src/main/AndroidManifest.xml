@@ -83,6 +83,16 @@
         <service android:name=".feed.widget.service.LocketWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 
+        <activity
+            android:name=".chat.ChatActivity"
+            android:exported="false"
+            android:label="Chat" />
+
+        <activity
+            android:name=".friends.FriendsListActivity"
+            android:exported="false"
+            android:label="Select Friend" />
+
     </application>
 
 </manifest>
