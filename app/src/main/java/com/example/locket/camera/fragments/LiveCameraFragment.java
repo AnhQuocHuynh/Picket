@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -39,7 +38,6 @@ import androidx.fragment.app.Fragment;
 import com.airbnb.lottie.LottieAnimationView;
 import com.example.locket.R;
 import com.example.locket.camera.utils.ImageUtils;
-import com.example.locket.camera.fragments.PhotoPreviewFragment;
 import com.example.locket.common.models.auth.LoginResponse;
 import com.example.locket.common.models.post.PostResponse;
 import com.example.locket.common.network.ImageUploadService;
@@ -266,6 +264,9 @@ public class LiveCameraFragment extends Fragment {
             if (selectedImageUri != null) {
                 // Đọc ảnh từ Uri và chuyển thành byte[]
                 try {
+                    // 🔍 Debug: Log orientation info
+                    com.example.locket.common.utils.ImageOrientationUtils.logOrientationInfo(selectedImageUri, requireContext());
+                    
                     Uri compressedImageUri = ImageUtils.processImage(requireContext(), selectedImageUri, 50);
                     img_view.setImageURI(compressedImageUri);
 
@@ -305,15 +306,22 @@ public class LiveCameraFragment extends Fragment {
                             Log.e("Debug", "fullBitmap = null, không thể chuyển đổi!");
                             return;
                         }
-                        Log.d("Debug", "Bitmap hợp lệ, bắt đầu chuyển thành byte array...");
+
+                                                // 🔧 FIX: Xử lý rotation cho ảnh từ camera
+                        int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
+                        boolean isFrontCamera = !isBackCamera;
+                        Bitmap rotatedBitmap = ImageUtils.fixCameraImageRotation(fullBitmap, rotationDegrees, isFrontCamera);
+                        
+                        Log.d("Debug", "Bitmap hợp lệ và đã xoay đúng chiều, bắt đầu chuyển thành byte array...");
                         new Thread(() -> {
                             try {
-                                bytes = bitmapToByteArray(fullBitmap);
-                                Log.d("Debug", "Chuyển đổi thành công, kích thước: " + bytes.length + " bytes");
+                                byte[] imageBytes = bitmapToByteArray(rotatedBitmap);
+                                Log.d("Debug", "Chuyển đổi thành công, kích thước: " + imageBytes.length + " bytes");
                                 
                                 // Navigate to PhotoPreviewFragment
                                 getActivity().runOnUiThread(() -> {
-                                    navigateToPhotoPreview(previewBitmap, bytes);
+                                    bytes = imageBytes; // Assign to instance variable on UI thread
+                                    navigateToPhotoPreview(previewBitmap, imageBytes);
                                 });
                             } catch (Exception e) {
                                 Log.e("Debug", "Lỗi khi chuyển đổi Bitmap thành byte array", e);

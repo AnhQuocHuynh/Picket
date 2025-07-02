@@ -35,6 +35,7 @@ import com.example.locket.common.network.UserApiService;
 import com.example.locket.common.network.client.AuthApiClient;
 import com.example.locket.common.network.client.LoginApiClient;
 import com.example.locket.common.utils.SharedPreferencesUser;
+import com.example.locket.common.utils.WidgetUpdateHelper;
 import com.example.locket.feed.bottomsheets.BottomSheetInfo;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -162,6 +163,9 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
                         SharedPreferencesUser.saveLoginResponse(requireContext(), loginResponse);
                         SharedPreferencesUser.saveJWTToken(requireContext(), loginResponse.getToken());
                         SharedPreferencesUser.saveRefreshToken(requireContext(), loginResponse.getRefreshToken());
+
+                        // 🔄 Trigger widget update when user logs in successfully
+                        WidgetUpdateHelper.onUserLoginSuccess(requireContext());
 
                         // Get user profile with JWT token
                         getUserProfile(loginResponse.getToken());

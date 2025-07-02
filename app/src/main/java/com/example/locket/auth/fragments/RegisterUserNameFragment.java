@@ -26,6 +26,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.locket.R;
 import com.example.locket.common.models.auth.AuthResponse;
 import com.example.locket.common.utils.AuthManager;
+import com.example.locket.common.utils.WidgetUpdateHelper;
 import com.example.locket.feed.fragments.HomeFragment;
 
 public class RegisterUserNameFragment extends Fragment {

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Widget Colors - Dark Theme -->
+    <color name="widget_background">@color/widget_background_dark</color>
+    <color name="widget_content_bg">@color/widget_content_bg_dark</color>
+    <color name="widget_border">@color/widget_border_dark</color>
+    <color name="widget_text_primary">@color/widget_text_primary_dark</color>
+    <color name="widget_text_secondary">@color/widget_text_secondary_dark</color>
+    <color name="widget_placeholder_bg">@color/widget_placeholder_bg_dark</color>
+    <color name="widget_button_bg">@color/widget_button_bg_dark</color>
+    <color name="widget_ripple">@color/widget_ripple_dark</color>
+    <color name="widget_layout">@color/app</color>
+</resources> 

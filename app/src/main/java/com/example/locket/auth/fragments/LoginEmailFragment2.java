@@ -28,6 +28,7 @@ import com.example.locket.common.models.auth.LoginResponse;
 import com.example.locket.common.network.AuthApiService;
 import com.example.locket.common.network.client.AuthApiClient;
 import com.example.locket.common.utils.SharedPreferencesUser;
+import com.example.locket.common.utils.WidgetUpdateHelper;
 import com.example.locket.feed.fragments.HomeFragment;
 
 import retrofit2.Call;
@@ -174,6 +175,9 @@ public class LoginEmailFragment2 extends Fragment {
                         SharedPreferencesUser.saveLoginResponse(requireContext(), loginResponse);
                         SharedPreferencesUser.saveJWTToken(requireContext(), loginResponse.getToken());
                         SharedPreferencesUser.saveRefreshToken(requireContext(), loginResponse.getRefreshToken());
+
+                        // 🔄 Trigger widget update when user logs in successfully
+                        WidgetUpdateHelper.onUserLoginSuccess(requireContext());
 
                         // Check if user needs to set username
                         if (loginResponse.getUser().getUsername() == null || loginResponse.getUser().getUsername().isEmpty()) {

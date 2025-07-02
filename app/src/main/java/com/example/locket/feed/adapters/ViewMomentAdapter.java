@@ -93,9 +93,12 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
         }
 
         public void bind(MomentEntity moment) {
-            Glide.with(context)
-                    .load(moment.getThumbnailUrl())
-                    .into(shapeable_imageview);
+            // 🔧 FIX: Sử dụng CloudinaryImageLoader để tối ưu và giữ đúng tỷ lệ ảnh
+            com.example.locket.common.utils.CloudinaryImageLoader.loadMomentImage(
+                    context, 
+                    moment.getThumbnailUrl(), 
+                    shapeable_imageview
+            );
             if (moment.getOverlays() != null && !moment.getOverlays().isEmpty()) {
                 txt_content.setText(checkOverlayId(moment.getOverlays().get(0).getOverlay_id(), moment.getOverlays().get(0).getAlt_text(), txt_content));
             } else {

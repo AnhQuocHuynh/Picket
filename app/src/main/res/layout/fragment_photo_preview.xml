@@ -19,7 +19,8 @@
             android:id="@+id/img_preview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
             android:background="@drawable/background_camera" />
 
         <!-- Message Input -->
@@ -158,7 +159,6 @@
                 android:minHeight="@dimen/_20sdp"
                 android:paddingHorizontal="@dimen/_6sdp"
                 android:paddingVertical="@dimen/_2sdp"
-                android:text="(2)"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_10ssp" />
 

@@ -15,6 +15,8 @@ import androidx.work.WorkManager;
 import com.example.locket.feed.fragments.HomeFragment;
 import com.example.locket.auth.fragments.LoginOrRegisterFragment;
 import com.example.locket.common.utils.SharedPreferencesUser;
+import com.example.locket.common.utils.CloudinaryManager;
+import com.example.locket.common.utils.WidgetUpdateHelper;
 import com.example.locket.common.database.DataSyncWorker;
 import com.example.locket.common.repository.FriendshipRepository;
 import com.example.locket.common.models.friendship.FriendshipResponse;
@@ -34,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // 🌟 Initialize Cloudinary for image uploads
+        CloudinaryManager.initialize(this);
 
         // Initialize friendship repository
         friendshipRepository = new FriendshipRepository(this);
@@ -179,6 +184,13 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Đang xử lý lời mời kết bạn...", Toast.LENGTH_SHORT).show();
             processFriendInvite(pendingToken);
         }
+    }
+
+    /**
+     * 🔄 Manually trigger widget update (can be called from fragments if needed)
+     */
+    public void triggerWidgetUpdate() {
+        WidgetUpdateHelper.triggerWidgetUpdate(this);
     }
 
     public void replaceFragment(Fragment fragment) {
