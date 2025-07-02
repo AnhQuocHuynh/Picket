@@ -41,9 +41,12 @@ public class ViewAllMomentAdapter extends RecyclerView.Adapter<ViewAllMomentAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         MomentEntity moment = itemList.get(position);
 
-        Glide.with(context)
-                .load(moment.getThumbnailUrl())
-                .into(holder.shapeable_imageview);
+        // 🔧 FIX: Sử dụng CloudinaryImageLoader để tối ưu ảnh
+        com.example.locket.common.utils.CloudinaryImageLoader.loadThumbnail(
+                context, 
+                moment.getThumbnailUrl(), 
+                holder.shapeable_imageview
+        );
 
         holder.itemView.setOnClickListener(view -> {
 

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.locket.common.network.client.AuthApiClient;
 import com.example.locket.common.utils.AuthManager;
+import com.example.locket.common.utils.CloudinaryManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -119,14 +120,88 @@ public class ImageUploadService {
     }
 
     public void uploadImage(byte[] imageData, UploadCallback callback) {
-        String authHeader = AuthManager.getAuthHeader(context);
-        if (authHeader == null) {
-            if (callback != null) callback.onError("No authentication token", 401);
+        if (imageData == null || imageData.length == 0) {
+            if (callback != null) callback.onError("Image data is null or empty", 400);
             return;
         }
 
-        if (imageData == null || imageData.length == 0) {
-            if (callback != null) callback.onError("Image data is null or empty", 400);
+        // 🌟 NEW FLOW: Upload directly to Cloudinary first
+        uploadToCloudinary(imageData, callback);
+    }
+
+    /**
+     * 🌟 NEW METHOD: Upload to Cloudinary (Step 1 in new flow)
+     * Flow: Android → Cloudinary → Backend → Database → Display
+     */
+    private void uploadToCloudinary(byte[] imageData, UploadCallback callback) {
+        // Initialize Cloudinary if not already done
+        if (!CloudinaryManager.isInitialized()) {
+            CloudinaryManager.initialize(context);
+        }
+
+        String fileName = "locket_image_" + System.currentTimeMillis() + ".jpg";
+        
+        if (callback != null) callback.onUploadProgress(5);
+
+        CloudinaryManager.uploadImage(imageData, fileName, new CloudinaryManager.CloudinaryUploadCallback() {
+            @Override
+            public void onUploadStart(String requestId) {
+                Log.d(TAG, "🚀 Cloudinary upload started: " + requestId);
+                if (callback != null) callback.onUploadProgress(10);
+            }
+
+            @Override
+            public void onUploadProgress(String requestId, int progress) {
+                // Convert Cloudinary progress (0-100) to our progress scale (10-90)
+                int adjustedProgress = 10 + (progress * 80 / 100);
+                if (callback != null) callback.onUploadProgress(adjustedProgress);
+            }
+
+            @Override
+            public void onUploadSuccess(String requestId, String publicUrl) {
+                Log.d(TAG, "✅ Cloudinary upload successful!");
+                Log.d(TAG, "🔗 Cloudinary URL: " + publicUrl);
+                
+                // Step 2: Send URL to backend (optional - for saving to database)
+                sendUrlToBackend(publicUrl, callback);
+            }
+
+            @Override
+            public void onUploadError(String requestId, String error) {
+                Log.e(TAG, "❌ Cloudinary upload failed: " + error);
+                Log.d(TAG, "🔄 Falling back to original upload method...");
+                
+                // Fallback to original upload method
+                uploadWithOriginalMethod(imageData, callback);
+            }
+
+            @Override
+            public void onUploadReschedule(String requestId, String error) {
+                Log.w(TAG, "⏳ Cloudinary upload rescheduled: " + error);
+                if (callback != null) callback.onUploadProgress(50);
+            }
+        });
+    }
+
+    /**
+     * Send Cloudinary URL to backend (optional step)
+     */
+    private void sendUrlToBackend(String cloudinaryUrl, UploadCallback callback) {
+        // For now, just return the Cloudinary URL directly
+        // Backend can optionally save this URL to database
+        if (callback != null) {
+            callback.onUploadProgress(100);
+            callback.onUploadComplete(cloudinaryUrl, true);
+        }
+    }
+
+    /**
+     * Fallback to original upload method if Cloudinary fails
+     */
+    private void uploadWithOriginalMethod(byte[] imageData, UploadCallback callback) {
+        String authHeader = AuthManager.getAuthHeader(context);
+        if (authHeader == null) {
+            if (callback != null) callback.onError("No authentication token", 401);
             return;
         }
 

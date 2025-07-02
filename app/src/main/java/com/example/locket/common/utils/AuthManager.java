@@ -73,6 +73,10 @@ public class AuthManager {
                         SharedPreferencesUser.saveLoginResponse(context, loginResponse);
                         
                         Log.d(TAG, "Login successful for user: " + loginResponse.getEmail());
+                        
+                        // 🔄 Trigger widget update when user logs in successfully
+                        WidgetUpdateHelper.onUserLoginSuccess(context);
+                        
                         if (callback != null) {
                             callback.onLoginSuccess(loginResponse);
                             callback.onSuccess("Login successful!");
@@ -216,6 +220,9 @@ public class AuthManager {
                     // Clear local data regardless of API response
                     SharedPreferencesUser.clearAll(context);
                     
+                    // 🔄 Clear widget cache when user logs out
+                    WidgetUpdateHelper.onUserLogout(context);
+                    
                     if (response.isSuccessful()) {
                         Log.d(TAG, "Logout successful");
                         if (callback != null) callback.onSuccess("Logged out successfully");
@@ -229,6 +236,10 @@ public class AuthManager {
                 public void onFailure(Call<ApiResponse> call, Throwable t) {
                     // Clear local data even if network call fails
                     SharedPreferencesUser.clearAll(context);
+                    
+                    // 🔄 Clear widget cache when user logs out
+                    WidgetUpdateHelper.onUserLogout(context);
+                    
                     Log.w(TAG, "Logout network error but local data cleared: " + t.getMessage());
                     if (callback != null) callback.onSuccess("Logged out (offline)");
                 }
@@ -236,6 +247,10 @@ public class AuthManager {
         } else {
             // No token, just clear local data
             SharedPreferencesUser.clearAll(context);
+            
+            // 🔄 Clear widget cache when user logs out
+            WidgetUpdateHelper.onUserLogout(context);
+            
             Log.d(TAG, "Logout - no token, cleared local data");
             if (callback != null) callback.onSuccess("Logged out");
         }
