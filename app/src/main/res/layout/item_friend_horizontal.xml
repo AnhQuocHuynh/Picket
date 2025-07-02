@@ -16,7 +16,6 @@
             android:id="@+id/img_avatar"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:src="@mipmap/ic_launcher"
             android:scaleType="centerCrop" />
 
         <!-- Selection Border -->
@@ -46,11 +45,11 @@
         android:layout_width="72dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Name"
         android:gravity="center"
         android:textAppearance="?attr/textAppearanceLabelMedium"
         android:textColor="?attr/colorOnSurface"
         android:maxLines="1"
-        android:ellipsize="end" />
+        android:ellipsize="end"
+        android:tooltipText="Name"/>
 
 </LinearLayout> 

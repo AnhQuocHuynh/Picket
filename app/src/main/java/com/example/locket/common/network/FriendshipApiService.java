@@ -1,11 +1,12 @@
 package com.example.locket.common.network;
 
-import com.example.locket.common.models.friendship.FriendRequest;
+import com.example.locket.common.models.friendship.FriendRequestResponse;
 import com.example.locket.common.models.friendship.FriendshipResponse;
 import com.example.locket.common.models.friendship.FriendsListResponse;
 import com.example.locket.common.models.friendship.GenerateLinkResponse;
 import com.example.locket.common.models.friendship.AcceptLinkRequest;
 import com.example.locket.common.models.common.ApiResponse;
+import com.example.locket.common.repository.FriendRequest;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -64,13 +65,13 @@ public interface FriendshipApiService {
 
     // 📥 GET RECEIVED FRIEND REQUESTS (pending)
     @GET("friendship/pending/received")
-    Call<FriendsListResponse> getReceivedFriendRequests(
+    Call<FriendRequestResponse> getReceivedFriendRequests(
             @Header("Authorization") String bearerToken
     );
 
     // 📤 GET SENT FRIEND REQUESTS (pending)
     @GET("friendship/pending/sent")
-    Call<FriendsListResponse> getSentFriendRequests(
+    Call<FriendRequestResponse> getSentFriendRequests(
             @Header("Authorization") String bearerToken
     );
 

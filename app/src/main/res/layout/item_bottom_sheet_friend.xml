@@ -129,7 +129,46 @@
 
 
 
+            <!-- Friend Requests Received -->
+            <TextView
+                android:id="@+id/txt_friend_requests_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_20sdp"
+                android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+                android:text="Lời mời kết bạn"
+                android:textColor="@color/hint"
+                android:textSize="@dimen/_13ssp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_friend_requests_received"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
+            <!-- Friend Requests Sent -->
+            <TextView
+                android:id="@+id/txt_sent_requests_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_20sdp"
+                android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+                android:text="Đã gửi yêu cầu"
+                android:textColor="@color/hint"
+                android:textSize="@dimen/_13ssp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_friend_requests_sent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
             <LinearLayout
+                android:id="@+id/txt_friendlist_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_20sdp"
@@ -161,7 +200,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_20sdp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:id="@+id/txt_share_title">
 
                 <ImageView
                     android:layout_width="@dimen/_20sdp"
@@ -183,6 +223,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
+                android:id="@+id/send_link_layout"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:gravity="center"

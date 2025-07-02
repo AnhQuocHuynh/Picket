@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.locket.common.models.friendship.AcceptLinkRequest;
-import com.example.locket.common.models.friendship.FriendRequest;
+import com.example.locket.common.models.friendship.FriendRequestResponse;
 import com.example.locket.common.models.friendship.FriendsListResponse;
 import com.example.locket.common.models.friendship.FriendshipResponse;
 import com.example.locket.common.models.friendship.GenerateLinkResponse;
@@ -37,6 +37,11 @@ public class FriendshipRepository {
 
     public interface FriendsListCallback {
         void onSuccess(FriendsListResponse friendsListResponse);
+        void onError(String message, int code);
+        void onLoading(boolean isLoading);
+    }
+    public interface FriendRequestCallback {
+        void onSuccess(FriendRequestResponse friendRequestResponse);
         void onError(String message, int code);
         void onLoading(boolean isLoading);
     }
@@ -478,7 +483,7 @@ public class FriendshipRepository {
     /**
      * 📥 Get received friend requests (pending)
      */
-    public void getReceivedFriendRequests(FriendsListCallback callback) {
+    public void getReceivedFriendRequests(FriendRequestCallback callback) {
         String authHeader = AuthManager.getAuthHeader(context);
         if (authHeader == null) {
             if (callback != null) callback.onError("No authentication token", 401);
@@ -486,10 +491,10 @@ public class FriendshipRepository {
         }
         if (callback != null) callback.onLoading(true);
 
-        Call<FriendsListResponse> call = friendshipApiService.getReceivedFriendRequests(authHeader);
-        call.enqueue(new Callback<FriendsListResponse>() {
+        Call<FriendRequestResponse> call = friendshipApiService.getReceivedFriendRequests(authHeader);
+        call.enqueue(new Callback<FriendRequestResponse>() {
             @Override
-            public void onResponse(Call<FriendsListResponse> call, Response<FriendsListResponse> response) {
+            public void onResponse(Call<FriendRequestResponse> call, Response<FriendRequestResponse> response) {
                 if (callback != null) callback.onLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
                     if (callback != null) callback.onSuccess(response.body());
@@ -510,7 +515,7 @@ public class FriendshipRepository {
             }
 
             @Override
-            public void onFailure(Call<FriendsListResponse> call, Throwable t) {
+            public void onFailure(Call<FriendRequestResponse> call, Throwable t) {
                 if (callback != null) callback.onLoading(false);
                 ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
                      @Override
@@ -528,7 +533,7 @@ public class FriendshipRepository {
     /**
      * 📤 Get sent friend requests (pending)
      */
-    public void getSentFriendRequests(FriendsListCallback callback) {
+    public void getSentFriendRequests(FriendRequestCallback callback) {
         String authHeader = AuthManager.getAuthHeader(context);
         if (authHeader == null) {
             if (callback != null) callback.onError("No authentication token", 401);
@@ -536,10 +541,10 @@ public class FriendshipRepository {
         }
         if (callback != null) callback.onLoading(true);
 
-        Call<FriendsListResponse> call = friendshipApiService.getSentFriendRequests(authHeader);
-        call.enqueue(new Callback<FriendsListResponse>() {
+        Call<FriendRequestResponse> call = friendshipApiService.getSentFriendRequests(authHeader);
+        call.enqueue(new Callback<FriendRequestResponse>() {
             @Override
-            public void onResponse(Call<FriendsListResponse> call, Response<FriendsListResponse> response) {
+            public void onResponse(Call<FriendRequestResponse> call, Response<FriendRequestResponse> response) {
                 if (callback != null) callback.onLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
                     if (callback != null) callback.onSuccess(response.body());
@@ -560,7 +565,7 @@ public class FriendshipRepository {
             }
 
             @Override
-            public void onFailure(Call<FriendsListResponse> call, Throwable t) {
+            public void onFailure(Call<FriendRequestResponse> call, Throwable t) {
                 if (callback != null) callback.onLoading(false);
                 ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
                      @Override
@@ -574,4 +579,4 @@ public class FriendshipRepository {
             }
         });
     }
-} 
+}
