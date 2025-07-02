@@ -28,11 +28,13 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.example.locket.R;
 import com.example.locket.common.repository.viewmodels.FriendViewModel;
 import com.example.locket.profile.adapters.NewFriendsAdapter;
+import com.example.locket.profile.adapters.ReceivedFriendRequestAdapter;
+import com.example.locket.profile.adapters.SentFriendRequestAdapter;
 import com.example.locket.profile.adapters.UserSearchAdapter;
 
 import java.util.ArrayList;
 
-public class BottomSheetFriend extends BottomSheetDialogFragment implements UserSearchAdapter.OnAddFriendClickListener {
+public class BottomSheetFriend extends BottomSheetDialogFragment implements UserSearchAdapter.OnAddFriendClickListener, ReceivedFriendRequestAdapter.OnRequestActionListener, SentFriendRequestAdapter.OnRequestActionListener {
 
     public interface FriendBottomSheetListener {
         void onSendFriendLinkClicked();
@@ -42,11 +44,13 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
     private FriendViewModel friendViewModel;
     private NewFriendsAdapter friendsAdapter;
     private UserSearchAdapter userSearchAdapter;
+    private ReceivedFriendRequestAdapter receivedRequestAdapter;
+    private SentFriendRequestAdapter sentRequestAdapter;
 
     private EditText edt_search_friend;
-    private RecyclerView rv_friends, rv_search_results;
-    private TextView txt_number_friends, txt_cancel;
-    private LinearLayout linear_view1, linear_view2;
+    private RecyclerView rv_friends, rv_search_results, rv_friend_requests_received, rv_friend_requests_sent;
+    private TextView txt_number_friends, txt_cancel, txt_friend_requests_title, txt_sent_requests_title;
+    private LinearLayout linear_view1, linear_view2, txt_friendlist_title, txt_share_title;
     private RelativeLayout relative_send_friend_link;
 
     public void setFriendBottomSheetListener(FriendBottomSheetListener listener) {
@@ -89,6 +93,12 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
         rv_friends = view.findViewById(R.id.rv_friends);
         relative_send_friend_link = view.findViewById(R.id.relative_send_friend_link);
         rv_search_results = view.findViewById(R.id.rv_search_results);
+        rv_friend_requests_received = view.findViewById(R.id.rv_friend_requests_received);
+        rv_friend_requests_sent = view.findViewById(R.id.rv_friend_requests_sent);
+        txt_friend_requests_title = view.findViewById(R.id.txt_friend_requests_title);
+        txt_sent_requests_title = view.findViewById(R.id.txt_sent_requests_title);
+        txt_friendlist_title = view.findViewById(R.id.txt_friendlist_title);
+        txt_share_title = view.findViewById(R.id.txt_share_title);
     }
 
     private void setupAdapters() {
@@ -99,6 +109,14 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
         rv_search_results.setLayoutManager(new LinearLayoutManager(getContext()));
         userSearchAdapter = new UserSearchAdapter(new ArrayList<>(), this);
         rv_search_results.setAdapter(userSearchAdapter);
+
+        rv_friend_requests_received.setLayoutManager(new LinearLayoutManager(getContext()));
+        receivedRequestAdapter = new ReceivedFriendRequestAdapter(new ArrayList<>(), this);
+        rv_friend_requests_received.setAdapter(receivedRequestAdapter);
+
+        rv_friend_requests_sent.setLayoutManager(new LinearLayoutManager(getContext()));
+        sentRequestAdapter = new SentFriendRequestAdapter(new ArrayList<>(), this);
+        rv_friend_requests_sent.setAdapter(sentRequestAdapter);
     }
 
     private void setupClickListeners() {
@@ -115,15 +133,13 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
     private void toggleSearchView(boolean showSearch) {
         linear_view1.setVisibility(showSearch ? View.GONE : View.VISIBLE);
         linear_view2.setVisibility(showSearch ? View.VISIBLE : View.GONE);
-        rv_friends.setVisibility(showSearch ? View.GONE : View.VISIBLE);
-        rv_search_results.setVisibility(showSearch ? View.VISIBLE : View.GONE);
+        // Visibility of RecyclerViews is now handled by the TextWatcher
         if (showSearch) {
             edt_search_friend.requestFocus();
             InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(edt_search_friend, InputMethodManager.SHOW_IMPLICIT);
         } else {
-            edt_search_friend.setText("");
-            userSearchAdapter.updateUsers(new ArrayList<>()); // Clear search results
+            edt_search_friend.setText(""); // This will trigger TextWatcher to show rv_friends
             InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(edt_search_friend.getWindowToken(), 0);
         }
@@ -136,10 +152,21 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().trim().length() > 2) {
-                    friendViewModel.searchUsers(s.toString().trim());
+                String query = s.toString().trim();
+                if (query.isEmpty()) {
+                    rv_friends.setVisibility(View.VISIBLE);
+                    rv_search_results.setVisibility(View.GONE);
+                    userSearchAdapter.updateUsers(new ArrayList<>());
                 } else {
-                    userSearchAdapter.updateUsers(new ArrayList<>()); // Clear if query is too short
+                    rv_friends.setVisibility(View.GONE);
+                    txt_friendlist_title.setVisibility(View.GONE);
+                    txt_share_title.setVisibility(View.GONE);
+                    rv_search_results.setVisibility(View.VISIBLE);
+                    if (query.length() > 2) {
+                        friendViewModel.searchUsers(query);
+                    } else {
+                        userSearchAdapter.updateUsers(new ArrayList<>()); // Clear if query is too short
+                    }
                 }
             }
 
@@ -161,6 +188,31 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
     }
 
     private void observeViewModel() {
+        // Fetch initial data
+        friendViewModel.fetchReceivedFriendRequests();
+        friendViewModel.fetchSentFriendRequests();
+
+        // Observer for received friend requests
+        friendViewModel.receivedFriendRequests.observe(getViewLifecycleOwner(), response -> {
+            boolean hasData = response != null && response.getData() != null && !response.getData().isEmpty();
+            txt_friend_requests_title.setVisibility(hasData ? View.VISIBLE : View.GONE);
+            rv_friend_requests_received.setVisibility(hasData ? View.VISIBLE : View.GONE);
+            if (hasData) {
+                receivedRequestAdapter.updateRequests(response.getData());
+            }
+        });
+
+        // Observer for sent friend requests
+        friendViewModel.sentFriendRequests.observe(getViewLifecycleOwner(), response -> {
+            boolean hasData = response != null && response.getData() != null && !response.getData().isEmpty();
+            txt_sent_requests_title.setVisibility(hasData ? View.VISIBLE : View.GONE);
+            rv_friend_requests_sent.setVisibility(hasData ? View.VISIBLE : View.GONE);
+            if (hasData) {
+                sentRequestAdapter.updateRequests(response.getData());
+            }
+        });
+
+        // Observer for current friends list
         friendViewModel.myFriends.observe(getViewLifecycleOwner(), friends -> {
             if (friends != null && friends.getData() != null) {
                 friendsAdapter.updateFriendsList(friends.getData());
@@ -168,6 +220,7 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
             }
         });
 
+        // Observer for search results
         friendViewModel.userSearchResults.observe(getViewLifecycleOwner(), searchResults -> {
             if (searchResults != null && searchResults.getUsers() != null) {
                 userSearchAdapter.updateUsers(searchResults.getUsers());
@@ -176,11 +229,29 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
             }
         });
 
+        // Observer for actions like decline, cancel
+        friendViewModel.actionResponse.observe(getViewLifecycleOwner(), response -> {
+            if (response != null && response.getMessage() != null) {
+                Toast.makeText(getContext(), response.getMessage(), Toast.LENGTH_SHORT).show();
+                // Refresh all lists
+                friendViewModel.fetchMyFriends();
+                friendViewModel.fetchReceivedFriendRequests();
+                friendViewModel.fetchSentFriendRequests();
+            }
+        });
+
+        // This observer handles both sending a new request and accepting one
         friendViewModel.friendshipResponse.observe(getViewLifecycleOwner(), response -> {
             if (response != null && response.getMessage() != null) {
-                Toast.makeText(getContext(), "Friend request sent!", Toast.LENGTH_SHORT).show();
-                // After a successful friend request, clear the search and go back
-                toggleSearchView(false);
+                Toast.makeText(getContext(), response.getMessage(), Toast.LENGTH_SHORT).show();
+                // Refresh all lists
+                friendViewModel.fetchMyFriends();
+                friendViewModel.fetchReceivedFriendRequests();
+                friendViewModel.fetchSentFriendRequests();
+                // If search was active (i.e., we just sent a request), close it.
+                if (linear_view2.getVisibility() == View.VISIBLE) {
+                    toggleSearchView(false);
+                }
             }
         });
 
@@ -199,6 +270,21 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
     @Override
     public void onAddFriendClick(String userId) {
         friendViewModel.sendFriendRequest(userId);
+    }
+
+    @Override
+    public void onAccept(String friendshipId) {
+        friendViewModel.acceptFriendRequest(friendshipId);
+    }
+
+    @Override
+    public void onDecline(String friendshipId) {
+        friendViewModel.declineFriendRequest(friendshipId);
+    }
+
+    @Override
+    public void onCancel(String friendshipId) {
+        friendViewModel.cancelFriendRequest(friendshipId);
     }
 }
 
