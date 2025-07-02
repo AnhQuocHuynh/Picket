@@ -40,6 +40,7 @@ import com.example.locket.common.utils.SharedPreferencesUser;
 import com.example.locket.feed.adapters.HomeViewPager2Adapter;
 import com.example.locket.feed.bottomsheets.BottomSheetFriend;
 import com.example.locket.feed.bottomsheets.BottomSheetInfo;
+import com.example.locket.feed.drawing.DrawingFragment;
 import com.google.gson.Gson;
 import com.makeramen.roundedimageview.RoundedImageView;
 
@@ -64,6 +65,7 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
     private MomentApiService momentApiService;
     private FriendshipRepository friendshipRepository;
 
+    private com.google.android.material.floatingactionbutton.FloatingActionButton fab_draw;
 
     public BroadcastReceiver createBroadcastReceiver() {
         return new BroadcastReceiver() {
@@ -108,7 +110,7 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
         checkExpiresToken();
         setupViewPager();
         loadUserProfile(); // Load fresh user profile from API
-        
+
         // Check for pending friend token after user data is loaded
         checkPendingFriendToken();
     }
@@ -123,6 +125,7 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
         img_message = view.findViewById(R.id.img_message);
 
         viewPager = view.findViewById(R.id.viewPager);
+        fab_draw = view.findViewById(R.id.fab_draw);
     }
 
     private void conFigViews() {
@@ -135,15 +138,23 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
             bottomSheetFriend.setFriendBottomSheetListener(this);
             bottomSheetFriend.show(getParentFragmentManager(), bottomSheetFriend.getTag());
         });
-        
+
         img_message.setOnClickListener(view -> {
             Intent intent = new Intent(getActivity(), com.example.locket.friends.FriendsListActivity.class);
             startActivity(intent);
         });
-        
+
         img_profile.setOnClickListener(view -> {
             BottomSheetInfo bottomSheetInfo = new BottomSheetInfo(requireContext(), getActivity());
             bottomSheetInfo.show(getParentFragmentManager(), bottomSheetInfo.getTag());
+        });
+
+        fab_draw.setOnClickListener(view -> {
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.frame_layout, new DrawingFragment())
+                    .addToBackStack("drawing")
+                    .commit();
         });
     }
 
@@ -164,10 +175,10 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
                 if (userProfile != null && userProfile.getUser() != null) {
                     // Save updated profile to SharedPreferences
                     SharedPreferencesUser.saveUserProfile(requireContext(), userProfile);
-                    
+
                     // Update UI with fresh data
                     setDataFromUserProfile(userProfile);
-                    
+
                     Log.d("HomeFragment", "✅ User profile loaded successfully");
                 } else {
                     Log.w("HomeFragment", "⚠️ Empty user profile, using cached data");
@@ -180,7 +191,7 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
                 Log.e("HomeFragment", "❌ Failed to load user profile: " + errorMessage);
                 // Fallback to cached LoginResponse data
                 setData();
-                
+
                 // Handle authentication errors
                 if (errorCode == 401) {
                     Log.w("HomeFragment", "🔒 Token expired, redirecting to login");
@@ -195,7 +206,7 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
      */
     private void setDataFromUserProfile(UserProfile userProfile) {
         UserProfile.UserData userData = userProfile.getUser();
-        
+
         // Load profile picture
         if (userData.getProfilePicture() != null && !userData.getProfilePicture().isEmpty()) {
             Glide.with(this)
@@ -207,7 +218,7 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
             // Set default avatar if no profile picture
             img_profile.setImageResource(R.drawable.ic_widget_empty_icon);
         }
-        
+
         Log.d("HomeFragment", "🖼️ Profile picture loaded for user: " + userData.getDisplayName());
     }
 
@@ -281,18 +292,18 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
     private void refreshToken() {
         // ❌ Backend không có endpoint /auth/refresh - Tạm thời disable
         Log.w("HomeFragment", "Refresh token endpoint not available, skipping refresh");
-        
+
         // Thay vì refresh token, chỉ load data trực tiếp
         getMomentV2(null);
         return;
-        
+
         /*
         // Use real API
         Retrofit retrofit = LoginApiClient.getRefreshTokenClient();
         LoginApiService loginApiService = retrofit.create(LoginApiService.class);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), createSignInJson("refresh_token", loginResponse.getRefreshToken()));
         Call<ResponseBody> call = loginApiService.REFRESH_TOKEN_RESPONSE_CALL(requestBody);
-        
+
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -352,12 +363,10 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
         );
     }
 
-
-
     private void getMomentV2(String type) {
         // ❌ Backend không có moments endpoints - Disable để tránh 404
         Log.w("HomeFragment", "Moments endpoint not available, skipping moment fetch");
-        
+
         // Tạm thời hiển thị empty state hoặc mock data
         // moments.clear();
         // momentAdapter.notifyDataSetChanged();
@@ -513,9 +522,9 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
             ((MainActivity) getActivity()).checkPendingFriendToken();
         }
     }
-    
+
     // ==================== BOTTOMSHEET CALLBACKS ====================
-    
+
     /**
      * 🔗 Implementation of BottomSheetFriend.FriendBottomSheetListener
      * Called when user clicks "Gửi link kết bạn" in friend bottom sheet
@@ -529,7 +538,7 @@ public class HomeFragment extends Fragment implements MainActivity.FriendsListUp
         transaction.replace(R.id.frame_layout, friendLinkTestFragment);
         transaction.addToBackStack(null);
         transaction.commit();
-        
+
         Log.d("HomeFragment", "🔗 Navigating to Friend Link Fragment");
     }
 }
