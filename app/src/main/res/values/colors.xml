@@ -17,6 +17,9 @@
 
     <color name="colorEnd">#5EFFF5</color>
     <color name="colorStart">#FCFF57</color>
+    
+    <!-- Widget Layout Color - for base theme -->
+    <color name="widget_layout">@color/app</color>
 
 
     <color name="abc_decor_view_status_guard">#ff000000</color>

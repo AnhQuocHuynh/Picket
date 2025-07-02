@@ -12,116 +12,281 @@ import com.example.locket.common.database.AppDatabase;
 import com.example.locket.common.database.dao.MomentDao;
 import com.example.locket.common.database.entities.MomentEntity;
 import com.example.locket.common.models.auth.LoginResponse;
-import com.example.locket.common.network.MomentApiService;
-import com.example.locket.common.network.client.LoginApiClient;
+import com.example.locket.common.models.post.Post;
+import com.example.locket.common.models.post.PostsResponse;
+import com.example.locket.common.models.post.CategoriesResponse;
+import com.example.locket.common.network.PostApiService;
+import com.example.locket.common.network.client.AuthApiClient;
+import com.example.locket.common.utils.AuthManager;
 import com.example.locket.common.utils.SharedPreferencesUser;
-import com.google.gson.Gson;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MomentRepository {
+    private static final String TAG = "MomentRepository";
     private final LiveData<List<MomentEntity>> allMoments;
-    private final MomentApiService momentApiService;
+    private final PostApiService postApiService;
     private final Context context;
-    private final LoginResponse loginResponse; // Giả sử đây là model chứa token (idToken, vv)
+    private final LoginResponse loginResponse;
+    private final MomentDao momentDao;
+    private final ExecutorService executor;
 
     public MomentRepository(Application application) {
         this.context = application;
         AppDatabase db = Room.databaseBuilder(application, AppDatabase.class, "moment_database")
                 .fallbackToDestructiveMigration()
                 .build();
-        MomentDao momentDao = db.momentDao();
+        momentDao = db.momentDao();
         allMoments = momentDao.getAllMoments();
-        momentApiService = LoginApiClient.getCheckEmailClient().create(MomentApiService.class);
+        postApiService = AuthApiClient.getAuthClient().create(PostApiService.class);
         loginResponse = SharedPreferencesUser.getLoginResponse(application);
+        executor = Executors.newFixedThreadPool(2);
     }
 
-    // --- Phương thức tạo JSON cho API ---
-    @SuppressLint("DefaultLocale")
-    private String createGetMomentV2ExcludedUsersJson(List<String> excludedUsers) {
-        String excludedUsersJson = (excludedUsers == null || excludedUsers.isEmpty())
-                ? "[]"
-                : new Gson().toJson(excludedUsers);
-
-        return String.format(
-                Locale.getDefault(),
-                "{\"data\":{" +
-                        "\"excluded_users\":%s," +
-                        "\"last_fetch\":%d," +
-                        "\"should_count_missed_moments\":%b" +
-                        "}}",
-                excludedUsersJson,
-                1,
-                true
-        );
-    }
-
+    /**
+     * 🔄 Refresh data from server - Fetch friends posts and convert to moments
+     */
     public void refreshDataFromServer() {
-        // ❌ Backend không có moments endpoints - Disable để tránh 404
-        Log.w("MomentRepository", "Moments endpoint not available, skipping server refresh");
-        return;
-        
-        /* OLD CODE - Endpoint không tồn tại
-        LoginResponse loginResponse = SharedPreferencesUser.getLoginResponse(context);
-        if (loginResponse == null) {
-            Log.e("MomentRepository", "No login response available");
-            return;
-        }
-        
-        String idToken = loginResponse.getIdToken();
-        if (idToken == null || idToken.isEmpty()) {
-            Log.e("MomentRepository", "No ID token available");
+        String authHeader = AuthManager.getAuthHeader(context);
+        if (authHeader == null) {
+            Log.e(TAG, "No authentication token available");
             return;
         }
 
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), createMomentJson(idToken));
-        Call<ResponseBody> call = momentApiService.GET_MOMENT_RESPONSE_CALL(requestBody);
+        Log.d(TAG, "Fetching friends posts from server...");
+        
+        // Fetch friends posts with pagination
+        Call<PostsResponse> call = postApiService.getFriendsPosts(authHeader, 1, 50); // Fetch first 50 posts
 
-        call.enqueue(new Callback<ResponseBody>() {
+        call.enqueue(new Callback<PostsResponse>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<PostsResponse> call, Response<PostsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String responseBody = ResponseUtils.getResponseBody(response.body().byteStream(), "");
-                        Gson gson = new Gson();
-                        Result result = gson.fromJson(responseBody, Result.class);
-
-                        // Save to database
-                        List<MomentEntity> momentEntities = new ArrayList<>();
-                        for (Data momentData : result.getData()) {
-                            MomentEntity entity = new MomentEntity();
-                            entity.id = momentData.getId();
-                            entity.user = momentData.getUser();
-                            entity.imageUrl = momentData.getImageUrl();
-                            entity.caption = momentData.getCaption();
-                            entity.timestamp = System.currentTimeMillis();
-                            momentEntities.add(entity);
-                        }
-
-                        new Thread(() -> {
-                            momentDao.deleteAll();
-                            momentDao.insertAll(momentEntities);
-                        }).start();
-
-                    } catch (IOException e) {
-                        Log.e("MomentRepository", "Error reading response body", e);
+                    PostsResponse postsResponse = response.body();
+                    if (postsResponse.isSuccess() && postsResponse.getData() != null) {
+                        Log.d(TAG, "Successfully fetched " + postsResponse.getData().size() + " posts");
+                        
+                        // Convert posts to moment entities in background thread
+                        executor.execute(() -> {
+                            try {
+                                List<MomentEntity> momentEntities = convertPostsToMoments(postsResponse.getData());
+                                Log.d(TAG, "Converted " + momentEntities.size() + " posts to moments");
+                                
+                                // Clear old data and insert new data
+                                Log.d(TAG, "Clearing old moments from database...");
+                                momentDao.deleteAll();
+                                
+                                Log.d(TAG, "Inserting " + momentEntities.size() + " new moments...");
+                                momentDao.insertAll(momentEntities);
+                                
+                                Log.d(TAG, "Successfully saved " + momentEntities.size() + " moments to database");
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error saving posts to database: " + e.getMessage(), e);
+                                // Provide more specific error information
+                                if (e.getMessage() != null && e.getMessage().contains("schema")) {
+                                    Log.e(TAG, "Database schema mismatch detected. App restart may be required.");
+                                }
+                            }
+                        });
+                    } else {
+                        Log.e(TAG, "API response unsuccessful: " + (postsResponse.getMessage() != null ? postsResponse.getMessage() : "Unknown error"));
                     }
                 } else {
-                    Log.e("MomentRepository", "Error: " + response.code());
+                    Log.e(TAG, "Error fetching posts: " + response.code() + " - " + response.message());
+                    if (response.errorBody() != null) {
+                        try {
+                            String errorBody = response.errorBody().string();
+                            Log.e(TAG, "Error body: " + errorBody);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Could not read error body", e);
+                        }
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e("MomentRepository", "Network error: " + t.getMessage());
+            public void onFailure(Call<PostsResponse> call, Throwable t) {
+                Log.e(TAG, "Network error fetching posts: " + t.getMessage(), t);
             }
         });
-        */
     }
 
+    /**
+     * 🔄 Convert Post objects to MomentEntity objects for compatibility with existing UI
+     */
+    private List<MomentEntity> convertPostsToMoments(List<Post> posts) {
+        List<MomentEntity> momentEntities = new ArrayList<>();
+        
+        for (Post post : posts) {
+            try {
+                MomentEntity entity = new MomentEntity();
+                
+                // Basic fields
+                entity.id = post.getId();
+                entity.user = post.getUser().getUsername();
+                entity.imageUrl = post.getImageUrl();
+                entity.caption = post.getCaption() != null ? post.getCaption() : "";
+                entity.category = post.getCategory() != null ? post.getCategory() : "Khác";
+                entity.timestamp = System.currentTimeMillis();
+                
+                // Convert createdAt to timestamp
+                if (post.getCreatedAt() != null) {
+                    try {
+                        // Parse ISO 8601 date format: "2025-07-02T05:43:16.121Z"
+                        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+                        Date date = isoFormat.parse(post.getCreatedAt());
+                        if (date != null) {
+                            entity.timestamp = date.getTime();
+                        }
+                    } catch (ParseException e) {
+                        Log.w(TAG, "Failed to parse date: " + post.getCreatedAt(), e);
+                        // Keep current timestamp as fallback
+                    }
+                }
+                
+                // Set thumbnail URL (same as image URL for now)
+                entity.thumbnailUrl = post.getImageUrl();
+                
+                // Create overlays for caption if exists
+                if (post.getCaption() != null && !post.getCaption().trim().isEmpty()) {
+                    List<MomentEntity.Overlay> overlays = new ArrayList<>();
+                    MomentEntity.Overlay overlay = new MomentEntity.Overlay();
+                    overlay.overlay_id = "caption:text"; // Default caption type
+                    overlay.alt_text = post.getCaption();
+                    overlays.add(overlay);
+                    entity.overlays = overlays;
+                }
+                
+                // Calculate date seconds for compatibility
+                entity.dateSeconds = entity.timestamp / 1000;
+                
+                momentEntities.add(entity);
+                Log.d(TAG, "Converted post to moment: " + post.getUser().getUsername() + " - " + post.getCaption());
+                
+            } catch (Exception e) {
+                Log.e(TAG, "Error converting post to moment: " + post.getId(), e);
+            }
+        }
+        
+        return momentEntities;
+    }
+
+    /**
+     * 🏷️ Fetch available categories from API
+     */
+    public interface CategoriesCallback {
+        void onCategoriesReceived(List<CategoriesResponse.CategoryData> categories);
+        void onError(String error);
+    }
+
+    public void fetchAvailableCategories(CategoriesCallback callback) {
+        String authHeader = AuthManager.getAuthHeader(context);
+        if (authHeader == null) {
+            Log.e(TAG, "No authentication token available for categories");
+            callback.onError("Authentication required");
+            return;
+        }
+
+        Log.d(TAG, "Fetching available categories from server...");
+        
+        Call<CategoriesResponse> call = postApiService.getAvailableCategories(authHeader);
+        call.enqueue(new Callback<CategoriesResponse>() {
+            @Override
+            public void onResponse(Call<CategoriesResponse> call, Response<CategoriesResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    CategoriesResponse categoriesResponse = response.body();
+                    if (categoriesResponse.isSuccess() && categoriesResponse.getData() != null) {
+                        Log.d(TAG, "Successfully fetched " + categoriesResponse.getData().size() + " categories");
+                        callback.onCategoriesReceived(categoriesResponse.getData());
+                    } else {
+                        String errorMsg = "API response unsuccessful: " + 
+                            (categoriesResponse.getMessage() != null ? categoriesResponse.getMessage() : "Unknown error");
+                        Log.e(TAG, errorMsg);
+                        callback.onError(errorMsg);
+                    }
+                } else {
+                    String errorMsg = "Error fetching categories: " + response.code() + " - " + response.message();
+                    Log.e(TAG, errorMsg);
+                    if (response.errorBody() != null) {
+                        try {
+                            String errorBody = response.errorBody().string();
+                            Log.e(TAG, "Error body: " + errorBody);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Could not read error body", e);
+                        }
+                    }
+                    callback.onError(errorMsg);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CategoriesResponse> call, Throwable t) {
+                String errorMsg = "Network error fetching categories: " + t.getMessage();
+                Log.e(TAG, errorMsg, t);
+                callback.onError(errorMsg);
+            }
+        });
+    }
+
+    /**
+     * 🧪 Test database connection and schema
+     */
+    public void testDatabaseConnection() {
+        executor.execute(() -> {
+            try {
+                Log.d(TAG, "Testing database connection...");
+                
+                // Test basic operations
+                List<MomentEntity> currentMoments = momentDao.getAllMomentsSync();
+                Log.d(TAG, "Current moments in database: " + currentMoments.size());
+                
+                // Test insert a dummy moment
+                MomentEntity testMoment = new MomentEntity();
+                testMoment.id = "test_" + System.currentTimeMillis();
+                testMoment.user = "test_user";
+                testMoment.imageUrl = "test_url";
+                testMoment.caption = "Test moment";
+                testMoment.timestamp = System.currentTimeMillis();
+                testMoment.dateSeconds = testMoment.timestamp / 1000;
+                
+                momentDao.insert(testMoment);
+                Log.d(TAG, "Successfully inserted test moment");
+                
+                // Remove test moment
+                momentDao.deleteById(testMoment.id);
+                Log.d(TAG, "Database connection test completed successfully");
+                
+            } catch (Exception e) {
+                Log.e(TAG, "Database connection test failed: " + e.getMessage(), e);
+            }
+        });
+    }
+
+    /**
+     * 📋 Get all moments (converted from posts)
+     */
     public LiveData<List<MomentEntity>> getAllMoments() {
         return allMoments;
+    }
+
+    /**
+     * 🧹 Cleanup resources
+     */
+    public void cleanup() {
+        if (executor != null && !executor.isShutdown()) {
+            executor.shutdown();
+        }
     }
 }
 

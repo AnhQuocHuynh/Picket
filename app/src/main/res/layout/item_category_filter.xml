@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/_8sdp"
+    android:background="@drawable/bg_category_filter_item"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/_12sdp"
+    android:paddingVertical="@dimen/_6sdp"
+    android:gravity="center">
+
+    <!-- Category Icon (Optional) -->
+    <TextView
+        android:id="@+id/txt_category_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/_4sdp"
+        android:textSize="@dimen/_12ssp"
+        android:visibility="gone"
+        tools:text="🎨"
+        tools:visibility="visible" />
+
+    <!-- Category Name -->
+    <TextView
+        android:id="@+id/txt_category_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+        android:textColor="@color/text"
+        android:textSize="@dimen/_11ssp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        tools:text="Tất cả" />
+
+    <!-- Count Badge (Optional) -->
+    <TextView
+        android:id="@+id/txt_category_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_4sdp"
+        android:background="@drawable/bg_count_badge"
+        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+        android:paddingHorizontal="@dimen/_4sdp"
+        android:paddingVertical="@dimen/_1sdp"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_8ssp"
+        android:visibility="gone"
+        android:minWidth="@dimen/_16sdp"
+        android:gravity="center"
+        tools:text="12"
+        tools:visibility="visible" />
+
+</LinearLayout> 

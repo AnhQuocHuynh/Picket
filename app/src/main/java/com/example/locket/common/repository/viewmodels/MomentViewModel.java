@@ -7,23 +7,50 @@ import androidx.lifecycle.LiveData;
 
 import com.example.locket.common.database.entities.MomentEntity;
 import com.example.locket.common.repository.MomentRepository;
+import com.example.locket.common.models.post.CategoriesResponse;
 
 import java.util.List;
 
 public class MomentViewModel extends AndroidViewModel {
     private final LiveData<List<MomentEntity>> allMoments;
+    private final MomentRepository repository;
 
     // Constructor với loginResponse được truyền vào
     public MomentViewModel(@NonNull Application application) {
         super(application);
-        MomentRepository repository = new MomentRepository(application);
+        repository = new MomentRepository(application);
         allMoments = repository.getAllMoments();
-        // Đồng bộ dữ liệu khi ViewModel khởi tạo (nếu có kết nối)
+        
+        // 🧪 Test database connection first
+        repository.testDatabaseConnection();
+        
+        // 🔄 Đồng bộ dữ liệu posts từ server khi ViewModel khởi tạo
         repository.refreshDataFromServer();
     }
 
     public LiveData<List<MomentEntity>> getAllMoments() {
         return allMoments;
+    }
+
+    /**
+     * 🔄 Manually refresh data from server
+     */
+    public void refreshData() {
+        repository.refreshDataFromServer();
+    }
+
+    /**
+     * 🏷️ Fetch available categories from API
+     */
+    public void fetchAvailableCategories(MomentRepository.CategoriesCallback callback) {
+        repository.fetchAvailableCategories(callback);
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        // Cleanup repository resources
+        repository.cleanup();
     }
 }
 
