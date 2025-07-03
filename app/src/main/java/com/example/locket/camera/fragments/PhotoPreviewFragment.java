@@ -1,5 +1,6 @@
 package com.example.locket.camera.fragments;
 
+import android.app.Application;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -65,6 +66,7 @@ public class PhotoPreviewFragment extends Fragment {
     private HorizontalFriendsAdapter friendsAdapter;
     private FriendshipRepository friendshipRepository;
     private PostRepository postRepository;
+    private com.example.locket.common.repository.MomentRepository momentRepository;
     private ImageUploadService imageUploadService;
     private LoginResponse loginResponse;
     private SuccessNotificationDialog successDialog;
@@ -139,6 +141,7 @@ public class PhotoPreviewFragment extends Fragment {
         loginResponse = SharedPreferencesUser.getLoginResponse(requireContext());
         friendshipRepository = new FriendshipRepository(requireContext());
         postRepository = new PostRepository(requireContext());
+        momentRepository = new com.example.locket.common.repository.MomentRepository((Application) requireContext().getApplicationContext());
         imageUploadService = new ImageUploadService(requireContext());
         successDialog = new SuccessNotificationDialog(requireContext());
     }
@@ -419,6 +422,10 @@ public class PhotoPreviewFragment extends Fragment {
             @Override
             public void onSuccess(PostResponse postResponse) {
                 Log.d("PhotoPreview", "✅ Post created successfully!");
+                
+                // 🎯 KEY FIX: Add moment locally with current time for immediate display
+                addMomentLocally(imageUrl, caption);
+                
                 getActivity().runOnUiThread(() -> {
                     setLoadingState(false);
                     showSuccessState();
@@ -439,6 +446,25 @@ public class PhotoPreviewFragment extends Fragment {
                 Log.d("PhotoPreview", "⏳ Post creation loading: " + isLoading);
             }
         });
+    }
+
+    /**
+     * 🎯 Add moment locally with current time for immediate "vừa xong" display
+     */
+    private void addMomentLocally(String imageUrl, String caption) {
+        try {
+            // Get current user name from login response
+            String currentUserName = loginResponse != null && loginResponse.getUser() != null 
+                ? loginResponse.getUser().getUsername() 
+                : "You";
+            
+            // Add moment locally with current time
+            momentRepository.addNewMomentLocally(imageUrl, caption, currentUserName);
+            Log.d("PhotoPreview", "✅ Added moment locally for immediate display");
+            
+        } catch (Exception e) {
+            Log.e("PhotoPreview", "❌ Error adding moment locally: " + e.getMessage(), e);
+        }
     }
 
     private void setLoadingState(boolean isLoading) {

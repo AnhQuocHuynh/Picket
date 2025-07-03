@@ -3,7 +3,7 @@ package com.example.locket.chat.model;
 public class ChatMessage {
 
     public enum MessageType {
-        TEXT, IMAGE, VIDEO
+        TEXT, IMAGE, VIDEO, MOMENT_COMMENT
     }
 
     private String text;
@@ -12,6 +12,11 @@ public class ChatMessage {
     private long timestamp;
     private MessageType type;
     private String mediaUrl;
+    
+    // Moment comment specific fields
+    private String momentId;
+    private String momentImageUrl;
+    private String momentOwnerId;
 
     // Constructor mặc định là bắt buộc để Firebase có thể chuyển đổi dữ liệu
     public ChatMessage() {
@@ -34,6 +39,19 @@ public class ChatMessage {
         this.type = type;
         this.mediaUrl = mediaUrl;
         this.text = ""; // Or a caption if you want
+    }
+
+    // Constructor for moment comment messages
+    public ChatMessage(String commentText, String senderId, String receiverId, long timestamp, 
+                      String momentId, String momentImageUrl, String momentOwnerId) {
+        this.text = commentText;
+        this.senderId = senderId;
+        this.receiverId = receiverId;
+        this.timestamp = timestamp;
+        this.type = MessageType.MOMENT_COMMENT;
+        this.momentId = momentId;
+        this.momentImageUrl = momentImageUrl;
+        this.momentOwnerId = momentOwnerId;
     }
 
     public String getText() {
@@ -82,5 +100,30 @@ public class ChatMessage {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    // Moment comment specific getters and setters
+    public String getMomentId() {
+        return momentId;
+    }
+
+    public void setMomentId(String momentId) {
+        this.momentId = momentId;
+    }
+
+    public String getMomentImageUrl() {
+        return momentImageUrl;
+    }
+
+    public void setMomentImageUrl(String momentImageUrl) {
+        this.momentImageUrl = momentImageUrl;
+    }
+
+    public String getMomentOwnerId() {
+        return momentOwnerId;
+    }
+
+    public void setMomentOwnerId(String momentOwnerId) {
+        this.momentOwnerId = momentOwnerId;
     }
 }

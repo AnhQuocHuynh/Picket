@@ -75,6 +75,18 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
         return itemList.size();
     }
 
+    /**
+     * Get moment at specific position
+     * @param position The position in the list
+     * @return MomentEntity at the position or null if invalid position
+     */
+    public MomentEntity getMomentAtPosition(int position) {
+        if (position >= 0 && position < itemList.size()) {
+            return itemList.get(position);
+        }
+        return null;
+    }
+
     // ViewHolder cho mỗi item
     public class ItemViewHolder extends RecyclerView.ViewHolder {
         ShapeableImageView shapeable_imageview;
@@ -162,25 +174,44 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
     }
 
     private String formatDate(long seconds) {
+        // 🛡️ Validation: Kiểm tra dữ liệu đầu vào hợp lệ
+        if (seconds <= 0) {
+            return "vừa xong";
+        }
+        
         long currentTimeMillis = System.currentTimeMillis();
         long timeInMillis = seconds * 1000;
         long diff = currentTimeMillis - timeInMillis;
 
+        // 🔧 Xử lý trường hợp thời gian trong tương lai (lỗi dữ liệu hoặc múi giờ)
+        if (diff < 0) {
+            return "vừa xong";
+        }
+
+        // ⏰ 0-1 phút: "Vừa xong"
+        if (diff < TimeUnit.MINUTES.toMillis(1)) {
+            return "vừa xong";
+        }
+
+        // ⏰ 1-60 phút: "X phút trước"
         if (diff < TimeUnit.HOURS.toMillis(1)) {
             long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
-            return minutes + "ph";
+            return minutes + " phút trước";
         }
 
+        // ⏰ 1-24 giờ: "X giờ trước"
         if (diff < TimeUnit.DAYS.toMillis(1)) {
             long hours = TimeUnit.MILLISECONDS.toHours(diff);
-            return hours + "g";
+            return hours + " giờ trước";
         }
 
+        // ⏰ 1-7 ngày: "X ngày trước"
         long days = TimeUnit.MILLISECONDS.toDays(diff);
-        if (days < 7) { // Nếu dưới 7 ngày thì hiển thị số ngày
-            return days + "d";
+        if (days < 7) {
+            return days + " ngày trước";
         }
 
+        // ⏰ >7 ngày: Hiển thị ngày giờ cụ thể
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm dd/MM/yyyy");
         return dateFormat.format(new Date(timeInMillis));

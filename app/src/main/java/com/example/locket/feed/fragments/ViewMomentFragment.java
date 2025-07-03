@@ -6,8 +6,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
+import android.text.Editable;
+import android.text.TextWatcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.locket.R;
 import com.example.locket.feed.adapters.CategoryFilterAdapter;
 import com.example.locket.feed.adapters.ViewAllMomentAdapter;
@@ -29,13 +36,24 @@ import com.example.locket.common.repository.viewmodels.MomentViewModel;
 import com.example.locket.common.database.entities.MomentEntity;
 import com.example.locket.common.repository.MomentRepository;
 import com.example.locket.common.models.post.CategoriesResponse;
+import com.example.locket.common.models.post.CommentRequest;
+import com.example.locket.common.models.post.CommentResponse;
+import com.example.locket.common.network.PostApiService;
+import com.example.locket.common.network.client.AuthApiClient;
+import com.example.locket.common.utils.SharedPreferencesUser;
+import com.example.locket.common.models.auth.LoginResponse;
 import com.makeramen.roundedimageview.RoundedImageView;
+import com.example.locket.chat.MessageThreadManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ViewMomentFragment extends Fragment {
     private RelativeLayout relative_view_all_moment;
@@ -47,6 +65,22 @@ public class ViewMomentFragment extends Fragment {
     private ViewAllMomentAdapter viewAllMomentAdapter;
     private CategoryFilterAdapter categoryFilterAdapter;
     private MomentViewModel viewModel;
+    
+    // Message sending components
+    private EditText txt_send_message;
+    private LinearLayout layout_send_message;
+    private ImageView img_send_message;
+    private LinearLayout layout_send;
+    private ImageView img_send;
+    private ProgressBar progress_bar;
+    private LottieAnimationView lottie_check;
+    private PostApiService postApiService;
+    private LoginResponse loginResponse;
+    private LinearLayoutManager layoutManager;
+    private PagerSnapHelper snapHelper;
+    
+    // Message thread integration
+    private MessageThreadManager messageThreadManager;
     
     // Data for filtering
     private List<MomentEntity> allMoments = new ArrayList<>();
@@ -73,8 +107,30 @@ public class ViewMomentFragment extends Fragment {
         relative_view_all_moment = view.findViewById(R.id.relative_view_all_moment);
         relative_view_moment = view.findViewById(R.id.relative_view_moment);
 
+        // Initialize message sending components
+        txt_send_message = view.findViewById(R.id.txt_send_message);
+        layout_send_message = view.findViewById(R.id.layout_send_message);
+        img_send_message = view.findViewById(R.id.img_send_message);
+        layout_send = view.findViewById(R.id.layout_send);
+        img_send = view.findViewById(R.id.img_send);
+        progress_bar = view.findViewById(R.id.progress_bar);
+        lottie_check = view.findViewById(R.id.lottie_check);
+
+        // Initialize API service and user info
+        postApiService = AuthApiClient.getAuthClient().create(PostApiService.class);
+        loginResponse = SharedPreferencesUser.getLoginResponse(requireContext());
+
         // Initialize ViewModel
         viewModel = new ViewModelProvider(this).get(MomentViewModel.class);
+
+        // Initialize MessageThreadManager
+        messageThreadManager = new MessageThreadManager(requireContext());
+        
+        // Test integration on debug builds
+        if (android.util.Log.isLoggable("ViewMomentFragment", android.util.Log.DEBUG)) {
+            com.example.locket.chat.MomentCommentIntegrationHelper.logIntegrationStatus();
+            com.example.locket.chat.MomentCommentIntegrationHelper.isIntegrationReady(requireContext());
+        }
 
         // Setup SwipeRefreshLayout
         swipeRefreshLayout.setOnRefreshListener(() -> {
@@ -83,12 +139,12 @@ public class ViewMomentFragment extends Fragment {
         });
 
         // Thiết lập RecyclerView cho chế độ xem từng moment (vertical, như ViewPager)
-        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false);
+        layoutManager = new LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false);
         rv_view_moment.setLayoutManager(layoutManager);
         // Khởi tạo adapter với danh sách ban đầu là rỗng
         viewMomentAdapter = new ViewMomentAdapter(requireContext(), new ArrayList<>());
         rv_view_moment.setAdapter(viewMomentAdapter);
-        PagerSnapHelper snapHelper = new PagerSnapHelper();
+        snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(rv_view_moment);
 
         // Thiết lập RecyclerView cho chế độ xem tất cả các moment (grid 3 cột)
@@ -102,6 +158,9 @@ public class ViewMomentFragment extends Fragment {
 
         // Setup ViewAllMomentAdapter click listeners
         setupViewAllMomentAdapterListeners();
+
+        // Setup message sending functionality
+        setupMessageSending();
 
         // Sự kiện khi nhấn nút capture: chuyển về trang LiveCameraFragment
         img_capture.setOnClickListener(v -> {
@@ -434,6 +493,355 @@ public class ViewMomentFragment extends Fragment {
             categoryFilterAdapter.setSelectedCategory(categoryName);
             Log.d("CategoryFilter", "Updated filter selection to: " + categoryName);
         }
+    }
+
+    /**
+     * Setup message sending functionality with TextWatcher and click listeners
+     */
+    private void setupMessageSending() {
+        // Initially disable send button
+        updateSendButtonState(false);
+
+        // Add TextWatcher to EditText
+        txt_send_message.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Enable/disable send button based on text content
+                boolean hasText = s.toString().trim().length() > 0;
+                updateSendButtonState(hasText);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        // Click listener for send button in message input layout
+        layout_send_message.setOnClickListener(v -> {
+            String message = txt_send_message.getText().toString().trim();
+            if (!message.isEmpty()) {
+                sendMessageReaction(message);
+            }
+        });
+
+        // Click listener for main send button
+        if (layout_send != null) {
+            layout_send.setOnClickListener(v -> {
+                String message = txt_send_message.getText().toString().trim();
+                if (!message.isEmpty()) {
+                    sendMessageReaction(message);
+                }
+            });
+        }
+    }
+
+    /**
+     * Update send button state (enabled/disabled)
+     */
+    private void updateSendButtonState(boolean enabled) {
+        if (layout_send_message != null) {
+            layout_send_message.setAlpha(enabled ? 1.0f : 0.5f);
+            layout_send_message.setEnabled(enabled);
+            layout_send_message.setBackgroundResource(enabled ? 
+                R.drawable.background_btn_continue_check : 
+                R.drawable.background_btn_continue_un_check);
+        }
+    }
+
+    /**
+     * Get the currently visible moment from RecyclerView
+     */
+    private MomentEntity getCurrentVisibleMoment() {
+        if (layoutManager == null || viewMomentAdapter == null) {
+            return null;
+        }
+
+        View centerView = snapHelper.findSnapView(layoutManager);
+        if (centerView != null) {
+            int position = layoutManager.getPosition(centerView);
+            if (position >= 0 && position < viewMomentAdapter.getItemCount()) {
+                return viewMomentAdapter.getMomentAtPosition(position);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Send message reaction to the current moment
+     */
+    private void sendMessageReaction(String message) {
+        // Check network connectivity
+        if (!isNetworkAvailable()) {
+            Toast.makeText(requireContext(), "Không có kết nối mạng", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Check user authentication
+        if (loginResponse == null || loginResponse.getIdToken() == null) {
+            Toast.makeText(requireContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Get current visible moment
+        MomentEntity currentMoment = getCurrentVisibleMoment();
+        if (currentMoment == null) {
+            Toast.makeText(requireContext(), "Không thể xác định khoảnh khắc hiện tại", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Show loading state
+        showSendingState();
+
+        // Create comment request
+        CommentRequest commentRequest = new CommentRequest(message);
+        String token = "Bearer " + loginResponse.getIdToken();
+
+        // Send comment via API
+        Call<CommentResponse> call = postApiService.addComment(token, currentMoment.getId(), commentRequest);
+        call.enqueue(new Callback<CommentResponse>() {
+            @Override
+            public void onResponse(Call<CommentResponse> call, Response<CommentResponse> response) {
+                if (!isAdded()) return; // Check if fragment is still attached
+
+                if (response.isSuccessful() && response.body() != null) {
+                    // Success - handle comment success
+                    handleCommentSuccess(response.body(), message, currentMoment);
+                    
+                    showSuccessState();
+                    txt_send_message.setText(""); // Clear message input
+                    Toast.makeText(requireContext(), "Đã gửi tin nhắn", Toast.LENGTH_SHORT).show();
+                    
+                    // Reset UI after delay
+                    new android.os.Handler().postDelayed(() -> {
+                        if (isAdded()) {
+                            resetSendButtonState();
+                        }
+                    }, 2000);
+                } else {
+                    // Error
+                    showErrorState();
+                    String errorMsg = "Không thể gửi tin nhắn";
+                    if (response.code() == 401) {
+                        errorMsg = "Phiên đăng nhập hết hạn";
+                    } else if (response.code() == 404) {
+                        errorMsg = "Khoảnh khắc không tồn tại";
+                    }
+                    Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CommentResponse> call, Throwable t) {
+                if (!isAdded()) return;
+                
+                showErrorState();
+                Toast.makeText(requireContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("ViewMomentFragment", "Error sending message", t);
+            }
+        });
+    }
+
+    /**
+     * Show loading state while sending message
+     */
+    private void showSendingState() {
+        if (progress_bar != null && img_send != null && lottie_check != null) {
+            progress_bar.setVisibility(View.VISIBLE);
+            img_send.setVisibility(View.GONE);
+            lottie_check.setVisibility(View.GONE);
+        }
+        // Disable input while sending
+        txt_send_message.setEnabled(false);
+        layout_send_message.setEnabled(false);
+    }
+
+    /**
+     * Show success state after message sent
+     */
+    private void showSuccessState() {
+        if (progress_bar != null && img_send != null && lottie_check != null) {
+            progress_bar.setVisibility(View.GONE);
+            img_send.setVisibility(View.GONE);
+            lottie_check.setVisibility(View.VISIBLE);
+            lottie_check.playAnimation();
+        }
+        // Re-enable input
+        txt_send_message.setEnabled(true);
+        layout_send_message.setEnabled(true);
+    }
+
+    /**
+     * Show error state if message sending failed
+     */
+    private void showErrorState() {
+        resetSendButtonState();
+        // Re-enable input
+        txt_send_message.setEnabled(true);
+        layout_send_message.setEnabled(true);
+    }
+
+    /**
+     * Reset send button to initial state
+     */
+    private void resetSendButtonState() {
+        if (progress_bar != null && img_send != null && lottie_check != null) {
+            progress_bar.setVisibility(View.GONE);
+            img_send.setVisibility(View.VISIBLE);
+            lottie_check.setVisibility(View.GONE);
+        }
+        updateSendButtonState(txt_send_message.getText().toString().trim().length() > 0);
+    }
+
+    /**
+     * Check network availability
+     */
+    private boolean isNetworkAvailable() {
+        android.net.ConnectivityManager connectivityManager = 
+            (android.net.ConnectivityManager) requireContext().getSystemService(android.content.Context.CONNECTIVITY_SERVICE);
+        android.net.NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    /**
+     * Handle successful comment submission - create moment comment message in chat thread
+     * This preserves existing functionality while adding message thread integration
+     */
+    private void handleCommentSuccess(CommentResponse response, String commentText, MomentEntity currentMoment) {
+        Log.d("ViewMomentFragment", "🚀 DEBUG_COMMENT_SUCCESS: Starting moment comment success handling");
+        Log.d("ViewMomentFragment", "📝 Comment text: '" + commentText + "'");
+        Log.d("ViewMomentFragment", "🔍 Response details: " + (response != null ? "SUCCESS" : "NULL"));
+        Log.d("ViewMomentFragment", "📋 Current moment: " + (currentMoment != null ? currentMoment.getId() : "NULL"));
+        
+        // Validation checks
+        if (currentMoment == null) {
+            Log.e("ViewMomentFragment", "❌ DEBUG_COMMENT_SUCCESS_FAILED: Current moment is null");
+            return;
+        }
+        
+        if (commentText == null || commentText.trim().isEmpty()) {
+            Log.e("ViewMomentFragment", "❌ DEBUG_COMMENT_SUCCESS_FAILED: Comment text is null or empty");
+            return;
+        }
+        
+        if (response == null) {
+            Log.w("ViewMomentFragment", "⚠️ DEBUG_COMMENT_SUCCESS_WARNING: CommentResponse is null, but proceeding with message creation");
+        }
+        
+        // Don't block the UI - run asynchronously
+        new Thread(() -> {
+            try {
+                Log.d("ViewMomentFragment", "🔄 DEBUG_ASYNC_START: Starting async message creation thread");
+                
+                // Check if MessageThreadManager is available
+                if (messageThreadManager == null) {
+                    Log.e("ViewMomentFragment", "❌ DEBUG_ASYNC_FAILED: MessageThreadManager is null");
+                    return;
+                }
+                
+                // Log message thread manager state
+                messageThreadManager.logDebugInfo();
+                
+                // Check user authentication
+                if (!messageThreadManager.isUserAuthenticated()) {
+                    Log.e("ViewMomentFragment", "❌ DEBUG_ASYNC_FAILED: User is not authenticated");
+                    return;
+                }
+                
+                Log.d("ViewMomentFragment", "📋 Moment details for message creation:");
+                Log.d("ViewMomentFragment", "   - ID: " + currentMoment.getId());
+                Log.d("ViewMomentFragment", "   - User: " + currentMoment.getUser());
+                Log.d("ViewMomentFragment", "   - Image URL: " + currentMoment.getImageUrl());
+                Log.d("ViewMomentFragment", "   - Caption: " + currentMoment.getCaption());
+                
+                // Use async user ID resolution for better reliability
+                messageThreadManager.extractMomentOwnerIdAsync(currentMoment, momentOwnerId -> {
+                    if (momentOwnerId == null || momentOwnerId.trim().isEmpty()) {
+                        Log.e("ViewMomentFragment", "❌ DEBUG_USER_MAPPING_FAILED: Could not extract moment owner ID");
+                        Log.e("ViewMomentFragment", "   - Moment user field: '" + currentMoment.getUser() + "'");
+                        Log.e("ViewMomentFragment", "   - This indicates username to user ID mapping failed");
+                        Log.e("ViewMomentFragment", "   - Check UserMappingHelper cache and friends list sync");
+                        return;
+                    }
+                    
+                    Log.d("ViewMomentFragment", "✅ DEBUG_USER_MAPPING_SUCCESS: Resolved moment owner ID: " + momentOwnerId);
+                    Log.d("ViewMomentFragment", "   - Username: '" + currentMoment.getUser() + "' -> User ID: '" + momentOwnerId + "'");
+                    
+                    // Validate moment data before creating message
+                    String momentId = currentMoment.getId();
+                    String momentImageUrl = currentMoment.getImageUrl();
+                    
+                    if (momentId == null || momentId.trim().isEmpty()) {
+                        Log.e("ViewMomentFragment", "❌ DEBUG_VALIDATION_FAILED: Moment ID is null or empty");
+                        return;
+                    }
+                    
+                    if (momentImageUrl == null || momentImageUrl.trim().isEmpty()) {
+                        Log.w("ViewMomentFragment", "⚠️ DEBUG_VALIDATION_WARNING: Moment image URL is null or empty");
+                        momentImageUrl = ""; // Set empty string as fallback
+                    }
+                    
+                    Log.d("ViewMomentFragment", "🚀 DEBUG_MESSAGE_CREATION: Starting moment comment message creation");
+                    Log.d("ViewMomentFragment", "📋 Final message data:");
+                    Log.d("ViewMomentFragment", "   - Comment text: '" + commentText + "'");
+                    Log.d("ViewMomentFragment", "   - Moment ID: '" + momentId + "'");
+                    Log.d("ViewMomentFragment", "   - Moment image URL: '" + momentImageUrl + "'");
+                    Log.d("ViewMomentFragment", "   - Moment owner ID: '" + momentOwnerId + "'");
+                    Log.d("ViewMomentFragment", "   - Current user ID: '" + messageThreadManager.getCurrentUserId() + "'");
+                    
+                    // Create moment comment message in chat thread
+                    messageThreadManager.createMomentCommentMessage(
+                        commentText,
+                        momentId,
+                        momentImageUrl,
+                        momentOwnerId,
+                        new MessageThreadManager.MomentCommentCallback() {
+                            @Override
+                            public void onSuccess() {
+                                Log.d("ViewMomentFragment", "✅ DEBUG_MESSAGE_CREATION_SUCCESS: Moment comment message created successfully");
+                                Log.d("ViewMomentFragment", "🎯 Message should now appear in ChatActivity between users");
+                                Log.d("ViewMomentFragment", "📱 Users can open ChatActivity to see the moment comment message");
+                                
+                                // Optional: Show a subtle notification to user (if required)
+                                if (isAdded() && getActivity() != null) {
+                                    getActivity().runOnUiThread(() -> {
+                                        Log.d("ViewMomentFragment", "💬 Comment sent and message created");
+                                        // Could show a toast or subtle indicator here if needed
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onError(String error) {
+                                Log.e("ViewMomentFragment", "❌ DEBUG_MESSAGE_CREATION_FAILED: Failed to create moment comment message");
+                                Log.e("ViewMomentFragment", "   - Error: " + error);
+                                Log.e("ViewMomentFragment", "   - Comment was still posted successfully to the moment");
+                                Log.e("ViewMomentFragment", "   - Only the chat message creation failed");
+                                
+                                // Don't show error to user - comment posting was still successful
+                                // This is a background feature that shouldn't interrupt the main flow
+                                
+                                // Log additional debugging info
+                                Log.e("ViewMomentFragment", "🔍 DEBUG_ERROR_ANALYSIS:");
+                                Log.e("ViewMomentFragment", "   - Check Firebase database connection");
+                                Log.e("ViewMomentFragment", "   - Verify chat room ID generation");
+                                Log.e("ViewMomentFragment", "   - Ensure user authentication is valid");
+                                Log.e("ViewMomentFragment", "   - Check if ChatMessage model is correct");
+                            }
+                        }
+                    );
+                });
+                
+            } catch (Exception e) {
+                Log.e("ViewMomentFragment", "❌ DEBUG_ASYNC_EXCEPTION: Exception in handleCommentSuccess", e);
+                Log.e("ViewMomentFragment", "   - Exception type: " + e.getClass().getSimpleName());
+                Log.e("ViewMomentFragment", "   - Exception message: " + e.getMessage());
+                
+                // Don't crash or affect the comment success flow
+                // This is additional functionality that shouldn't break the main feature
+            }
+        }).start();
     }
 }
 

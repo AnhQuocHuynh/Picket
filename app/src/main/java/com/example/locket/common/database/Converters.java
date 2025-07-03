@@ -28,4 +28,23 @@ public class Converters {
         Type listType = new TypeToken<List<MomentEntity.Overlay>>() {}.getType();
         return gson.fromJson(overlaysString, listType);
     }
+
+    @TypeConverter
+    public static String fromReactionList(List<MomentEntity.Reaction> reactions) {
+        if (reactions == null) {
+            return null;
+        }
+        Gson gson = new Gson();
+        return gson.toJson(reactions);
+    }
+
+    @TypeConverter
+    public static List<MomentEntity.Reaction> toReactionList(String reactionsString) {
+        if (reactionsString == null) {
+            return null;
+        }
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<MomentEntity.Reaction>>() {}.getType();
+        return gson.fromJson(reactionsString, listType);
+    }
 }

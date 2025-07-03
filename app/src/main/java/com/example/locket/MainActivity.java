@@ -21,6 +21,7 @@ import com.example.locket.common.database.DataSyncWorker;
 import com.example.locket.common.repository.FriendshipRepository;
 import com.example.locket.common.models.friendship.FriendshipResponse;
 import com.example.locket.feed.bottomsheets.BottomSheetFriend;
+import com.example.locket.chat.UserMappingHelper;
 
 import java.util.concurrent.TimeUnit;
 
@@ -39,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
 
         // 🌟 Initialize Cloudinary for image uploads
         CloudinaryManager.initialize(this);
+
+        // 🔧 Initialize UserMappingHelper for username to user ID mapping
+        UserMappingHelper.initialize(this);
 
         // Initialize friendship repository
         friendshipRepository = new FriendshipRepository(this);

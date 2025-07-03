@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="@dimen/_5sdp"
+    android:gravity="end">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_40sdp"
+        android:background="@drawable/bg_chat_sent"
+        android:orientation="vertical"
+        android:padding="@dimen/_8sdp"
+        android:maxWidth="@dimen/_250sdp">
+
+        <!-- Moment Image -->
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/momentImageView"
+            android:layout_width="@dimen/_180sdp"
+            android:layout_height="@dimen/_180sdp"
+            android:scaleType="centerCrop"
+            android:background="@color/item_bg"
+            app:riv_corner_radius="@dimen/_8sdp" />
+
+        <!-- Comment Text -->
+        <TextView
+            android:id="@+id/commentTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_14ssp"
+            android:fontFamily="@font/assets_fonts_proximasoft_proximasoft"
+            android:text="Your comment on this moment" />
+
+        <!-- Timestamp -->
+        <TextView
+            android:id="@+id/timestampTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_2sdp"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_12ssp"
+            android:alpha="0.7"
+            android:gravity="end"
+            android:fontFamily="@font/assets_fonts_proximasoft_proximasoft" />
+
+    </LinearLayout>
+
+</LinearLayout> 

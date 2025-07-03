@@ -28,6 +28,7 @@ public class MomentEntity {
     public String category; // Category from Post (AI classified)
     public String md5; // Legacy field
     public List<Overlay> overlays; // Overlays for captions
+    public List<Reaction> reactions; // Message reactions/comments
 
     // Default constructor for Room
     public MomentEntity() {
@@ -141,6 +142,14 @@ public class MomentEntity {
         this.overlays = overlays;
     }
 
+    public List<Reaction> getReactions() {
+        return reactions;
+    }
+
+    public void setReactions(List<Reaction> reactions) {
+        this.reactions = reactions;
+    }
+
     // Nested Overlay class for captions and decorations
     public static class Overlay {
         public String overlay_id;
@@ -167,6 +176,55 @@ public class MomentEntity {
 
         public void setAlt_text(String alt_text) {
             this.alt_text = alt_text;
+        }
+    }
+
+    // Nested Reaction class for message reactions/comments
+    public static class Reaction {
+        public String userId;
+        public String userName;
+        public String message;
+        public long timestamp;
+
+        public Reaction() {}
+
+        public Reaction(String userId, String userName, String message, long timestamp) {
+            this.userId = userId;
+            this.userName = userName;
+            this.message = message;
+            this.timestamp = timestamp;
+        }
+
+        public String getUserId() {
+            return userId;
+        }
+
+        public void setUserId(String userId) {
+            this.userId = userId;
+        }
+
+        public String getUserName() {
+            return userName;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        public void setTimestamp(long timestamp) {
+            this.timestamp = timestamp;
         }
     }
 }

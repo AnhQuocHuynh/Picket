@@ -147,7 +147,18 @@ public class MomentRepository {
                         SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
                         Date date = isoFormat.parse(post.getCreatedAt());
                         if (date != null) {
-                            entity.timestamp = date.getTime();
+                            long serverTime = date.getTime();
+                            long currentTime = System.currentTimeMillis();
+                            
+                            // 🎯 FIX: If server time is too far from current time (more than 30 minutes), 
+                            // use current time instead to avoid timezone issues
+                            long timeDiff = Math.abs(currentTime - serverTime);
+                            if (timeDiff > 30 * 60 * 1000) { // 30 minutes
+                                Log.w(TAG, "Server time differs by " + (timeDiff / 60000) + " minutes from local time, using local time instead");
+                                entity.timestamp = currentTime;
+                            } else {
+                                entity.timestamp = serverTime;
+                            }
                         }
                     } catch (ParseException e) {
                         Log.w(TAG, "Failed to parse date: " + post.getCreatedAt(), e);
@@ -180,6 +191,49 @@ public class MomentRepository {
         }
         
         return momentEntities;
+    }
+
+    /**
+     * 🆕 Add new moment locally after successful post
+     * This ensures immediate display with correct local time
+     */
+    public void addNewMomentLocally(String imageUrl, String caption, String currentUserName) {
+        executor.execute(() -> {
+            try {
+                MomentEntity entity = new MomentEntity();
+                
+                // Generate temporary ID for local moment
+                entity.id = "local_" + System.currentTimeMillis();
+                entity.canonicalUid = entity.id;
+                entity.user = currentUserName != null ? currentUserName : "You";
+                entity.imageUrl = imageUrl;
+                entity.thumbnailUrl = imageUrl;
+                entity.caption = caption != null ? caption : "";
+                entity.category = "Mới đăng";
+                
+                // 🎯 KEY FIX: Use current local time for immediate display
+                long currentTime = System.currentTimeMillis();
+                entity.timestamp = currentTime;
+                entity.dateSeconds = currentTime / 1000;
+                
+                // Create overlays for caption if exists
+                if (caption != null && !caption.trim().isEmpty()) {
+                    List<MomentEntity.Overlay> overlays = new ArrayList<>();
+                    MomentEntity.Overlay overlay = new MomentEntity.Overlay();
+                    overlay.overlay_id = "caption:text";
+                    overlay.alt_text = caption;
+                    overlays.add(overlay);
+                    entity.overlays = overlays;
+                }
+                
+                // Insert to database
+                momentDao.insert(entity);
+                Log.d(TAG, "✅ Added new moment locally with current time: " + entity.user + " - " + entity.caption);
+                
+            } catch (Exception e) {
+                Log.e(TAG, "❌ Error adding moment locally: " + e.getMessage(), e);
+            }
+        });
     }
 
     /**

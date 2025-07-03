@@ -3,6 +3,7 @@ package com.example.locket.camera.fragments;
 import static android.app.Activity.RESULT_OK;
 
 import android.Manifest;
+import android.app.Application;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -92,6 +93,7 @@ public class LiveCameraFragment extends Fragment {
     // New API components
     private ImageUploadService imageUploadService;
     private PostRepository postRepository;
+    private com.example.locket.common.repository.MomentRepository momentRepository;
     private SuccessNotificationDialog successDialog;
 
 
@@ -126,6 +128,7 @@ public class LiveCameraFragment extends Fragment {
         // Initialize new API services
         imageUploadService = new ImageUploadService(requireContext());
         postRepository = new PostRepository(requireContext());
+        momentRepository = new com.example.locket.common.repository.MomentRepository((Application) requireContext().getApplicationContext());
         successDialog = new SuccessNotificationDialog(requireContext());
     }
 
@@ -405,6 +408,10 @@ public class LiveCameraFragment extends Fragment {
             @Override
             public void onSuccess(PostResponse postResponse) {
                 Log.d("LiveCamera", "✅ Post created successfully!");
+                
+                // 🎯 KEY FIX: Add moment locally with current time for immediate display
+                addMomentLocally(imageUrl, caption);
+                
                 getActivity().runOnUiThread(() -> {
                     setLoadingState(false);
                     showSuccessState();
@@ -425,9 +432,28 @@ public class LiveCameraFragment extends Fragment {
                 Log.d("LiveCamera", "⏳ Post creation loading: " + isLoading);
                 // Loading state is already handled by setLoadingState()
             }
-        });
+                });
     }
-    
+
+    /**
+     * 🎯 Add moment locally with current time for immediate "vừa xong" display
+     */
+    private void addMomentLocally(String imageUrl, String caption) {
+        try {
+            // Get current user name from login response
+            String currentUserName = loginResponse != null && loginResponse.getUser() != null 
+                ? loginResponse.getUser().getUsername() 
+                : "You";
+            
+            // Add moment locally with current time
+            momentRepository.addNewMomentLocally(imageUrl, caption, currentUserName);
+            Log.d("LiveCamera", "✅ Added moment locally for immediate display");
+            
+        } catch (Exception e) {
+            Log.e("LiveCamera", "❌ Error adding moment locally: " + e.getMessage(), e);
+        }
+    }
+
     private void setLoadingState(boolean isLoading) {
         if (isLoading) {
             progress_bar.setVisibility(View.VISIBLE);
