@@ -73,7 +73,7 @@
             android:layout_marginHorizontal="@dimen/_5sdp"
             android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
             android:gravity="center"
-            android:text="Bằng cách nhấn vào nút Tiếp tục, bạn đồng ý với chúng tôi Điều khoản dịch vụ và Chính sách quyền riêng tư"
+            android:text="Chào mừng đến với Picket! Nhập email để bắt đầu nhé 💌"
             android:textColor="@color/hint"
             android:textSize="@dimen/_10ssp" />
 
@@ -105,15 +105,6 @@
                 app:tint="@color/hint" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btn_google_signin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Đăng nhập bằng Google"
-            android:background="@drawable/background_btn_register"
-            android:textColor="@color/bg"
-            android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold" />
 
     </LinearLayout>
 

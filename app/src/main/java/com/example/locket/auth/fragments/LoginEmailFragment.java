@@ -116,7 +116,7 @@ public class LoginEmailFragment extends Fragment {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
         });
-        login_phone.setOnClickListener(view -> releaseFragment());
+//        login_phone.setOnClickListener(view -> releaseFragment());
         linear_continue.setOnClickListener(view -> {
             // Skip email check và chuyển thẳng đến password screen
             // Vì backend không có endpoint /api/auth/check-email
