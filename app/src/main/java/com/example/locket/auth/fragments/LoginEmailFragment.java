@@ -63,6 +63,10 @@ public class LoginEmailFragment extends Fragment {
     private void initViews(View view) {
         img_back = view.findViewById(R.id.img_back);
         edt_email = view.findViewById(R.id.edt_email);
+<<<<<<< HEAD
+=======
+//        login_phone = view.findViewById(R.id.login_phone);
+>>>>>>> 85d88a06b3f29e3d77aec779903c640512f78bf5
         linear_continue = view.findViewById(R.id.linear_continue);
         txt_continue = view.findViewById(R.id.txt_continue);
         img_continue = view.findViewById(R.id.img_continue);
