@@ -189,7 +189,7 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
                     .error(R.drawable.ic_widget_empty_icon)
                     .into(imgCapture);
         } else {
-            imgCapture.setImageResource(R.drawable.assets_png_image_watermark);
+            imgCapture.setImageResource(R.drawable.ic_launcher_round);
         }
     }
 
@@ -209,7 +209,7 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
         if (profilePictureUrl != null && !profilePictureUrl.isEmpty()) {
             Glide.with(this).load(profilePictureUrl).into(imgCapture);
         } else {
-            imgCapture.setImageResource(R.drawable.assets_png_image_watermark);
+            imgCapture.setImageResource(R.drawable.ic_launcher_round);
         }
     }
 }

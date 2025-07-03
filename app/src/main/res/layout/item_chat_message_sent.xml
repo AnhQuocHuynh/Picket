@@ -8,7 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:background="@drawable/bg_chat_sent" 
+        android:background="@color/app"
         android:orientation="vertical"
         android:padding="10dp">
 
@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="This is a sent message"
-            android:textColor="@android:color/white" />
+            android:textColor="@color/bg" />
 
     </LinearLayout>
 
