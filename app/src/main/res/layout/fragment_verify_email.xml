@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Xác thực email"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tv_instruction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nhập mã xác thực đã gửi tới email của bạn."
+        android:textSize="16sp"
+        android:layout_marginBottom="24dp"/>
+
+    <EditText
+        android:id="@+id/et_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Mã xác thực"
+        android:inputType="number"
+        android:maxLength="6"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tv_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#D32F2F"
+        android:visibility="gone"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btn_verify"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Xác nhận"
+        android:layout_marginBottom="12dp"/>
+
+    <Button
+        android:id="@+id/btn_resend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gửi lại mã"
+        android:backgroundTint="#EEEEEE"
+        android:textColor="#333333"/>
+
+</LinearLayout> 

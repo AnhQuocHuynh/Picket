@@ -10,8 +10,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.locket.common.database.entities.FriendEntity;
 import com.example.locket.common.models.common.ApiResponse;
 import com.example.locket.common.models.friendship.FriendRequestResponse;
-import com.example.locket.common.models.friendship.FriendshipResponse;
 import com.example.locket.common.models.friendship.FriendsListResponse;
+import com.example.locket.common.models.friendship.FriendshipResponse;
 import com.example.locket.common.models.friendship.GenerateLinkResponse;
 import com.example.locket.common.models.user.UserSearchResponse;
 import com.example.locket.common.repository.FriendRepository;
@@ -136,8 +136,8 @@ public class FriendViewModel extends AndroidViewModel {
         friendshipRepository.acceptFriendRequest(friendshipId, new FriendshipRepository.FriendshipCallback() {
             @Override
             public void onSuccess(FriendshipResponse friendshipResponse) {
-                 _friendshipResponse.postValue(friendshipResponse);
-                 fetchMyFriends(); // Refresh friends list
+                _friendshipResponse.postValue(friendshipResponse);
+                fetchMyFriends(); // Refresh friends list
             }
 
             @Override

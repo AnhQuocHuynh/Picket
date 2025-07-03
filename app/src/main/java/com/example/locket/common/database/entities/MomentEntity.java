@@ -17,7 +17,7 @@ public class MomentEntity {
     @PrimaryKey
     @NonNull
     public String id; // Post ID from API
-    
+
     public String canonicalUid; // Legacy field, can be same as id
     public String user; // Username from Post.User
     public String thumbnailUrl; // Legacy field

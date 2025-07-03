@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class UploadApiClient {
     private static Retrofit uploadRetrofit = null;
     private static Retrofit apiRetrofit = null;
-    
+
     // Backend API URLs - cập nhật theo backend của bạn
     private static final String BASE_API_URL = "http://localhost:3000/api/";
     private static final String BASE_UPLOAD_URL = "http://localhost:3000/api/upload/";

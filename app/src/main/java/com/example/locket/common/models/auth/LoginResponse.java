@@ -9,7 +9,7 @@ public class LoginResponse implements Serializable {
     private String refreshToken;
     private long expiresIn;
     private UserData user;
-    
+
     // Additional fields for backward compatibility với LoginRespone
     private String localId;
     private String profilePicture;

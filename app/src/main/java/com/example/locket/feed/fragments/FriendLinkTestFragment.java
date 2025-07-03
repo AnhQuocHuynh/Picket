@@ -151,12 +151,12 @@ public class FriendLinkTestFragment extends Fragment {
 
     private String extractTokenFromInput(String input) {
         if (input == null || input.isEmpty()) return "";
-        
+
         // If input contains a URL pattern, extract the token from it
         if (input.contains("/add-friend/") || input.contains("token=")) {
             return extractTokenFromLink(input);
         }
-        
+
         // Otherwise, assume the input is the token itself
         return input;
     }

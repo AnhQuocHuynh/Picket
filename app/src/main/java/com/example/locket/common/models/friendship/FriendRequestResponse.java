@@ -3,6 +3,7 @@ package com.example.locket.common.models.friendship;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 public class FriendRequestResponse {

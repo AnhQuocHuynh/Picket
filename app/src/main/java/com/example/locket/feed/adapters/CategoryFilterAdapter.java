@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.locket.R;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -91,10 +90,10 @@ public class CategoryFilterAdapter extends RecyclerView.Adapter<CategoryFilterAd
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         CategoryItem category = categories.get(position);
-        
+
         // Set category name
         holder.txtCategoryName.setText(category.getName());
-        
+
         // Set category icon if available
         if (category.getIcon() != null && !category.getIcon().isEmpty()) {
             holder.txtCategoryIcon.setText(category.getIcon());
@@ -102,7 +101,7 @@ public class CategoryFilterAdapter extends RecyclerView.Adapter<CategoryFilterAd
         } else {
             holder.txtCategoryIcon.setVisibility(View.GONE);
         }
-        
+
         // Set count if greater than 0
         if (category.getCount() > 0) {
             holder.txtCategoryCount.setText(String.valueOf(category.getCount()));
@@ -110,26 +109,26 @@ public class CategoryFilterAdapter extends RecyclerView.Adapter<CategoryFilterAd
         } else {
             holder.txtCategoryCount.setVisibility(View.GONE);
         }
-        
+
         // Handle selection state
         boolean isSelected = position == selectedPosition;
         holder.itemView.setSelected(isSelected);
-        
+
         // Update text color based on selection
-        int textColor = isSelected ? 
-            ContextCompat.getColor(context, R.color.black) : 
-            ContextCompat.getColor(context, R.color.text);
+        int textColor = isSelected ?
+                ContextCompat.getColor(context, R.color.black) :
+                ContextCompat.getColor(context, R.color.text);
         holder.txtCategoryName.setTextColor(textColor);
-        
+
         // Handle click events
         holder.itemView.setOnClickListener(v -> {
             int previousPosition = selectedPosition;
             selectedPosition = position;
-            
+
             // Notify items for visual update
             notifyItemChanged(previousPosition);
             notifyItemChanged(selectedPosition);
-            
+
             // Callback to listener
             if (listener != null) {
                 listener.onCategorySelected(category.getName(), position);

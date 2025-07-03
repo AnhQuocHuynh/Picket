@@ -8,8 +8,6 @@ import androidx.work.WorkerParameters;
 
 import com.example.locket.common.repository.MomentRepository;
 
-import java.util.ArrayList;
-
 public class DataSyncWorker extends Worker {
     private MomentRepository momentRepository;
 

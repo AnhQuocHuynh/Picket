@@ -6,6 +6,8 @@ import com.example.locket.common.models.auth.RegisterRequest;
 import com.example.locket.common.models.auth.AuthResponse;
 import com.example.locket.common.models.user.UserProfile;
 import com.example.locket.common.models.common.ApiResponse;
+import com.example.locket.common.models.auth.VerifyEmailRequest;
+import com.example.locket.common.models.auth.ResendVerificationRequest;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -48,6 +50,27 @@ public interface AuthApiService {
     // 🚪 LOGOUT (updates lastSeen)
     @POST("auth/logout")
     Call<ApiResponse> logout(@Header("Authorization") String bearerToken);
+
+    // 📧 VERIFY EMAIL
+    @Headers({
+            "Content-Type: application/json"
+    })
+    @POST("auth/verify-email")
+    Call<ApiResponse> verifyEmail(@Body VerifyEmailRequest request);
+
+    // 🔄 RESEND VERIFICATION CODE
+    @Headers({
+            "Content-Type: application/json"
+    })
+    @POST("auth/send-verification-email")
+    Call<ApiResponse> resendVerification(@Body ResendVerificationRequest request);
+
+    // 🔄 RESEND VERIFICATION CODE (with token)
+    @Headers({
+            "Content-Type: application/json"
+    })
+    @POST("auth/send-verification-email")
+    Call<ApiResponse> resendVerificationWithToken(@Header("Authorization") String bearerToken);
 
     // ❌ REMOVED ENDPOINTS (không có trong backend):
     // - auth/check-email (đã bỏ)

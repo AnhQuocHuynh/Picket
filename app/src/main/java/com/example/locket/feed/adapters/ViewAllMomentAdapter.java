@@ -5,15 +5,14 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.google.android.material.imageview.ShapeableImageView;
 import com.example.locket.R;
 import com.example.locket.common.database.entities.MomentEntity;
+import com.google.android.material.imageview.ShapeableImageView;
+
 import java.util.List;
 
 public class ViewAllMomentAdapter extends RecyclerView.Adapter<ViewAllMomentAdapter.ViewHolder> {
@@ -56,7 +55,7 @@ public class ViewAllMomentAdapter extends RecyclerView.Adapter<ViewAllMomentAdap
 
         // 🔧 Load image với CloudinaryImageLoader
         com.example.locket.common.utils.CloudinaryImageLoader.loadThumbnail(
-                context, 
+                context,
                 moment.getImageUrl(), // Sử dụng imageUrl thay vì thumbnailUrl 
                 holder.shapeable_imageview
         );
@@ -82,10 +81,10 @@ public class ViewAllMomentAdapter extends RecyclerView.Adapter<ViewAllMomentAdap
     private String extractCategoryFromMoment(MomentEntity moment) {
         // For now, return a default category or derive from existing data
         // This will be replaced when the Posts API includes category field
-        
+
         if (moment.getCaption() != null) {
             String caption = moment.getCaption().toLowerCase();
-            
+
             // Simple keyword matching - to be replaced with actual API category
             if (caption.contains("animal") || caption.contains("động vật") || caption.contains("cat") || caption.contains("dog")) {
                 return "Động vật";
@@ -99,7 +98,7 @@ public class ViewAllMomentAdapter extends RecyclerView.Adapter<ViewAllMomentAdap
                 return "Con người";
             }
         }
-        
+
         // Default category
         return "Khác";
     }

@@ -1,6 +1,5 @@
 package com.example.locket.common.repository;
 
-import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
@@ -12,9 +11,9 @@ import com.example.locket.common.database.AppDatabase;
 import com.example.locket.common.database.dao.MomentDao;
 import com.example.locket.common.database.entities.MomentEntity;
 import com.example.locket.common.models.auth.LoginResponse;
+import com.example.locket.common.models.post.CategoriesResponse;
 import com.example.locket.common.models.post.Post;
 import com.example.locket.common.models.post.PostsResponse;
-import com.example.locket.common.models.post.CategoriesResponse;
 import com.example.locket.common.network.PostApiService;
 import com.example.locket.common.network.client.AuthApiClient;
 import com.example.locket.common.utils.AuthManager;
@@ -65,7 +64,7 @@ public class MomentRepository {
         }
 
         Log.d(TAG, "Fetching friends posts from server...");
-        
+
         // Fetch friends posts with pagination
         Call<PostsResponse> call = postApiService.getFriendsPosts(authHeader, 1, 50); // Fetch first 50 posts
 
@@ -76,20 +75,20 @@ public class MomentRepository {
                     PostsResponse postsResponse = response.body();
                     if (postsResponse.isSuccess() && postsResponse.getData() != null) {
                         Log.d(TAG, "Successfully fetched " + postsResponse.getData().size() + " posts");
-                        
+
                         // Convert posts to moment entities in background thread
                         executor.execute(() -> {
                             try {
                                 List<MomentEntity> momentEntities = convertPostsToMoments(postsResponse.getData());
                                 Log.d(TAG, "Converted " + momentEntities.size() + " posts to moments");
-                                
+
                                 // Clear old data and insert new data
                                 Log.d(TAG, "Clearing old moments from database...");
                                 momentDao.deleteAll();
-                                
+
                                 Log.d(TAG, "Inserting " + momentEntities.size() + " new moments...");
                                 momentDao.insertAll(momentEntities);
-                                
+
                                 Log.d(TAG, "Successfully saved " + momentEntities.size() + " moments to database");
                             } catch (Exception e) {
                                 Log.e(TAG, "Error saving posts to database: " + e.getMessage(), e);
@@ -127,11 +126,11 @@ public class MomentRepository {
      */
     private List<MomentEntity> convertPostsToMoments(List<Post> posts) {
         List<MomentEntity> momentEntities = new ArrayList<>();
-        
+
         for (Post post : posts) {
             try {
                 MomentEntity entity = new MomentEntity();
-                
+
                 // Basic fields
                 entity.id = post.getId();
                 entity.user = post.getUser().getUsername();
@@ -139,7 +138,7 @@ public class MomentRepository {
                 entity.caption = post.getCaption() != null ? post.getCaption() : "";
                 entity.category = post.getCategory() != null ? post.getCategory() : "Khác";
                 entity.timestamp = System.currentTimeMillis();
-                
+
                 // Convert createdAt to timestamp
                 if (post.getCreatedAt() != null) {
                     try {
@@ -154,10 +153,10 @@ public class MomentRepository {
                         // Keep current timestamp as fallback
                     }
                 }
-                
+
                 // Set thumbnail URL (same as image URL for now)
                 entity.thumbnailUrl = post.getImageUrl();
-                
+
                 // Create overlays for caption if exists
                 if (post.getCaption() != null && !post.getCaption().trim().isEmpty()) {
                     List<MomentEntity.Overlay> overlays = new ArrayList<>();
@@ -167,18 +166,18 @@ public class MomentRepository {
                     overlays.add(overlay);
                     entity.overlays = overlays;
                 }
-                
+
                 // Calculate date seconds for compatibility
                 entity.dateSeconds = entity.timestamp / 1000;
-                
+
                 momentEntities.add(entity);
                 Log.d(TAG, "Converted post to moment: " + post.getUser().getUsername() + " - " + post.getCaption());
-                
+
             } catch (Exception e) {
                 Log.e(TAG, "Error converting post to moment: " + post.getId(), e);
             }
         }
-        
+
         return momentEntities;
     }
 
@@ -199,7 +198,7 @@ public class MomentRepository {
         }
 
         Log.d(TAG, "Fetching available categories from server...");
-        
+
         Call<CategoriesResponse> call = postApiService.getAvailableCategories(authHeader);
         call.enqueue(new Callback<CategoriesResponse>() {
             @Override
@@ -210,8 +209,8 @@ public class MomentRepository {
                         Log.d(TAG, "Successfully fetched " + categoriesResponse.getData().size() + " categories");
                         callback.onCategoriesReceived(categoriesResponse.getData());
                     } else {
-                        String errorMsg = "API response unsuccessful: " + 
-                            (categoriesResponse.getMessage() != null ? categoriesResponse.getMessage() : "Unknown error");
+                        String errorMsg = "API response unsuccessful: " +
+                                (categoriesResponse.getMessage() != null ? categoriesResponse.getMessage() : "Unknown error");
                         Log.e(TAG, errorMsg);
                         callback.onError(errorMsg);
                     }
@@ -246,11 +245,11 @@ public class MomentRepository {
         executor.execute(() -> {
             try {
                 Log.d(TAG, "Testing database connection...");
-                
+
                 // Test basic operations
                 List<MomentEntity> currentMoments = momentDao.getAllMomentsSync();
                 Log.d(TAG, "Current moments in database: " + currentMoments.size());
-                
+
                 // Test insert a dummy moment
                 MomentEntity testMoment = new MomentEntity();
                 testMoment.id = "test_" + System.currentTimeMillis();
@@ -259,14 +258,14 @@ public class MomentRepository {
                 testMoment.caption = "Test moment";
                 testMoment.timestamp = System.currentTimeMillis();
                 testMoment.dateSeconds = testMoment.timestamp / 1000;
-                
+
                 momentDao.insert(testMoment);
                 Log.d(TAG, "Successfully inserted test moment");
-                
+
                 // Remove test moment
                 momentDao.deleteById(testMoment.id);
                 Log.d(TAG, "Database connection test completed successfully");
-                
+
             } catch (Exception e) {
                 Log.e(TAG, "Database connection test failed: " + e.getMessage(), e);
             }

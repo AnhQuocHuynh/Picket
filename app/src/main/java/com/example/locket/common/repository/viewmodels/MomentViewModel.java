@@ -1,13 +1,13 @@
 package com.example.locket.common.repository.viewmodels;
 
 import android.app.Application;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import com.example.locket.common.database.entities.MomentEntity;
 import com.example.locket.common.repository.MomentRepository;
-import com.example.locket.common.models.post.CategoriesResponse;
 
 import java.util.List;
 
@@ -20,10 +20,10 @@ public class MomentViewModel extends AndroidViewModel {
         super(application);
         repository = new MomentRepository(application);
         allMoments = repository.getAllMoments();
-        
+
         // 🧪 Test database connection first
         repository.testDatabaseConnection();
-        
+
         // 🔄 Đồng bộ dữ liệu posts từ server khi ViewModel khởi tạo
         repository.refreshDataFromServer();
     }

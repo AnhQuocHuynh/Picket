@@ -309,7 +309,7 @@ public class NetworkManager {
 
         // Basic malformed URL check
         try {
-            new java.net.URL(cleanUrl);
+            new URL(cleanUrl);
         } catch (java.net.MalformedURLException e) {
             Log.e(TAG, "Malformed URL detected, skipping: " + cleanUrl, e);
             return null;

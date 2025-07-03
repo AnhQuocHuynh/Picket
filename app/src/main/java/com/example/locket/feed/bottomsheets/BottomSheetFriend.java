@@ -22,15 +22,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.example.locket.R;
 import com.example.locket.common.repository.viewmodels.FriendViewModel;
 import com.example.locket.profile.adapters.NewFriendsAdapter;
 import com.example.locket.profile.adapters.ReceivedFriendRequestAdapter;
 import com.example.locket.profile.adapters.SentFriendRequestAdapter;
 import com.example.locket.profile.adapters.UserSearchAdapter;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;
 

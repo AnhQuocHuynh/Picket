@@ -40,7 +40,7 @@ public class ApiCaller {
         return String.format("{\"name\":\"users/%s/moments/thumbnails/%s\",\"contentType\":\"image/*\",\"bucket\":\"\",\"metadata\":{\"creator\":\"%s\",\"visibility\":\"private\"}}", idUser, nameImg, idUser);
     }
 
-    public void startUploadImage(String idUser, String idToken, byte[] image, ApiCaller.UploadCallback callback) {
+    public void startUploadImage(String idUser, String idToken, byte[] image, UploadCallback callback) {
         if (image == null || image.length == 0) {
             Log.e(TAG, "startUploadImage: Image data is null or empty!");
             callback.onUploadComplete(null, false);
@@ -79,7 +79,7 @@ public class ApiCaller {
         });
     }
 
-    private void uploadImage(String uploadUrl, byte[] image, String idUser, String nameImg, String idToken, ApiCaller.UploadCallback callback) {
+    private void uploadImage(String uploadUrl, byte[] image, String idUser, String nameImg, String idToken, UploadCallback callback) {
         if (uploadUrl == null || uploadUrl.isEmpty()) {
             Log.e(TAG, "uploadImage: Upload URL is null or empty!");
             callback.onUploadComplete(null, false);
@@ -125,7 +125,7 @@ public class ApiCaller {
         });
     }
 
-    private void getDownloadTokenImage(String getUrl, Map<String, String> getHeaders, ApiCaller.UploadCallback callback) {
+    private void getDownloadTokenImage(String getUrl, Map<String, String> getHeaders, UploadCallback callback) {
         Log.d(TAG, "Fetching download token for: " + getUrl);
         Call<ResponseBody> getCall = uploadApiService.getDownloadTokenImage(getUrl, getHeaders);
 
@@ -160,7 +160,7 @@ public class ApiCaller {
         });
     }
 
-    public void postImage(String idUser, String idToken, String caption, byte[] image, ApiCaller.UploadCallback callback) {
+    public void postImage(String idUser, String idToken, String caption, byte[] image, UploadCallback callback) {
         Log.d(TAG, "Starting postImage...");
         startUploadImage(idUser, idToken, image, (thumbnailUrl, success) -> {
             if (!success || thumbnailUrl == null) {
