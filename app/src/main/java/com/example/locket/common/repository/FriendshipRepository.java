@@ -28,7 +28,7 @@ public class FriendshipRepository {
     }
 
     // ==================== CALLBACKS ====================
-    
+
     public interface FriendshipCallback {
         void onSuccess(FriendshipResponse friendshipResponse);
         void onError(String message, int code);
@@ -72,12 +72,12 @@ public class FriendshipRepository {
 
         FriendRequest request = new FriendRequest(recipientId, requestMessage);
         Call<FriendshipResponse> call = friendshipApiService.sendFriendRequest(authHeader, request);
-        
+
         call.enqueue(new Callback<FriendshipResponse>() {
             @Override
             public void onResponse(Call<FriendshipResponse> call, Response<FriendshipResponse> response) {
                 if (callback != null) callback.onLoading(false);
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d(TAG, "Send friend request successful");
                     if (callback != null) callback.onSuccess(response.body());
@@ -128,12 +128,12 @@ public class FriendshipRepository {
         if (callback != null) callback.onLoading(true);
 
         Call<FriendshipResponse> call = friendshipApiService.acceptFriendRequest(authHeader, friendshipId);
-        
+
         call.enqueue(new Callback<FriendshipResponse>() {
             @Override
             public void onResponse(Call<FriendshipResponse> call, Response<FriendshipResponse> response) {
                 if (callback != null) callback.onLoading(false);
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d(TAG, "Accept friend request successful");
                     if (callback != null) callback.onSuccess(response.body());
@@ -235,12 +235,12 @@ public class FriendshipRepository {
         if (callback != null) callback.onLoading(true);
 
         Call<FriendsListResponse> call = friendshipApiService.getFriendsList(authHeader);
-        
+
         call.enqueue(new Callback<FriendsListResponse>() {
             @Override
             public void onResponse(Call<FriendsListResponse> call, Response<FriendsListResponse> response) {
                 if (callback != null) callback.onLoading(false);
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d(TAG, "Get friends list successful");
                     if (callback != null) callback.onSuccess(response.body());
@@ -289,7 +289,7 @@ public class FriendshipRepository {
         }
 
         Call<GenerateLinkResponse> call = friendshipApiService.generateFriendLink(authHeader);
-        
+
         call.enqueue(new Callback<GenerateLinkResponse>() {
             @Override
             public void onResponse(Call<GenerateLinkResponse> call, Response<GenerateLinkResponse> response) {
@@ -343,12 +343,12 @@ public class FriendshipRepository {
 
         AcceptLinkRequest request = new AcceptLinkRequest(token);
         Call<FriendshipResponse> call = friendshipApiService.acceptFriendViaLink(authHeader, request);
-        
+
         call.enqueue(new Callback<FriendshipResponse>() {
             @Override
             public void onResponse(Call<FriendshipResponse> call, Response<FriendshipResponse> response) {
                 if (callback != null) callback.onLoading(false);
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d(TAG, "Accept friend via link successful");
                     if (callback != null) callback.onSuccess(response.body());
@@ -507,7 +507,7 @@ public class FriendshipRepository {
 
                         @Override
                         public void onTokenExpired() {
-                             ApiErrorHandler.clearAuthenticationData(context);
+                            ApiErrorHandler.clearAuthenticationData(context);
                             if (callback != null) callback.onError("Session expired", 401);
                         }
                     });
@@ -518,7 +518,7 @@ public class FriendshipRepository {
             public void onFailure(Call<FriendRequestResponse> call, Throwable t) {
                 if (callback != null) callback.onLoading(false);
                 ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
-                     @Override
+                    @Override
                     public void onError(String message, int code) {
                         if (callback != null) callback.onError(message, code);
                     }
@@ -557,7 +557,7 @@ public class FriendshipRepository {
 
                         @Override
                         public void onTokenExpired() {
-                             ApiErrorHandler.clearAuthenticationData(context);
+                            ApiErrorHandler.clearAuthenticationData(context);
                             if (callback != null) callback.onError("Session expired", 401);
                         }
                     });
@@ -568,7 +568,7 @@ public class FriendshipRepository {
             public void onFailure(Call<FriendRequestResponse> call, Throwable t) {
                 if (callback != null) callback.onLoading(false);
                 ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
-                     @Override
+                    @Override
                     public void onError(String message, int code) {
                         if (callback != null) callback.onError(message, code);
                     }

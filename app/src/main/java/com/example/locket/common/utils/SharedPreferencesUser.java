@@ -3,13 +3,13 @@ package com.example.locket.common.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.locket.common.models.auth.LoginRequest;
+import com.example.locket.common.models.auth.LoginRespone;
+import com.example.locket.common.models.auth.LoginResponse;
+import com.example.locket.common.models.user.AccountInfo;
+import com.example.locket.common.models.user.UserProfile;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.example.locket.common.models.auth.LoginResponse;
-import com.example.locket.common.models.auth.LoginRespone;
-import com.example.locket.common.models.auth.LoginRequest;
-import com.example.locket.common.models.user.UserProfile;
-import com.example.locket.common.models.user.AccountInfo;
 
 import java.lang.reflect.Type;
 import java.util.List;

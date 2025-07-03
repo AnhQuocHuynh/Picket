@@ -13,10 +13,10 @@ import retrofit2.http.POST;
 
 /**
  * 🔑 LOGIN API SERVICE
- * 
+ *
  * ✅ COMPATIBLE WITH REAL BACKEND
  * ❌ Removed non-existent endpoints
- * 
+ *
  * Base URL: http://10.0.2.2:3000/api/
  */
 public interface LoginApiService {
@@ -39,11 +39,11 @@ public interface LoginApiService {
 
     /**
      * 📝 USAGE EXAMPLES:
-     * 
+     *
      * // Login
      * LoginRequest request = new LoginRequest("user@example.com", "password123");
      * Call<LoginResponse> call = loginService.login(request);
-     * 
+     *
      * // Get Profile
      * String token = "Bearer " + SharedPreferencesUser.getJWTToken(context);
      * Call<UserProfile> profileCall = loginService.getUserProfile(token);

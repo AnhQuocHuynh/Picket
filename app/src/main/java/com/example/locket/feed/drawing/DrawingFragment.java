@@ -8,22 +8,21 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
-import androidx.core.graphics.drawable.DrawableCompat;
-import com.example.locket.R;
-import com.example.locket.camera.fragments.PhotoPreviewFragment;
-import androidx.fragment.app.FragmentTransaction;
-import java.io.ByteArrayOutputStream;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.example.locket.R;
+import com.example.locket.camera.fragments.PhotoPreviewFragment;
+
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,13 +69,13 @@ public class DrawingFragment extends Fragment {
         btnClear.setOnClickListener(v -> drawingView.clear());
         btnBack.setOnClickListener(v -> {
             new AlertDialog.Builder(requireContext())
-                .setTitle("Xác nhận")
-                .setMessage("Bạn có muốn thoát khỏi trang vẽ không? Mọi thay đổi chưa lưu sẽ bị mất.")
-                .setPositiveButton("Có", (dialog, which) -> {
-                    requireActivity().getSupportFragmentManager().popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                })
-                .setNegativeButton("Không", (dialog, which) -> dialog.dismiss())
-                .show();
+                    .setTitle("Xác nhận")
+                    .setMessage("Bạn có muốn thoát khỏi trang vẽ không? Mọi thay đổi chưa lưu sẽ bị mất.")
+                    .setPositiveButton("Có", (dialog, which) -> {
+                        requireActivity().getSupportFragmentManager().popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    })
+                    .setNegativeButton("Không", (dialog, which) -> dialog.dismiss())
+                    .show();
         });
         btnSend.setOnClickListener(v -> sendDrawing());
         btnEraser.setOnClickListener(v -> {
@@ -169,8 +168,8 @@ public class DrawingFragment extends Fragment {
             @Override
             public void onCancel() {
                 requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.frame_layout, DrawingFragment.newInstance(bitmap))
-                    .commit();
+                        .replace(R.id.frame_layout, DrawingFragment.newInstance(bitmap))
+                        .commit();
             }
             @Override
             public void onRetake() {

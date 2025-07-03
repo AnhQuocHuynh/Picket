@@ -75,7 +75,7 @@ public class ImageUtils {
      */
     public static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
         Matrix matrix = new Matrix();
-        
+
         switch (orientation) {
             case ExifInterface.ORIENTATION_ROTATE_90:
                 Log.d(TAG, "🔄 Rotating image 90 degrees");
@@ -114,14 +114,14 @@ public class ImageUtils {
         }
 
         try {
-            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, 
+            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
                     bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-            
+
             // Recycle original bitmap if it's different from rotated one
             if (rotatedBitmap != bitmap) {
                 bitmap.recycle();
             }
-            
+
             Log.d(TAG, "✅ Image orientation fixed successfully");
             return rotatedBitmap;
         } catch (OutOfMemoryError e) {
@@ -138,13 +138,13 @@ public class ImageUtils {
         if (bitmap == null) return null;
 
         Matrix matrix = new Matrix();
-        
+
         // Xoay theo rotation của camera
         if (rotationDegrees != 0) {
             Log.d(TAG, "🔄 Rotating camera image by " + rotationDegrees + " degrees");
             matrix.postRotate(rotationDegrees);
         }
-        
+
         // Flip horizontal cho front camera để có hiệu ứng gương
         if (isFrontCamera) {
             Log.d(TAG, "🪞 Flipping front camera image horizontally");
@@ -152,13 +152,13 @@ public class ImageUtils {
         }
 
         try {
-            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, 
+            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
                     bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-            
+
             if (rotatedBitmap != bitmap) {
                 bitmap.recycle();
             }
-            
+
             Log.d(TAG, "✅ Camera image rotation fixed successfully");
             return rotatedBitmap;
         } catch (OutOfMemoryError e) {

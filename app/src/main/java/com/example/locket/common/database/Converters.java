@@ -1,9 +1,10 @@
 package com.example.locket.common.database;
 
 import androidx.room.TypeConverter;
+
+import com.example.locket.common.database.entities.MomentEntity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.example.locket.common.database.entities.MomentEntity;
 
 import java.lang.reflect.Type;
 import java.util.List;

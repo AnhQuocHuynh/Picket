@@ -192,7 +192,7 @@ public class ChatActivity extends AppCompatActivity {
                     // Xác định đây là ảnh hay video dựa trên kiểu MIME (cần cải tiến thêm)
                     String mimeType = getContentResolver().getType(fileUri);
                     ChatMessage.MessageType type = (mimeType != null && mimeType.startsWith("video")) ? ChatMessage.MessageType.VIDEO : ChatMessage.MessageType.IMAGE;
-                    
+
                     sendMediaMessage(downloadUrl, type);
                     Toast.makeText(ChatActivity.this, "Upload successful", Toast.LENGTH_SHORT).show();
                 }))

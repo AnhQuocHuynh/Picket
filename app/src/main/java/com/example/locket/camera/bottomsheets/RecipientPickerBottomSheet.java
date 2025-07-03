@@ -16,13 +16,13 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.locket.R;
+import com.example.locket.camera.adapters.RecipientSelectionAdapter;
+import com.example.locket.common.models.friendship.FriendsListResponse;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
-import com.example.locket.R;
-import com.example.locket.camera.adapters.RecipientSelectionAdapter;
-import com.example.locket.common.models.friendship.FriendsListResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +76,7 @@ public class RecipientPickerBottomSheet extends BottomSheetDialogFragment {
             if (allFriends == null) allFriends = new ArrayList<>();
             if (selectedFriends == null) selectedFriends = new ArrayList<>();
         }
-        
+
         // Filter out current user (allFriends should already be filtered from PhotoPreviewFragment)
         filteredFriends.addAll(allFriends);
     }
@@ -104,7 +104,7 @@ public class RecipientPickerBottomSheet extends BottomSheetDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+
         initViews(view);
         setupRecyclerView();
         setupClickListeners();
@@ -173,7 +173,7 @@ public class RecipientPickerBottomSheet extends BottomSheetDialogFragment {
 
     private void filterFriends(String query) {
         filteredFriends.clear();
-        
+
         if (query.isEmpty()) {
             filteredFriends.addAll(allFriends);
         } else {
@@ -181,14 +181,14 @@ public class RecipientPickerBottomSheet extends BottomSheetDialogFragment {
             for (FriendsListResponse.FriendData friend : allFriends) {
                 String displayName = friend.getDisplayName();
                 String username = friend.getUsername();
-                
+
                 if ((displayName != null && displayName.toLowerCase().contains(lowerQuery)) ||
-                    (username != null && username.toLowerCase().contains(lowerQuery))) {
+                        (username != null && username.toLowerCase().contains(lowerQuery))) {
                     filteredFriends.add(friend);
                 }
             }
         }
-        
+
         adapter.notifyDataSetChanged();
     }
 

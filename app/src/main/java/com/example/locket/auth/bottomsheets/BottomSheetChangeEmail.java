@@ -24,7 +24,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.locket.R;
-import com.example.locket.auth.fragments.ChangeEmailFragment;
 import com.example.locket.auth.fragments.CheckPassFragment;
 import com.example.locket.common.models.auth.LoginRequest;
 import com.example.locket.common.models.auth.LoginResponse;
@@ -46,7 +45,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements CheckPassFragment.OnPasswordChangedListener, ChangeEmailFragment.OnEmailChangedListener {
+public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements CheckPassFragment.OnPasswordChangedListener {
     private final Context context;
     private final Activity activity;
     private BottomSheetDialog bottomSheetDialog;
@@ -84,10 +83,6 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
         CheckPassFragment checkPassFragment = new CheckPassFragment();
         checkPassFragment.setOnPasswordChangedListener(this); // Set listener here
 
-        ChangeEmailFragment changeEmailFragment = new ChangeEmailFragment();
-        changeEmailFragment.setOnEmailChangedListener(this); // Set listener here
-
-
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.frame_layout, checkPassFragment);
         transaction.commit();
@@ -116,13 +111,7 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
     private void onClick() {
         linear_continue.setOnClickListener(view -> {
             Fragment currentFragment = getCurrentFragment();
-            if (currentFragment instanceof ChangeEmailFragment) {
-                ChangeEmailFragment changeEmailFragment = (ChangeEmailFragment) getChildFragmentManager().findFragmentById(R.id.frame_layout);
-                if (changeEmailFragment != null) {
-                    String email = changeEmailFragment.getPassword(); // Lấy email từ Fragment2
-                    changeEmail(email);
-                }
-            } else {
+            if (currentFragment instanceof CheckPassFragment) {
                 CheckPassFragment checkPassFragment = (CheckPassFragment) getChildFragmentManager().findFragmentById(R.id.frame_layout);
                 if (checkPassFragment != null) {
                     String password = checkPassFragment.getPassword(); // Lấy pass từ Fragment1
@@ -156,7 +145,7 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
-                    
+
                     if (loginResponse.isSuccess()) {
                         // Save login data
                         SharedPreferencesUser.saveLoginRequest(requireContext(), request);
@@ -194,10 +183,10 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
     private void getUserProfile(String token) {
         Retrofit retrofit = AuthApiClient.getAuthClient();
         AuthApiService authApiService = retrofit.create(AuthApiService.class);
-        
+
         String bearerToken = "Bearer " + token;
         Call<UserProfile> call = authApiService.getUserProfile(bearerToken);
-        
+
         call.enqueue(new Callback<UserProfile>() {
             @Override
             public void onResponse(Call<UserProfile> call, Response<UserProfile> response) {
@@ -205,10 +194,10 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
                     UserProfile userProfile = response.body();
                     if (userProfile.getUser() != null && userProfile.getUser().getEmail() != null) {
                         Log.d("BottomSheetChangeEmail", "Profile loaded: " + userProfile.getUser().getEmail());
-                        // Note: editTextAccountName is not available in this context, 
+                        // Note: editTextAccountName is not available in this context,
                         // this was called after login to transition to ChangeEmailFragment
-                        replaceFragmentWithBackStack(new ChangeEmailFragment());
-                        
+                        replaceFragmentWithBackStack(new CheckPassFragment());
+
                         tool_bar.setVisibility(View.VISIBLE);
                         txt_continue.setText("Lưu");
                         linear_continue.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.background_btn_continue_check));
@@ -238,7 +227,7 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
         Log.w("BottomSheetChangeEmail", "Change email endpoint not implemented in backend");
         showErrorDialog("Tính năng thay đổi email chưa được hỗ trợ");
         return;
-        
+
         /* OLD CODE - Endpoint không tồn tại
         Retrofit retrofit = LoginApiClient.getLoginClient();
         LoginApiService loginApiService = retrofit.create(LoginApiService.class);
@@ -322,7 +311,6 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
         return currentFragment;
     }
 
-
     @Override
     public void onPasswordChanged(String password) {
         if (password.length() >= 3) {
@@ -340,18 +328,6 @@ public class BottomSheetChangeEmail extends BottomSheetDialogFragment implements
         return email != null && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-    @Override
-    public void onEmailChanged(String email) {
-        if (isValidEmail(email)) {
-            linear_continue.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.background_btn_continue_check));
-            txt_continue.setTextColor(getResources().getColor(R.color.bg));
-            linear_continue.setEnabled(true);
-        } else {
-            linear_continue.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.background_btn_continue_un_check));
-            txt_continue.setTextColor(ContextCompat.getColor(requireContext(), R.color.hint));
-            linear_continue.setEnabled(false);
-        }
-    }
     @Override
     public void onDismiss(@NonNull DialogInterface dialog) {
         super.onDismiss(dialog);

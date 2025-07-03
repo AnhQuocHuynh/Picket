@@ -27,9 +27,9 @@ public class RecipientSelectionAdapter extends RecyclerView.Adapter<RecipientSel
         void onSelectionChanged(FriendsListResponse.FriendData friend, boolean isSelected);
     }
 
-    public RecipientSelectionAdapter(Context context, 
-                                   List<FriendsListResponse.FriendData> friends,
-                                   List<FriendsListResponse.FriendData> selectedFriends) {
+    public RecipientSelectionAdapter(Context context,
+                                     List<FriendsListResponse.FriendData> friends,
+                                     List<FriendsListResponse.FriendData> selectedFriends) {
         this.context = context;
         this.friends = friends;
         this.selectedFriends = selectedFriends;
@@ -104,7 +104,7 @@ public class RecipientSelectionAdapter extends RecyclerView.Adapter<RecipientSel
             // Set selection state
             boolean isSelected = selectedFriends.contains(friend);
             checkbox_select.setChecked(isSelected);
-            
+
             // Show selection border when selected
             if (view_selection_border != null) {
                 view_selection_border.setVisibility(isSelected ? View.VISIBLE : View.GONE);
@@ -118,11 +118,11 @@ public class RecipientSelectionAdapter extends RecyclerView.Adapter<RecipientSel
 
         private void toggleSelection(FriendsListResponse.FriendData friend) {
             boolean isCurrentlySelected = selectedFriends.contains(friend);
-            
+
             if (listener != null) {
                 listener.onSelectionChanged(friend, !isCurrentlySelected);
             }
-            
+
             // Update checkbox state
             checkbox_select.setChecked(!isCurrentlySelected);
         }

@@ -1,8 +1,9 @@
 package com.example.locket.common.models.user;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.List;
-import com.google.gson.annotations.SerializedName;
 
 public class AccountInfoUser implements Serializable {
     @SerializedName("_id")

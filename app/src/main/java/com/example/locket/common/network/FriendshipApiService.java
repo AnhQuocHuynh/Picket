@@ -1,11 +1,11 @@
 package com.example.locket.common.network;
 
-import com.example.locket.common.models.friendship.FriendRequestResponse;
-import com.example.locket.common.models.friendship.FriendshipResponse;
-import com.example.locket.common.models.friendship.FriendsListResponse;
-import com.example.locket.common.models.friendship.GenerateLinkResponse;
-import com.example.locket.common.models.friendship.AcceptLinkRequest;
 import com.example.locket.common.models.common.ApiResponse;
+import com.example.locket.common.models.friendship.AcceptLinkRequest;
+import com.example.locket.common.models.friendship.FriendRequestResponse;
+import com.example.locket.common.models.friendship.FriendsListResponse;
+import com.example.locket.common.models.friendship.FriendshipResponse;
+import com.example.locket.common.models.friendship.GenerateLinkResponse;
 import com.example.locket.common.repository.FriendRequest;
 
 import retrofit2.Call;

@@ -29,26 +29,26 @@ import org.json.JSONObject;
 
 public class RegisterEmailFragment extends Fragment {
     private static final String TAG = "RegisterEmailFragment";
-    
+
     // Interface để nhận backend validation errors
     public interface ValidationErrorCallback {
         void onEmailError(String errorMessage);
         void onPasswordError(String errorMessage);
         void onGeneralError(String errorMessage);
     }
-    
+
     private ImageView img_back;
     private EditText edt_email, edt_password, edt_confirm_password;
     private TextView txt_already_have_account;
     private LinearLayout linear_continue;
     private TextView txt_continue;
     private ImageView img_continue;
-    
+
     // Error TextViews
     private TextView txt_email_error, txt_password_error, txt_confirm_password_error;
-    
+
     private String email, password, confirmPassword;
-    
+
     // Configuration flags
     private static final boolean ENABLE_PASSWORD_COMPLEXITY = true; // Set to false if backend doesn't require complexity
 
@@ -80,7 +80,7 @@ public class RegisterEmailFragment extends Fragment {
         linear_continue = view.findViewById(R.id.linear_continue);
         txt_continue = view.findViewById(R.id.txt_continue);
         img_continue = view.findViewById(R.id.img_continue);
-        
+
         // Error TextViews
         txt_email_error = view.findViewById(R.id.txt_email_error);
         txt_password_error = view.findViewById(R.id.txt_password_error);
@@ -89,7 +89,7 @@ public class RegisterEmailFragment extends Fragment {
 
     private void configViews() {
         edt_email.requestFocus();
-        
+
         // Mở bàn phím
         requireActivity().getWindow().getDecorView().post(() -> {
             InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -152,12 +152,12 @@ public class RegisterEmailFragment extends Fragment {
             // Don't show error for empty email initially
             return false;
         }
-        
+
         if (!isValidEmail(email)) {
             showFieldError(edt_email, txt_email_error, "Email không đúng định dạng");
             return false;
         }
-        
+
         clearFieldError(edt_email, txt_email_error);
         return true;
     }
@@ -170,23 +170,23 @@ public class RegisterEmailFragment extends Fragment {
             // Don't show error for empty password initially
             return false;
         }
-        
+
         if (password.length() < 6) {
             showFieldError(edt_password, txt_password_error, "Mật khẩu phải có ít nhất 6 ký tự");
             return false;
         }
-        
+
         if (password.length() > 50) {
             showFieldError(edt_password, txt_password_error, "Mật khẩu không được quá 50 ký tự");
             return false;
         }
-        
+
         // Check password complexity (optional - only if backend requires it)
         if (ENABLE_PASSWORD_COMPLEXITY && !isPasswordComplex(password)) {
             showFieldError(edt_password, txt_password_error, "Mật khẩu phải chứa chữ hoa, chữ thường và số");
             return false;
         }
-        
+
         clearFieldError(edt_password, txt_password_error);
         return true;
     }
@@ -197,13 +197,13 @@ public class RegisterEmailFragment extends Fragment {
     private boolean isPasswordComplex(String password) {
         // Check for at least one uppercase letter
         boolean hasUppercase = password.matches(".*[A-Z].*");
-        
+
         // Check for at least one lowercase letter  
         boolean hasLowercase = password.matches(".*[a-z].*");
-        
+
         // Check for at least one digit
         boolean hasDigit = password.matches(".*\\d.*");
-        
+
         return hasUppercase && hasLowercase && hasDigit;
     }
 
@@ -213,13 +213,13 @@ public class RegisterEmailFragment extends Fragment {
     private boolean isPasswordComplexityError(String errorMessage) {
         String lowerMessage = errorMessage.toLowerCase();
         return lowerMessage.contains("password must contain") ||
-               lowerMessage.contains("uppercase") ||
-               lowerMessage.contains("lowercase") ||
-               lowerMessage.contains("number") ||
-               lowerMessage.contains("digit") ||
-               lowerMessage.contains("at least one") ||
-               (lowerMessage.contains("password") && 
-                (lowerMessage.contains("complex") || lowerMessage.contains("strength")));
+                lowerMessage.contains("uppercase") ||
+                lowerMessage.contains("lowercase") ||
+                lowerMessage.contains("number") ||
+                lowerMessage.contains("digit") ||
+                lowerMessage.contains("at least one") ||
+                (lowerMessage.contains("password") &&
+                        (lowerMessage.contains("complex") || lowerMessage.contains("strength")));
     }
 
     /**
@@ -230,12 +230,12 @@ public class RegisterEmailFragment extends Fragment {
             // Don't show error for empty confirm password initially
             return false;
         }
-        
+
         if (!password.equals(confirmPassword)) {
             showFieldError(edt_confirm_password, txt_confirm_password_error, "Mật khẩu xác nhận không khớp");
             return false;
         }
-        
+
         clearFieldError(edt_confirm_password, txt_confirm_password_error);
         return true;
     }
@@ -272,7 +272,7 @@ public class RegisterEmailFragment extends Fragment {
     public void showBackendValidationErrors(String errorMessage, int errorCode) {
         // Clear all previous errors first
         clearAllErrors();
-        
+
         switch (errorCode) {
             case 400:
                 // Bad request - usually validation errors
@@ -302,15 +302,15 @@ public class RegisterEmailFragment extends Fragment {
         if (parsedError != null) {
             errorMessage = parsedError;
         }
-        
+
         String lowerErrorMessage = errorMessage.toLowerCase();
-        
+
         // Password complexity validation errors
         if (isPasswordComplexityError(errorMessage)) {
             showFieldError(edt_password, txt_password_error, "Mật khẩu phải chứa chữ hoa, chữ thường và số");
             return;
         }
-        
+
         // Email validation errors
         if (lowerErrorMessage.contains("email")) {
             if (lowerErrorMessage.contains("invalid") || lowerErrorMessage.contains("không hợp lệ")) {
@@ -324,7 +324,7 @@ public class RegisterEmailFragment extends Fragment {
             }
             return;
         }
-        
+
         // Password validation errors
         if (lowerErrorMessage.contains("password") || lowerErrorMessage.contains("mật khẩu")) {
             if (lowerErrorMessage.contains("short") || lowerErrorMessage.contains("ngắn")) {
@@ -338,14 +338,14 @@ public class RegisterEmailFragment extends Fragment {
             }
             return;
         }
-        
+
         // Username validation errors (nếu có username field ở màn hình này)
         if (lowerErrorMessage.contains("username") || lowerErrorMessage.contains("tên người dùng")) {
             // Không có username field trong RegisterEmailFragment, hiển thị general error
             showErrorDialog("Lỗi Username", getSimplifiedErrorMessage(errorMessage));
             return;
         }
-        
+
         // General validation error
         showErrorDialog("Lỗi xác thực", getSimplifiedErrorMessage(errorMessage));
     }
@@ -359,7 +359,7 @@ public class RegisterEmailFragment extends Fragment {
             if (errorMessage.contains("Body: {")) {
                 int jsonStart = errorMessage.indexOf("Body: {");
                 String jsonPart = errorMessage.substring(jsonStart + 6); // Remove "Body: "
-                
+
                 // Clean up the JSON part - remove trailing characters
                 if (jsonPart.endsWith("}]")) {
                     jsonPart = jsonPart.substring(0, jsonPart.length() - 1); // Remove "]"
@@ -367,28 +367,28 @@ public class RegisterEmailFragment extends Fragment {
                 if (jsonPart.endsWith("}]")) {
                     jsonPart = jsonPart.substring(0, jsonPart.length() - 1); // Remove another "]" if exists
                 }
-                
+
                 Log.d(TAG, "Parsing JSON: " + jsonPart);
                 JSONObject jsonObject = new JSONObject(jsonPart);
-                
+
                 // Try to get errors array - this is the main error messages
                 if (jsonObject.has("errors")) {
                     Object errorsObj = jsonObject.get("errors");
-                    
+
                     if (errorsObj instanceof JSONArray) {
                         JSONArray errorsArray = (JSONArray) errorsObj;
                         StringBuilder errorBuilder = new StringBuilder();
-                        
+
                         for (int i = 0; i < errorsArray.length(); i++) {
                             Object errorItem = errorsArray.get(i);
-                            
+
                             if (errorItem instanceof String) {
                                 String error = (String) errorItem;
                                 // Only include actual error messages, skip metadata
-                                if (!error.contains("path") && !error.contains("location") && 
-                                    !error.equals("password") && !error.equals("body") &&
-                                    error.length() > 5) { // Skip very short non-descriptive items
-                                    
+                                if (!error.contains("path") && !error.contains("location") &&
+                                        !error.equals("password") && !error.equals("body") &&
+                                        error.length() > 5) { // Skip very short non-descriptive items
+
                                     if (errorBuilder.length() > 0) {
                                         errorBuilder.append(". ");
                                     }
@@ -396,13 +396,13 @@ public class RegisterEmailFragment extends Fragment {
                                 }
                             }
                         }
-                        
+
                         if (errorBuilder.length() > 0) {
                             return errorBuilder.toString();
                         }
                     }
                 }
-                
+
                 // Fallback to message field
                 if (jsonObject.has("message")) {
                     String message = jsonObject.getString("message");
@@ -411,17 +411,17 @@ public class RegisterEmailFragment extends Fragment {
                     }
                 }
             }
-            
+
             // Also try to extract JSON if it's embedded differently
             if (errorMessage.contains("{") && errorMessage.contains("}")) {
                 int start = errorMessage.indexOf("{");
                 int end = errorMessage.lastIndexOf("}") + 1;
-                
+
                 if (start >= 0 && end > start) {
                     String jsonPart = errorMessage.substring(start, end);
                     // Remove trailing characters that might break JSON
                     jsonPart = jsonPart.replaceAll("\\]$", "");
-                    
+
                     try {
                         JSONObject jsonObject = new JSONObject(jsonPart);
                         return parseErrorsFromJson(jsonObject);
@@ -430,12 +430,12 @@ public class RegisterEmailFragment extends Fragment {
                     }
                 }
             }
-            
+
         } catch (Exception e) {
             Log.e(TAG, "Failed to parse JSON error response: " + e.getMessage());
             Log.e(TAG, "Original message: " + errorMessage);
         }
-        
+
         return null; // Return null if parsing failed
     }
 
@@ -446,32 +446,32 @@ public class RegisterEmailFragment extends Fragment {
         if (jsonObject.has("errors")) {
             JSONArray errorsArray = jsonObject.getJSONArray("errors");
             StringBuilder errorBuilder = new StringBuilder();
-            
+
             for (int i = 0; i < errorsArray.length(); i++) {
                 String error = errorsArray.getString(i);
                 // Filter out metadata and keep only actual error messages
-                if (error.length() > 10 && 
-                    !error.contains("path") && 
-                    !error.contains("location") &&
-                    !error.equals("password") && 
-                    !error.equals("body")) {
-                    
+                if (error.length() > 10 &&
+                        !error.contains("path") &&
+                        !error.contains("location") &&
+                        !error.equals("password") &&
+                        !error.equals("body")) {
+
                     if (errorBuilder.length() > 0) {
                         errorBuilder.append(". ");
                     }
                     errorBuilder.append(error);
                 }
             }
-            
+
             if (errorBuilder.length() > 0) {
                 return errorBuilder.toString();
             }
         }
-        
+
         if (jsonObject.has("message")) {
             return jsonObject.getString("message");
         }
-        
+
         return null;
     }
 
@@ -484,14 +484,14 @@ public class RegisterEmailFragment extends Fragment {
             // Extract the first part before any technical details
             String simplified = originalMessage.split("\\|")[0].trim();
             simplified = simplified.split("Body:")[0].trim();
-            
+
             if (simplified.length() > 80) {
                 simplified = simplified.substring(0, 80) + "...";
             }
-            
+
             return simplified;
         }
-        
+
         return originalMessage;
     }
 
@@ -549,15 +549,15 @@ public class RegisterEmailFragment extends Fragment {
     @SuppressWarnings("unused")
     private void demoValidationScenarios() {
         // Demo different backend error responses
-        
+
         // Scenario 1: Password complexity error (like in the screenshot)
         String complexityError = "Mật khẩu invalid request data | Body: {\"success\":false,\"message\":\"Validation failed\",\"errors\":[\"Password must contain at least one uppercase letter, one lowercase letter, and one number\",\"path\":\"password\",\"location\":\"body\"]}]";
         showBackendValidationErrors(complexityError, 422);
-        
+
         // Scenario 2: Email already exists
         String emailExistsError = "Email này đã được sử dụng";
         showBackendValidationErrors(emailExistsError, 409);
-        
+
         // Scenario 3: Invalid email format
         String invalidEmailError = "Email invalid format | Body: {\"success\":false,\"message\":\"Email is not valid\",\"errors\":[\"Invalid email format\"]}";
         showBackendValidationErrors(invalidEmailError, 400);
@@ -614,18 +614,18 @@ public class RegisterEmailFragment extends Fragment {
 
     private void performRegistration() {
         Log.d(TAG, "🚀 Starting registration flow for email: " + email);
-        
+
         // Không gọi register API ở đây, chỉ lưu data và chuyển đến username screen
         // Register API sẽ được gọi từ RegisterUserNameFragment với đầy đủ thông tin
-        
+
         // Chuyển đến RegisterUserNameFragment để nhập username
         Bundle bundle = new Bundle();
         bundle.putString("email", email);
         bundle.putString("password", password);
-        
+
         RegisterUserNameFragment registerUserNameFragment = new RegisterUserNameFragment();
         registerUserNameFragment.setArguments(bundle);
-        
+
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(

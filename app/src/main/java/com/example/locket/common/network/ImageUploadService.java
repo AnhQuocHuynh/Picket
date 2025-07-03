@@ -124,9 +124,57 @@ public class ImageUploadService {
             if (callback != null) callback.onError("Image data is null or empty", 400);
             return;
         }
+        // Kiểm tra magic number đầu file để nhận diện video mp4
+        boolean isMp4 = isMp4File(imageData);
+        if (isMp4) {
+            uploadVideoToCloudinary(imageData, callback);
+        } else {
+            uploadToCloudinary(imageData, callback);
+        }
+    }
 
-        // 🌟 NEW FLOW: Upload directly to Cloudinary first
-        uploadToCloudinary(imageData, callback);
+    // Hàm nhận diện file mp4 dựa trên magic number
+    private boolean isMp4File(byte[] data) {
+        if (data == null || data.length < 12) return false;
+        // MP4 thường có 'ftyp' ở byte 4-7
+        return (data[4] == 'f' && data[5] == 't' && data[6] == 'y' && data[7] == 'p');
+    }
+
+    // Hàm upload video lên Cloudinary
+    private void uploadVideoToCloudinary(byte[] videoData, UploadCallback callback) {
+        if (!CloudinaryManager.isInitialized()) {
+            CloudinaryManager.initialize(context);
+        }
+        String fileName = "locket_video_" + System.currentTimeMillis() + ".mp4";
+        if (callback != null) callback.onUploadProgress(5);
+        CloudinaryManager.uploadVideo(videoData, fileName, new CloudinaryManager.CloudinaryUploadCallback() {
+            @Override
+            public void onUploadStart(String requestId) {
+                Log.d(TAG, "🚀 Cloudinary video upload started: " + requestId);
+                if (callback != null) callback.onUploadProgress(10);
+            }
+            @Override
+            public void onUploadProgress(String requestId, int progress) {
+                int adjustedProgress = 10 + (progress * 80 / 100);
+                if (callback != null) callback.onUploadProgress(adjustedProgress);
+            }
+            @Override
+            public void onUploadSuccess(String requestId, String publicUrl) {
+                Log.d(TAG, "✅ Cloudinary video upload successful!");
+                Log.d(TAG, "🔗 Cloudinary Video URL: " + publicUrl);
+                sendUrlToBackend(publicUrl, callback);
+            }
+            @Override
+            public void onUploadError(String requestId, String error) {
+                Log.e(TAG, "❌ Cloudinary video upload failed: " + error);
+                if (callback != null) callback.onError(error, 500);
+            }
+            @Override
+            public void onUploadReschedule(String requestId, String error) {
+                Log.w(TAG, "⏳ Cloudinary video upload rescheduled: " + error);
+                if (callback != null) callback.onUploadProgress(50);
+            }
+        });
     }
 
     /**
@@ -140,7 +188,7 @@ public class ImageUploadService {
         }
 
         String fileName = "locket_image_" + System.currentTimeMillis() + ".jpg";
-        
+
         if (callback != null) callback.onUploadProgress(5);
 
         CloudinaryManager.uploadImage(imageData, fileName, new CloudinaryManager.CloudinaryUploadCallback() {
@@ -161,7 +209,7 @@ public class ImageUploadService {
             public void onUploadSuccess(String requestId, String publicUrl) {
                 Log.d(TAG, "✅ Cloudinary upload successful!");
                 Log.d(TAG, "🔗 Cloudinary URL: " + publicUrl);
-                
+
                 // Step 2: Send URL to backend (optional - for saving to database)
                 sendUrlToBackend(publicUrl, callback);
             }
@@ -170,7 +218,7 @@ public class ImageUploadService {
             public void onUploadError(String requestId, String error) {
                 Log.e(TAG, "❌ Cloudinary upload failed: " + error);
                 Log.d(TAG, "🔄 Falling back to original upload method...");
-                
+
                 // Fallback to original upload method
                 uploadWithOriginalMethod(imageData, callback);
             }
@@ -214,8 +262,8 @@ public class ImageUploadService {
             File tempFile = createTempImageFile(imageData);
             RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), tempFile);
             MultipartBody.Part imagePart = MultipartBody.Part.createFormData(
-                    "image", 
-                    "image_" + System.currentTimeMillis() + ".jpg", 
+                    "image",
+                    "image_" + System.currentTimeMillis() + ".jpg",
                     requestBody
             );
 
@@ -223,7 +271,7 @@ public class ImageUploadService {
             if (callback != null) callback.onUploadProgress(10);
 
             Call<UploadResponse> call = uploadService.uploadImage(authHeader, imagePart);
-            
+
             call.enqueue(new Callback<UploadResponse>() {
                 @Override
                 public void onResponse(Call<UploadResponse> call, Response<UploadResponse> response) {
@@ -242,7 +290,7 @@ public class ImageUploadService {
                             return;
                         }
                     }
-                    
+
                     // Multipart failed, try base64 fallback
                     Log.w(TAG, "⚠️ Multipart upload failed, trying base64 fallback...");
                     uploadWithBase64(authHeader, imageData, callback);
@@ -253,7 +301,7 @@ public class ImageUploadService {
                     if (tempFile.exists()) {
                         tempFile.delete();
                     }
-                    
+
                     Log.w(TAG, "⚠️ Multipart upload failed: " + throwable.getMessage());
                     Log.d(TAG, "🔄 Trying base64 fallback...");
                     uploadWithBase64(authHeader, imageData, callback);
@@ -269,16 +317,16 @@ public class ImageUploadService {
     private void uploadWithBase64(String authHeader, byte[] imageData, UploadCallback callback) {
         try {
             if (callback != null) callback.onUploadProgress(30);
-            
+
             // Convert to base64
             String base64Image = android.util.Base64.encodeToString(imageData, android.util.Base64.DEFAULT);
             String fileName = "image_" + System.currentTimeMillis() + ".jpg";
-            
+
             Base64UploadRequest request = new Base64UploadRequest(base64Image, fileName);
-            
+
             Log.d(TAG, "📤 Uploading via base64 fallback...");
             Call<UploadResponse> call = fallbackUploadService.uploadImageBase64(authHeader, request);
-            
+
             call.enqueue(new Callback<UploadResponse>() {
                 @Override
                 public void onResponse(Call<UploadResponse> call, Response<UploadResponse> response) {
@@ -319,25 +367,25 @@ public class ImageUploadService {
         // For development/testing: create a mock URL
         // In production, this should upload to a backup service or handle error
         Log.w(TAG, "🔧 Creating mock image URL for development...");
-        
+
         String mockUrl = "https://via.placeholder.com/800x600/FFB6C1/000000?text=Uploaded+" + System.currentTimeMillis();
-        
+
         if (callback != null) {
             callback.onUploadProgress(100);
             callback.onUploadComplete(mockUrl, true);
         }
-        
+
         Log.d(TAG, "🧪 Mock image URL created: " + mockUrl);
     }
 
     private File createTempImageFile(byte[] imageData) throws IOException {
         File tempFile = File.createTempFile("upload_image_", ".jpg", context.getCacheDir());
-        
+
         try (FileOutputStream fos = new FileOutputStream(tempFile)) {
             fos.write(imageData);
             fos.flush();
         }
-        
+
         return tempFile;
     }
 } 
