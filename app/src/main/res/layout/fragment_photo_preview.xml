@@ -76,7 +76,7 @@
             android:background="@drawable/background_btn"
             android:padding="@dimen/_10sdp"
             android:src="@drawable/close_24px"
-            app:tint="@color/white" />
+            app:tint="#CDC7FF" />
 
         <!-- Spacer -->
         <View
@@ -99,7 +99,7 @@
                 android:rotation="-45"
                 android:src="@drawable/send_24px"
                 android:visibility="visible"
-                app:tint="@color/white" />
+                app:tint="#CDC7FF" />
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottie_check"
@@ -125,25 +125,15 @@
 
         <!-- Retake Button -->
         <ImageView
-            android:id="@+id/img_retake"
-            android:layout_width="@dimen/_45sdp"
-            android:layout_height="@dimen/_45sdp"
-            android:background="@drawable/background_btn"
-            android:padding="@dimen/_10sdp"
-            android:src="@drawable/cached_24px"
-            app:tint="@color/white" />
-
-        <!-- Save Video Button -->
-        <ImageView
-            android:id="@+id/img_save"
+            android:id="@+id/img_save_image"
             android:layout_width="@dimen/_45sdp"
             android:layout_height="@dimen/_45sdp"
             android:background="@drawable/background_btn"
             android:padding="@dimen/_10sdp"
             android:src="@drawable/ic_save_24px"
-            app:tint="@color/white"
-            android:contentDescription="Lưu về máy"
-            android:visibility="gone" />
+            app:tint="#CDC7FF"
+            android:contentDescription="Lưu về máy" />
+
 
     </LinearLayout>
 

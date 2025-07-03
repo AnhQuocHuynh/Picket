@@ -173,13 +173,12 @@ public class PhotoPreviewFragment extends Fragment {
         edt_add_message = view.findViewById(R.id.edt_add_message);
         rv_friends_horizontal = view.findViewById(R.id.rv_friends_horizontal);
         img_cancel = view.findViewById(R.id.img_cancel);
-        img_retake = view.findViewById(R.id.img_retake);
         layout_send = view.findViewById(R.id.layout_send);
         img_send = view.findViewById(R.id.img_send);
         lottie_check = view.findViewById(R.id.lottie_check);
         progress_bar = view.findViewById(R.id.progress_bar);
         txt_recipient_count = view.findViewById(R.id.txt_recipient_count);
-        img_save = view.findViewById(R.id.img_save);
+
     }
 
     private void initData() {

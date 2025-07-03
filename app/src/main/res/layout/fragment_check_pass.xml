@@ -20,7 +20,7 @@
             android:fontFamily="@font/black"
             android:gravity="center"
             android:text="Điền mật khẩu của bạn"
-            android:textColor="@color/white"
+            android:textColor="#CDC7FF"
             android:textSize="@dimen/_18ssp" />
 
         <EditText

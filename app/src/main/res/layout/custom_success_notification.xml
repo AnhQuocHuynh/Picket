@@ -35,7 +35,7 @@
             android:layout_marginBottom="@dimen/_8sdp"
             android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
             android:text="Gửi thành công!"
-            android:textColor="@color/black"
+            android:textColor="#CDC7FF"
             android:textSize="@dimen/_16ssp"
             android:gravity="center" />
 
@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/assets_fonts_proximasoft_proximasoft"
             android:text="Ảnh của bạn đã được gửi đến bạn bè"
-            android:textColor="@color/black"
+            android:textColor="#CDC7FF"
             android:textSize="@dimen/_12ssp"
             android:gravity="center"
             android:alpha="0.7" />
