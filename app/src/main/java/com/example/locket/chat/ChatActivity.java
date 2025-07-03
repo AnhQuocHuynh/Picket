@@ -112,8 +112,7 @@ public class ChatActivity extends AppCompatActivity {
         chatRecyclerView.setAdapter(chatAdapter);
     }
 
-    private void setupFirebase() {
-        // Sử dụng đúng URL của database
+        private void setupFirebase() {
         databaseReference = FirebaseDatabase.getInstance("https://picket-se104-default-rtdb.asia-southeast1.firebasedatabase.app")
                 .getReference("chat_rooms").child(chatRoomId);
 
@@ -122,6 +121,12 @@ public class ChatActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 ChatMessage chatMessage = snapshot.getValue(ChatMessage.class);
                 if (chatMessage != null) {
+                    chatMessage.setMessageId(snapshot.getKey());
+
+                    if (chatMessage.getReceiverId().equals(currentUserId) && !chatMessage.isSeen()) {
+                        snapshot.getRef().child("seen").setValue(true);
+                    }
+
                     chatMessages.add(chatMessage);
                     chatAdapter.notifyItemInserted(chatMessages.size() - 1);
                     chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
@@ -129,7 +134,22 @@ public class ChatActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                ChatMessage updatedMessage = snapshot.getValue(ChatMessage.class);
+                if (updatedMessage != null) {
+                    String messageId = snapshot.getKey();
+                    for (int i = 0; i < chatMessages.size(); i++) {
+                        ChatMessage msg = chatMessages.get(i);
+                        if (msg.getMessageId() != null && msg.getMessageId().equals(messageId)) {
+                            // Update the original message object with new data
+                            msg.setSeen(updatedMessage.isSeen());
+                            // You can update other fields as well if they can change
+                            chatAdapter.notifyItemChanged(i);
+                            break;
+                        }
+                    }
+                }
+            }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
@@ -158,7 +178,7 @@ public class ChatActivity extends AppCompatActivity {
 
         // Người nhận đã được lấy từ Intent
 
-        ChatMessage message = new ChatMessage(messageText, currentUserId, receiverId, System.currentTimeMillis());
+                ChatMessage message = new ChatMessage(currentUserId, receiverId, messageText, System.currentTimeMillis());
 
         databaseReference.push().setValue(message)
                 .addOnSuccessListener(aVoid -> {

@@ -110,7 +110,7 @@ public interface PostApiService {
     );
 
     // 🏷️ GET AVAILABLE CATEGORIES - Only categories that have posts
-    @GET("posts/categories/available")
+    @GET("gemini/categories")
     Call<CategoriesResponse> getAvailableCategories(
             @Header("Authorization") String bearerToken
     );

@@ -33,20 +33,48 @@
             app:icon="@drawable/close_24px"
             app:iconTint="?attr/colorOnSurfaceVariant" />
 
-        <TextView
-            android:id="@+id/txt_full_name"
+        <LinearLayout
+            android:id="@+id/userInfoLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_toStartOf="@id/img_un_friend"
+            android:layout_toStartOf="@+id/img_un_friend"
             android:layout_toEndOf="@id/img_avatar"
-            android:ellipsize="end"
-            android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-            android:maxLines="1"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            android:textColor="?attr/colorOnSurface" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txt_full_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
+                android:maxLines="1"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorOnSurface" />
+
+            <TextView
+                android:id="@+id/lastMessageTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Bắt đầu trò chuyện!"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/timestampTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/userInfoLayout"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            android:textAppearance="?attr/textAppearanceCaption"
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
     </RelativeLayout>
 

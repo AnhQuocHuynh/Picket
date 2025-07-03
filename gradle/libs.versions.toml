@@ -25,6 +25,7 @@ workRuntimeVersion = "2.10.2"
 googleGmsGoogleServices = "4.4.2"
 firebaseBom = "33.1.2"
 swiperefreshlayout = "1.1.0"
+firebaseAuth = "23.2.1"
 
 [libraries]
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraExtensions" }
@@ -60,6 +61,7 @@ firebase-database = { group = "com.google.firebase", name = "firebase-database" 
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
 glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
