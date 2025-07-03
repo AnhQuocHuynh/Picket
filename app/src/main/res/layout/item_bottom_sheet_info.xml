@@ -39,7 +39,8 @@
                     android:layout_height="@dimen/_100sdp"
                     android:background="@drawable/bg_widget_empty_circle_outline"
                     android:padding="@dimen/_5sdp"
-                    android:src="@color/white"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/default_avatar"
                     app:riv_corner_radius="@dimen/_50sdp" />
 
                 <ImageView

@@ -14,6 +14,8 @@ import com.example.locket.common.network.client.AuthApiClient;
 import com.example.locket.common.models.auth.VerifyEmailRequest;
 import com.example.locket.common.models.auth.ResendVerificationRequest;
 import com.example.locket.common.models.auth.ChangePasswordRequest;
+import com.example.locket.common.models.auth.ForgotPasswordRequest;
+import com.example.locket.common.models.auth.ResetPasswordRequest;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -466,6 +468,92 @@ public class AuthManager {
     /**
      * Extract error message from response
      */
+    /**
+     * 🔑 FORGOT PASSWORD
+     * Sends a request to the server to initiate the password reset process for the given email.
+     */
+    public static void forgotPassword(String email, AuthCallback callback) {
+        if (callback != null) callback.onLoading(true);
+
+        ForgotPasswordRequest request = new ForgotPasswordRequest(email);
+        Call<ApiResponse> call = getAuthApiService().forgotPassword(request);
+
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (callback != null) callback.onLoading(false);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse apiResponse = response.body();
+                    if (apiResponse.isSuccess()) {
+                        Log.d(TAG, "Forgot password request successful for email: " + email);
+                        if (callback != null) callback.onSuccess(apiResponse.getMessage());
+                    } else {
+                        String errorMsg = apiResponse.getMessage() != null ?
+                                apiResponse.getMessage() : "Forgot password request failed";
+                        Log.e(TAG, "Forgot password failed: " + errorMsg);
+                        if (callback != null) callback.onError(errorMsg, 400);
+                    }
+                } else {
+                    String errorMsg = getErrorMessage(response);
+                    Log.e(TAG, "Forgot password error: " + errorMsg + " (Code: " + response.code() + ")");
+                    if (callback != null) callback.onError(errorMsg, response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                if (callback != null) callback.onLoading(false);
+                String errorMsg = "Network error: " + t.getMessage();
+                Log.e(TAG, errorMsg, t);
+                if (callback != null) callback.onError(errorMsg, -1);
+            }
+        });
+    }
+
+    /**
+     * 🔑 RESET PASSWORD
+     * Sends the verification code and new password to the server to complete the password reset.
+     */
+    public static void resetPassword(String code, String newPassword, String confirmPassword, AuthCallback callback) {
+        if (callback != null) callback.onLoading(true);
+
+        ResetPasswordRequest request = new ResetPasswordRequest(code, newPassword, confirmPassword);
+        Call<ApiResponse> call = getAuthApiService().resetPassword(request);
+
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (callback != null) callback.onLoading(false);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse apiResponse = response.body();
+                    if (apiResponse.isSuccess()) {
+                        Log.d(TAG, "Password has been reset successfully.");
+                        if (callback != null) callback.onSuccess(apiResponse.getMessage());
+                    } else {
+                        String errorMsg = apiResponse.getMessage() != null ?
+                                apiResponse.getMessage() : "Password reset failed";
+                        Log.e(TAG, "Password reset failed: " + errorMsg);
+                        if (callback != null) callback.onError(errorMsg, 400);
+                    }
+                } else {
+                    String errorMsg = getErrorMessage(response);
+                    Log.e(TAG, "Password reset error: " + errorMsg + " (Code: " + response.code() + ")");
+                    if (callback != null) callback.onError(errorMsg, response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                if (callback != null) callback.onLoading(false);
+                String errorMsg = "Network error: " + t.getMessage();
+                Log.e(TAG, errorMsg, t);
+                if (callback != null) callback.onError(errorMsg, -1);
+            }
+        });
+    }
+
     private static String getErrorMessage(Response<?> response) {
         if (response.errorBody() == null) {
             switch (response.code()) {

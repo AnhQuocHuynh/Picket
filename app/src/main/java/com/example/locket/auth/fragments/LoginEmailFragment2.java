@@ -26,6 +26,10 @@ import com.example.locket.R;
 import com.example.locket.common.models.auth.LoginRequest;
 import com.example.locket.common.models.auth.LoginResponse;
 import com.example.locket.common.network.AuthApiService;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.example.locket.auth.bottomsheets.BottomSheetResetPassword;
+import com.example.locket.auth.viewmodels.AuthViewModel;
 import com.example.locket.common.network.client.AuthApiClient;
 import com.example.locket.common.utils.SharedPreferencesUser;
 import com.example.locket.common.utils.WidgetUpdateHelper;
@@ -45,6 +49,7 @@ public class LoginEmailFragment2 extends Fragment {
     private ImageView img_continue;
 
     private AuthApiService authApiService;
+    private AuthViewModel authViewModel;
     private String data, password;
     private boolean isPhone = false;
 
@@ -64,10 +69,12 @@ public class LoginEmailFragment2 extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         authApiService = AuthApiClient.getAuthClient().create(AuthApiService.class);
+        authViewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class);
 
         initViews(view);
         conFigViews();
         onClick();
+        observeViewModel();
         getDataBundle();
 
         // Test kết nối khi fragment được tạo
@@ -139,11 +146,31 @@ public class LoginEmailFragment2 extends Fragment {
         });
     }
 
+        private void observeViewModel() {
+        authViewModel.successMessage.observe(getViewLifecycleOwner(), message -> {
+            showAlertDialog("Success", message);
+            // Check if the success message is for the forgot password action
+            if (message.toLowerCase().contains("sent to your email")) {
+                BottomSheetResetPassword bottomSheet = BottomSheetResetPassword.newInstance();
+                bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
+            }
+        });
+
+        authViewModel.errorMessage.observe(getViewLifecycleOwner(), error -> {
+            showAlertDialog("Error", error);
+        });
+
+        // You can also observe isLoading to show a progress bar
+    }
+
     private void forgotPassword(String email) {
-        // ❌ Backend không có forgot password endpoint - Tạm thời disable
-        Log.w("LoginEmailFragment2", "Forgot password endpoint not implemented in backend");
-        showAlertDialog("Thông báo", "Tính năng quên mật khẩu chưa được hỗ trợ. Vui lòng liên hệ admin để được hỗ trợ.");
-        return;
+        if (email != null && !email.isEmpty()) {
+            authViewModel.forgotPassword(email);
+            BottomSheetResetPassword bottomSheet = BottomSheetResetPassword.newInstance();
+            bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
+        } else {
+            showAlertDialog("Error", "Please enter your email first.");
+        }
     }
 
     private void login(String email, String password) {

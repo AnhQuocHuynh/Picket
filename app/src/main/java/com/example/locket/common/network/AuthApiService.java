@@ -9,6 +9,8 @@ import com.example.locket.common.models.common.ApiResponse;
 import com.example.locket.common.models.auth.VerifyEmailRequest;
 import com.example.locket.common.models.auth.ResendVerificationRequest;
 import com.example.locket.common.models.auth.ChangePasswordRequest;
+import com.example.locket.common.models.auth.ForgotPasswordRequest;
+import com.example.locket.common.models.auth.ResetPasswordRequest;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -89,6 +91,20 @@ public interface AuthApiService {
             @Header("Authorization") String bearerToken,
             @Body ChangePasswordRequest request
     );
+
+    // 🔑 FORGOT PASSWORD
+    @Headers({
+            "Content-Type: application/json"
+    })
+    @POST("auth/forgot-password")
+    Call<ApiResponse> forgotPassword(@Body ForgotPasswordRequest request);
+
+    // 🔑 RESET PASSWORD
+    @Headers({
+            "Content-Type: application/json"
+    })
+    @POST("auth/reset-password")
+    Call<ApiResponse> resetPassword(@Body ResetPasswordRequest request);
 
     // Request classes
     public static class UpdateProfileRequest {

@@ -35,7 +35,8 @@
                 android:layout_alignParentStart="true"
                 android:background="@drawable/background_btn"
                 android:padding="@dimen/_5sdp"
-                android:src="@color/white"
+                android:scaleType="centerCrop"
+                android:src="@drawable/assets_png_image_watermark"
                 app:riv_corner_radius="@dimen/_50sdp"
                 app:tint="@color/white" />
 

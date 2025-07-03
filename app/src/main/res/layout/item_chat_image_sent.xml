@@ -19,7 +19,7 @@
         android:id="@+id/seenStatusTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/chatImageView"
+        android:layout_below="@+id/imageMessageView"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="4dp"
         android:text="Đã xem"

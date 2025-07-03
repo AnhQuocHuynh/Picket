@@ -22,6 +22,44 @@ public class AuthViewModel extends AndroidViewModel {
         super(application);
     }
 
+    public void forgotPassword(String email) {
+        AuthManager.forgotPassword(email, new AuthManager.AuthCallback() {
+            @Override
+            public void onSuccess(String message) {
+                _successMessage.postValue(message);
+            }
+
+            @Override
+            public void onError(String errorMessage, int errorCode) {
+                _errorMessage.postValue(errorMessage);
+            }
+
+            @Override
+            public void onLoading(boolean isLoading) {
+                _isLoading.postValue(isLoading);
+            }
+        });
+    }
+
+    public void resetPassword(String code, String newPassword, String confirmPassword) {
+        AuthManager.resetPassword(code, newPassword, confirmPassword, new AuthManager.AuthCallback() {
+            @Override
+            public void onSuccess(String message) {
+                _successMessage.postValue(message);
+            }
+
+            @Override
+            public void onError(String errorMessage, int errorCode) {
+                _errorMessage.postValue(errorMessage);
+            }
+
+            @Override
+            public void onLoading(boolean isLoading) {
+                _isLoading.postValue(isLoading);
+            }
+        });
+    }
+
     public void changePassword(String currentPassword, String newPassword, String confirmPassword) {
         AuthManager.changePassword(getApplication(), currentPassword, newPassword, confirmPassword, new AuthManager.AuthCallback() {
             @Override
