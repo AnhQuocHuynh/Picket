@@ -175,6 +175,44 @@ public class AuthManager {
     /**
      * 👤 GET USER PROFILE
      */
+    /**
+     * ✏️ UPDATE USER PROFILE
+     */
+    public static void updateProfile(Context context, String username, String profilePictureUrl, ProfileCallback callback) {
+        String token = getAuthHeader(context);
+        if (token == null) {
+            if (callback != null) callback.onError("No authentication token found", 401);
+            return;
+        }
+
+        AuthApiService.UpdateProfileRequest request = new AuthApiService.UpdateProfileRequest(username, profilePictureUrl);
+        Call<UserProfile> call = getAuthApiService().updateUserProfile(token, request);
+
+        call.enqueue(new Callback<UserProfile>() {
+            @Override
+            public void onResponse(Call<UserProfile> call, Response<UserProfile> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    UserProfile updatedProfile = response.body();
+                    // Update cached user profile
+                    SharedPreferencesUser.saveUserProfile(context, updatedProfile);
+                    Log.d(TAG, "Profile updated successfully.");
+                    if (callback != null) callback.onSuccess(updatedProfile);
+                } else {
+                    String errorMsg = getErrorMessage(response);
+                    Log.e(TAG, "Update profile error: " + errorMsg + " (Code: " + response.code() + ")");
+                    if (callback != null) callback.onError(errorMsg, response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserProfile> call, Throwable t) {
+                String errorMsg = "Network error: " + t.getMessage();
+                Log.e(TAG, errorMsg, t);
+                if (callback != null) callback.onError(errorMsg, -1);
+            }
+        });
+    }
+
     public static void getUserProfile(Context context, ProfileCallback callback) {
         String token = SharedPreferencesUser.getJWTToken(context);
         if (token == null || token.isEmpty()) {
@@ -378,19 +416,51 @@ public class AuthManager {
      * Extract error message from response
      */
     private static String getErrorMessage(Response<?> response) {
-        switch (response.code()) {
-            case 400:
-                return "Invalid request data";
-            case 401:
-                return "Invalid credentials or session expired";
-            case 403:
-                return "Access forbidden";
-            case 404:
-                return "Resource not found";
-            case 500:
-                return "Server error - please try again later";
-            default:
-                return "Unknown error occurred (Code: " + response.code() + ")";
+        if (response.errorBody() == null) {
+            switch (response.code()) {
+                case 400:
+                    return "Invalid request data";
+                case 401:
+                    return "Invalid credentials or session expired";
+                case 403:
+                    return "Access forbidden";
+                case 404:
+                    return "Resource not found";
+                case 500:
+                    return "Server error - please try again later";
+                default:
+                    return "Unknown error occurred (Code: " + response.code() + ")";
+            }
         }
+        try {
+            String errorBodyString = response.errorBody().string(); // Đọc error body
+
+            // Cố gắng phân tích như một đối tượng JSON
+            try {
+                org.json.JSONObject errorJson = new org.json.JSONObject(errorBodyString);
+                if (errorJson.has("message")) {
+                    String backendMessage = errorJson.getString("message");
+                    if (backendMessage != null && !backendMessage.trim().isEmpty()) {
+                        return backendMessage; // Đây chính là thông báo từ BE
+                    }
+                }
+                // Nếu không có trường "message" hoặc nó rỗng, có thể bạn muốn trả về toàn bộ errorBodyString
+                // nếu nó ngắn gọn, hoặc một thông báo chung hơn.
+                // Ví dụ: return errorBodyString; (nếu backend trả về text đơn giản)
+            } catch (org.json.JSONException e) {
+                // Nếu không phải JSON hoặc lỗi phân tích, có thể errorBody là text đơn giản
+                // Trả về errorBodyString nếu nó không quá dài và có thể hiển thị được
+                if (errorBodyString.length() < 200) { // Giới hạn độ dài để tránh hiển thị log quá lớn
+                    Log.w(TAG, "Error body is not JSON or parsing failed, returning raw error body: " + errorBodyString);
+                    return errorBodyString;
+                }
+                Log.e(TAG, "JSONException while parsing error body: " + e.getMessage());
+            }
+
+        } catch (java.io.IOException e) {
+            Log.e(TAG, "IOException while reading error body: " + e.getMessage());
+            return "Error reading response from server (Code: " + response.code() + ")";
+        }
+        return "Unknown error occurred (Code: " + response.code() + ")";
     }
 } 

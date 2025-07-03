@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,10 +27,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.example.locket.R;
-import com.example.locket.common.network.UserApiService;
-import com.example.locket.common.network.client.LoginApiClient;
-import com.example.locket.feed.bottomsheets.BottomSheetInfo;
-import com.example.locket.common.models.user.AccountInfo;
+import com.example.locket.common.models.user.UserProfile;
+import com.example.locket.common.utils.AuthManager;
 import com.example.locket.common.utils.SharedPreferencesUser;
 
 import okhttp3.MediaType;
@@ -44,14 +43,10 @@ public class BottomSheetChangeName extends BottomSheetDialogFragment {
     private final Activity activity;
     private BottomSheetDialog bottomSheetDialog;
 
-    private UserApiService userApiService;
-
-    private EditText edt_name, edt_surname;
+    private EditText edt_username;
     private LinearLayout linear_continue;
     private TextView txt_continue;
-    private ImageView img_continue;
-    private AccountInfo accountInfo;
-    private String name, surname;
+    private String username;
 
     public BottomSheetChangeName(Context context, Activity activity) {
         this.context = context;
@@ -73,43 +68,34 @@ public class BottomSheetChangeName extends BottomSheetDialogFragment {
         BottomSheetBehavior<View> behavior = BottomSheetBehavior.from((View) view.getParent());
         behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
-        userApiService = LoginApiClient.getCheckEmailClient().create(UserApiService.class);
-        accountInfo = SharedPreferencesUser.getAccountInfo(context);
         initViews(bottomSheetDialog);
-        conFigViews();
         setData();
+        conFigViews();
         onClick();
 
         return bottomSheetDialog;
     }
 
     private void initViews(BottomSheetDialog bottomSheetDialog) {
-        edt_name = bottomSheetDialog.findViewById(R.id.edt_name);
-        edt_surname = bottomSheetDialog.findViewById(R.id.edt_surname);
+        edt_username = bottomSheetDialog.findViewById(R.id.edt_username); // Assuming edt_name is the ID for username field
         linear_continue = bottomSheetDialog.findViewById(R.id.linear_continue);
         txt_continue = bottomSheetDialog.findViewById(R.id.txt_continue);
     }
 
     private void conFigViews() {
-        name = edt_name.getText().toString().trim();
-        surname = edt_surname.getText().toString().trim();
-
-        edt_name.addTextChangedListener(new TextWatcher() {
+        edt_username.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
-                name = s.toString().trim();
-
-                if (!name.isEmpty() && !surname.isEmpty()) {
+                username = s.toString().trim();
+                if (!username.isEmpty()) {
                     linear_continue.setBackground(ContextCompat.getDrawable(context, R.drawable.background_btn_continue_check));
-                    txt_continue.setTextColor(ContextCompat.getColor(context, R.color.bg));
+                    txt_continue.setTextColor(ContextCompat.getColor(context, R.color.white));
                     linear_continue.setEnabled(true);
                 } else {
                     linear_continue.setBackground(ContextCompat.getDrawable(context, R.drawable.background_btn_continue_un_check));
@@ -118,37 +104,13 @@ public class BottomSheetChangeName extends BottomSheetDialogFragment {
                 }
             }
         });
-        edt_surname.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                surname = s.toString().trim();
-
-                if (!surname.isEmpty() && !name.isEmpty()) {
-                    linear_continue.setBackground(ContextCompat.getDrawable(context, R.drawable.background_btn_continue_check));
-                    txt_continue.setTextColor(ContextCompat.getColor(context, R.color.bg));
-                    linear_continue.setEnabled(true);
-                } else {
-                    linear_continue.setBackground(ContextCompat.getDrawable(context, R.drawable.background_btn_continue_un_check));
-                    txt_continue.setTextColor(ContextCompat.getColor(context, R.color.bg));
-                    linear_continue.setEnabled(false);
-                }
-            }
-        });
     }
 
     private void setData() {
-        Log.d(">>>>>>>>>>>>>>>>>>>>>>>", "setData:  "+SharedPreferencesUser.getLoginResponse(context).getIdToken());
-        String[] result = splitName(accountInfo.getUsers().get(0).getDisplayName());
-        edt_name.setText(result[0]);
-        edt_surname.setText(result[1]);
+        UserProfile userProfile = SharedPreferencesUser.getUserProfile(context);
+        if (userProfile != null && userProfile.getUser() != null) {
+            edt_username.setText(userProfile.getUser().getUsername());
+        }
     }
 
     private void onClick() {
@@ -156,50 +118,34 @@ public class BottomSheetChangeName extends BottomSheetDialogFragment {
         linear_continue.setOnClickListener(view -> changeName());
     }
 
-    private String createChangeNameJson(String name, String surname) {
-        return String.format(
-                "{\"data\":{\"last_name\":\"%s\",\"first_name\":\"%s\"}}",
-                name, surname
-        );
-    }
-
-
     private void changeName() {
-        String token = "Bearer " + SharedPreferencesUser.getLoginResponse(context).getIdToken();
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=UTF-8"), createChangeNameJson(name, surname));
-        Call<ResponseBody> ResponseBodyCall = userApiService.CHANGE_NAME_RESPONSE_CALL(token, requestBody);
-        ResponseBodyCall.enqueue(new Callback<ResponseBody>() {
-            @SuppressLint("SetTextI18n")
+        String newUsername = edt_username.getText().toString().trim();
+        if (newUsername.isEmpty()) {
+            return; 
+        }
+
+        AuthManager.updateProfile(context, newUsername, null, new AuthManager.ProfileCallback() {
             @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    txt_continue.setText("Các thay đổi đã được lưu");
-                    bottomSheetDialog.dismiss();
-                } else {
-                    Log.d(">>>>>>>>>>>>>>>>>>>>", "Unsuccessful response: " + response.body());
-                }
+            public void onSuccess(UserProfile userProfile) {
+                Log.d("BottomSheetChangeName", "Username updated successfully.");
+                dismiss();
             }
 
             @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable throwable) {
-                Log.e(">>>>>>>>>>>>>>>>>>>>", "Unsuccessful response: " + throwable.getMessage());
+            public void onError(String errorMessage, int errorCode) {
+                Log.e("BottomSheetChangeName", "Error updating name: " + errorMessage);
+                //toast
+                Toast.makeText(context, "Error updating name: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    public static String[] splitName(String displayName) {
-        String[] nameParts = displayName.trim().split("\\s+");
-        int length = nameParts.length;
-        String surname = nameParts[length - 1];
-        String name = String.join(" ", java.util.Arrays.copyOf(nameParts, length - 1));
-        return new String[]{name, surname};
-    }
 
-    @Override
-    public void onDismiss(@NonNull DialogInterface dialog) {
-        super.onDismiss(dialog);
-        BottomSheetInfo bottomSheet1 = new BottomSheetInfo(context, activity);
-        bottomSheet1.show(getParentFragmentManager(), bottomSheet1.getTag());
-    }
+//    @Override
+//    public void onDismiss(@NonNull DialogInterface dialog) {
+//        super.onDismiss(dialog);
+//        BottomSheetInfo bottomSheet1 = new BottomSheetInfo(context, activity);
+//        bottomSheet1.show(getParentFragmentManager(), bottomSheet1.getTag());
+//    }
 }
 

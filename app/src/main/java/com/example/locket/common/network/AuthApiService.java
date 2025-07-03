@@ -9,6 +9,8 @@ import com.example.locket.common.models.common.ApiResponse;
 import com.example.locket.common.models.auth.VerifyEmailRequest;
 import com.example.locket.common.models.auth.ResendVerificationRequest;
 
+import com.google.gson.annotations.SerializedName;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -79,8 +81,11 @@ public interface AuthApiService {
 
     // Request classes
     public static class UpdateProfileRequest {
+        @SerializedName("username")
         private String username;
+        @SerializedName("profile_picture")
         private String profilePicture;
+
 
         public UpdateProfileRequest() {}
 

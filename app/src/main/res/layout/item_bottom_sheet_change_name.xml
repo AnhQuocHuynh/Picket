@@ -30,37 +30,24 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/black"
             android:gravity="center"
-            android:text="Sửa tên của bạn"
+            android:text="Sửa username của bạn"
             android:textColor="@color/white"
             android:textSize="@dimen/_18ssp" />
 
         <EditText
-            android:id="@+id/edt_name"
+            android:id="@+id/edt_username"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_45sdp"
             android:textCursorDrawable="@drawable/cursor_color"
             android:layout_marginTop="@dimen/_15sdp"
             android:background="@drawable/background_edit_text"
             android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-            android:hint="Tên"
+            android:hint="Tên người dùng"
             android:paddingStart="@dimen/_10sdp"
             android:textAppearance="@style/HintTextAppearance"
             android:textColor="@color/white"
             android:textColorHint="@color/hint" />
 
-        <EditText
-            android:id="@+id/edt_surname"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_45sdp"
-            android:textCursorDrawable="@drawable/cursor_color"
-            android:layout_marginTop="@dimen/_15sdp"
-            android:background="@drawable/background_edit_text"
-            android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
-            android:hint="Họ"
-            android:paddingStart="@dimen/_10sdp"
-            android:textAppearance="@style/HintTextAppearance"
-            android:textColor="@color/white"
-            android:textColorHint="@color/hint" />
     </LinearLayout>
 
     <LinearLayout
