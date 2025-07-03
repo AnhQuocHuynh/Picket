@@ -6,8 +6,8 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        android:adjustViewBounds="true" />
+        android:layout_height="381dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop" />
 
 </RelativeLayout>

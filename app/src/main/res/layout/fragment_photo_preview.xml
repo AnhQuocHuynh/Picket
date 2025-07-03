@@ -7,26 +7,36 @@
     android:orientation="vertical">
 
     <!-- Photo Preview Section -->
+
+    <!-- Control Buttons Section -->
     <RelativeLayout
         android:id="@+id/layout_preview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         android:layout_marginTop="@dimen/_20sdp"
-        android:layout_marginHorizontal="@dimen/_20sdp">
+        android:layout_weight="1">
 
         <com.example.locket.camera.utils.SquareFrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ImageView
+<!--            <ImageView-->
+<!--                android:id="@+id/img_preview"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:background="@drawable/background_camera"-->
+<!--                android:padding="@dimen/_2sdp"-->
+<!--                android:scaleType="centerCrop" />-->
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/img_preview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:background="@drawable/background_camera"
-                android:padding="@dimen/_2sdp" />
-
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintWidth_percent="1"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerFamilyRounded"
+                android:src="@drawable/assets_png_image_watermark"/>
             <com.example.locket.camera.utils.AutoFitVideoView
                 android:id="@+id/videoViewPreview"
                 android:layout_width="match_parent"
@@ -58,7 +68,6 @@
 
     </RelativeLayout>
 
-    <!-- Control Buttons Section -->
     <LinearLayout
         android:id="@+id/layout_controls"
         android:layout_width="match_parent"
