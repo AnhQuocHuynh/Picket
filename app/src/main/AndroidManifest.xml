@@ -93,9 +93,7 @@
             android:exported="false"
             android:label="Select Friend" />
 
-        <activity
-            android:name=".search.SearchUserActivity"
-            android:exported="false" />
+
 
     </application>
 

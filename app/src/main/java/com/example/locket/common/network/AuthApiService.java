@@ -94,7 +94,7 @@ public interface AuthApiService {
     public static class UpdateProfileRequest {
         @SerializedName("username")
         private String username;
-        @SerializedName("profile_picture")
+        @SerializedName("profilePicture")
         private String profilePicture;
 
 
