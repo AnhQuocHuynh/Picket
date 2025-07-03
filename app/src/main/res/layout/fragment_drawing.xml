@@ -80,8 +80,13 @@
             android:layout_weight="1"
             android:max="50"
             android:progress="15"
+<<<<<<< HEAD
             android:thumbTint="#CDC7FF"
             android:progressTint="#CDC7FF" />
+=======
+            android:thumbTint="@color/app"
+            android:progressTint="@color/app" />
+>>>>>>> 29db4fa8f69782272847e515966c31005d4fe169
         <TextView
             android:id="@+id/tv_stroke_width"
             android:layout_width="40dp"
@@ -144,7 +149,7 @@
             android:id="@+id/btn_send"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:background="@drawable/background_btn_add"
+            android:background="@color/app"
             android:src="@drawable/ic_post"
             app:tint="#fff"
             android:layout_alignParentEnd="true"

@@ -24,8 +24,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:adjustViewBounds="false"
-                android:background="@drawable/background_camera" />
+                android:background="@drawable/background_camera"
+                android:padding="@dimen/_2sdp" />
 
             <com.example.locket.camera.utils.AutoFitVideoView
                 android:id="@+id/videoViewPreview"
@@ -40,7 +40,7 @@
         <!-- Message Input -->
         <EditText
             android:id="@+id/edt_add_message"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/_35sdp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
@@ -189,4 +189,4 @@
 
     </LinearLayout>
 
-</LinearLayout> 
+</LinearLayout>

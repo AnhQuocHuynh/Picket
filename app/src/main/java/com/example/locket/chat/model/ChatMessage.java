@@ -12,8 +12,10 @@ public class ChatMessage {
     private long timestamp;
     private MessageType type;
     private String mediaUrl;
+    private boolean seen;
     
     // Moment comment specific fields
+        private String messageId;
     private String momentId;
     private String momentImageUrl;
     private String momentOwnerId;
@@ -23,12 +25,13 @@ public class ChatMessage {
     }
 
     // Constructor for text messages
-    public ChatMessage(String text, String senderId, String receiverId, long timestamp) {
-        this.text = text;
+    public ChatMessage(String senderId, String receiverId, String text, long timestamp) {
         this.senderId = senderId;
         this.receiverId = receiverId;
+        this.text = text;
         this.timestamp = timestamp;
         this.type = MessageType.TEXT;
+        this.seen = false;
     }
 
     // Constructor for media messages
@@ -39,6 +42,7 @@ public class ChatMessage {
         this.type = type;
         this.mediaUrl = mediaUrl;
         this.text = ""; // Or a caption if you want
+        this.seen = false;
     }
 
     // Constructor for moment comment messages
@@ -94,6 +98,14 @@ public class ChatMessage {
         return mediaUrl;
     }
 
+    public boolean isSeen() {
+        return seen;
+    }
+
+    public void setSeen(boolean seen) {
+        this.seen = seen;
+    }
+
     public void setMediaUrl(String mediaUrl) {
         this.mediaUrl = mediaUrl;
     }
@@ -105,6 +117,14 @@ public class ChatMessage {
     // Moment comment specific getters and setters
     public String getMomentId() {
         return momentId;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     public void setMomentId(String momentId) {
@@ -125,5 +145,8 @@ public class ChatMessage {
 
     public void setMomentOwnerId(String momentOwnerId) {
         this.momentOwnerId = momentOwnerId;
+    }
+    public boolean isMedia(){
+        return type == MessageType.IMAGE || type == MessageType.VIDEO;
     }
 }

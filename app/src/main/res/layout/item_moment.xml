@@ -14,24 +14,25 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/_60sdp">
+            android:layout_marginBottom="@dimen/_20sdp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/shapeable_imageview"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintWidth_percent="1"
-                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerFamilyRounded"
-                tools:ignore="MissingConstraints" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerFamilyRounded" />
 
             <TextView
                 android:id="@+id/txt_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:layout_marginBottom="@dimen/_12sdp"
                 android:background="@drawable/background_btn"
@@ -45,13 +46,16 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <LinearLayout
+                android:id="@+id/layout_user_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_20sdp"
                 android:gravity="center"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:paddingBottom="@dimen/_10sdp"
+                app:layout_constraintTop_toBottomOf="@id/shapeable_imageview"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/txt_content">
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
                 <com.makeramen.roundedimageview.RoundedImageView
                     android:id="@+id/rounded_imageview"

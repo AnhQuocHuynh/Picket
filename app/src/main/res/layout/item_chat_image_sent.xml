@@ -10,9 +10,20 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:adjustViewBounds="true"
-        android:background="@drawable/chat_bubble_sent"
+        android:background="@color/app"
         android:padding="5dp"
         android:scaleType="centerCrop"
         android:contentDescription="sent image" />
+
+    <TextView
+        android:id="@+id/seenStatusTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/chatImageView"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="4dp"
+        android:text="Đã xem"
+        android:textSize="12sp"
+        android:visibility="gone" />
 
 </RelativeLayout>
