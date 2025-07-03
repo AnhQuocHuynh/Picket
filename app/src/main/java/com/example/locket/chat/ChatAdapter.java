@@ -62,6 +62,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         Log.d(TAG, "🔍 Message type determination - Position: " + position + 
             ", Type: " + message.getType() + ", SentByMe: " + isSentByMe);
 
+        if (message.getType() == null) {
+            Log.w(TAG, "Message type is null for message at position " + position + ". Defaulting to TEXT.");
+            return isSentByMe ? VIEW_TYPE_TEXT_SENT : VIEW_TYPE_TEXT_RECEIVED;
+        }
+
         switch (message.getType()) {
             case IMAGE:
             case VIDEO:
@@ -178,15 +183,20 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     // ViewHolder for sent messages
     static class SentMessageViewHolder extends RecyclerView.ViewHolder {
         private TextView messageTextView;
+        private TextView seenStatusTextView;
 
         SentMessageViewHolder(@NonNull View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.messageTextView);
+            seenStatusTextView = itemView.findViewById(R.id.seenStatusTextView);
         }
 
         void bind(ChatMessage message) {
             if (messageTextView != null && message != null) {
                 messageTextView.setText(message.getText());
+            }
+            if (seenStatusTextView != null) {
+                seenStatusTextView.setVisibility(message.isSeen() ? View.VISIBLE : View.GONE);
             }
         }
     }
@@ -210,10 +220,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     // ViewHolder for sent images
     static class SentImageViewHolder extends RecyclerView.ViewHolder {
         private ImageView imageMessageView;
+        private TextView seenStatusTextView;
 
         SentImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imageMessageView = itemView.findViewById(R.id.imageMessageView);
+            seenStatusTextView = itemView.findViewById(R.id.seenStatusTextView);
         }
 
         void bind(ChatMessage message) {
@@ -222,6 +234,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         .load(message.getMediaUrl())
                         .placeholder(R.drawable.avatar_placeholder)
                         .into(imageMessageView);
+            }
+            if (seenStatusTextView != null) {
+                seenStatusTextView.setVisibility(message.isSeen() ? View.VISIBLE : View.GONE);
             }
         }
     }

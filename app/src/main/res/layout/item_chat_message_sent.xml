@@ -19,6 +19,17 @@
             android:text="This is a sent message"
             android:textColor="@color/bg" />
 
-    </LinearLayout>
+        </LinearLayout>
+
+    <TextView
+        android:id="@+id/seenStatusTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/messageLayout"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="4dp"
+        android:text="Đã xem"
+        android:textSize="12sp"
+        android:visibility="gone" />
 
 </RelativeLayout>

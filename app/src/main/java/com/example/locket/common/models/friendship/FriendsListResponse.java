@@ -41,6 +41,9 @@ public class FriendsListResponse implements Serializable {
         private String username;
         private String displayName;
         private String profilePicture;
+        private String lastMessage;
+        private long lastMessageTimestamp;
+        private boolean lastMessageUnread;
 
         public FriendData() {}
 
@@ -74,6 +77,30 @@ public class FriendsListResponse implements Serializable {
 
         public void setProfilePicture(String profilePicture) {
             this.profilePicture = profilePicture;
+        }
+
+        public String getLastMessage() {
+            return lastMessage;
+        }
+
+        public void setLastMessage(String lastMessage) {
+            this.lastMessage = lastMessage;
+        }
+
+        public long getLastMessageTimestamp() {
+            return lastMessageTimestamp;
+        }
+
+        public void setLastMessageTimestamp(long lastMessageTimestamp) {
+            this.lastMessageTimestamp = lastMessageTimestamp;
+        }
+
+        public boolean isLastMessageUnread() {
+            return lastMessageUnread;
+        }
+
+        public void setLastMessageUnread(boolean lastMessageUnread) {
+            this.lastMessageUnread = lastMessageUnread;
         }
     }
 } 
