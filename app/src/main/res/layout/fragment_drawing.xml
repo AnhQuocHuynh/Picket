@@ -80,8 +80,8 @@
             android:layout_weight="1"
             android:max="50"
             android:progress="15"
-            android:thumbTint="@color/orange"
-            android:progressTint="@color/orange" />
+            android:thumbTint="@color/app"
+            android:progressTint="@color/app" />
         <TextView
             android:id="@+id/tv_stroke_width"
             android:layout_width="40dp"
@@ -144,7 +144,7 @@
             android:id="@+id/btn_send"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:background="@drawable/background_btn_add"
+            android:background="@color/app"
             android:src="@drawable/ic_post"
             app:tint="#fff"
             android:layout_alignParentEnd="true"

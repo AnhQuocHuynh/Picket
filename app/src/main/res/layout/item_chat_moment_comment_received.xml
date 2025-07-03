@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/_40sdp"
-        android:background="@drawable/bg_chat_received"
+        android:background="@color/app"
         android:orientation="vertical"
         android:padding="@dimen/_8sdp"
         android:maxWidth="@dimen/_250sdp">
@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_5sdp"
-            android:textColor="@color/text"
+            android:textColor="@color/text_primary"
             android:textSize="@dimen/_14ssp"
             android:fontFamily="@font/assets_fonts_proximasoft_proximasoft"
             android:text="Comment on your moment" />
@@ -42,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_2sdp"
-            android:textColor="@color/hint"
+            android:textColor="@color/text_primary"
             android:textSize="@dimen/_12ssp"
             android:gravity="start"
             android:fontFamily="@font/assets_fonts_proximasoft_proximasoft" />
