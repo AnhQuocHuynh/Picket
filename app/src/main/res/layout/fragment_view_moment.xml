@@ -40,7 +40,7 @@
                     android:src="@drawable/arrow_back_ios_24px"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:padding="@dimen/_2sdp"
-                    app:tint="@color/text" />
+                    app:tint="@color/white" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -48,7 +48,7 @@
                     android:layout_centerInParent="true"
                     android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                     android:text="Tất cả khoảnh khắc"
-                    android:textColor="@color/text"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/_16ssp" />
 
             </RelativeLayout>
@@ -82,7 +82,8 @@
             android:orientation="vertical"
             android:paddingHorizontal="@dimen/_5sdp"
             android:paddingTop="@dimen/_5sdp"
-            android:clipToPadding="false" />
+            android:clipToPadding="false"
+            />
 
     </RelativeLayout>
 
@@ -96,6 +97,7 @@
             android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/_50ssp"
             android:layout_above="@id/linear_bottom">
 
             <androidx.recyclerview.widget.RecyclerView
@@ -133,8 +135,11 @@
                     android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                     android:hint="Gửi tin nhắn..."
                     android:textColor="@color/text"
-                    android:textSize="@dimen/_14ssp" />
-
+                    android:textSize="@dimen/_14ssp"
+                    android:background="@android:color/transparent"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:imeOptions="actionSend" />
 
                 <LinearLayout
                     android:id="@+id/layout_send_message"
@@ -263,7 +268,6 @@
                                 android:padding="@dimen/_20sdp"
                                 android:visibility="gone" />
                         </LinearLayout>
-
 
                     </LinearLayout>
 
