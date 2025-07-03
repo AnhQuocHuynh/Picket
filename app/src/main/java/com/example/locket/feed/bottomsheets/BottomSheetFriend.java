@@ -33,7 +33,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;
 
-public class BottomSheetFriend extends BottomSheetDialogFragment implements UserSearchAdapter.OnAddFriendClickListener, ReceivedFriendRequestAdapter.OnRequestActionListener, SentFriendRequestAdapter.OnRequestActionListener {
+public class BottomSheetFriend extends BottomSheetDialogFragment implements UserSearchAdapter.OnAddFriendClickListener, ReceivedFriendRequestAdapter.OnRequestActionListener, SentFriendRequestAdapter.OnRequestActionListener, NewFriendsAdapter.OnUnfriendClickListener {
 
     public interface FriendBottomSheetListener {
         void onSendFriendLinkClicked();
@@ -99,12 +99,11 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
         txt_friendlist_title = view.findViewById(R.id.txt_friendlist_title);
         txt_share_title = view.findViewById(R.id.txt_share_title);
         send_link_layout = view.findViewById(R.id.send_link_layout);
-
     }
 
     private void setupAdapters() {
         rv_friends.setLayoutManager(new LinearLayoutManager(getContext()));
-        friendsAdapter = new NewFriendsAdapter(new ArrayList<>(), getActivity(), getContext());
+        friendsAdapter = new NewFriendsAdapter(new ArrayList<>(), this);
         rv_friends.setAdapter(friendsAdapter);
 
         rv_search_results.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -134,13 +133,13 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
     private void toggleSearchView(boolean showSearch) {
         linear_view1.setVisibility(showSearch ? View.GONE : View.VISIBLE);
         linear_view2.setVisibility(showSearch ? View.VISIBLE : View.GONE);
-        // Visibility of RecyclerViews is now handled by the TextWatcher
+
         if (showSearch) {
             edt_search_friend.requestFocus();
             InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(edt_search_friend, InputMethodManager.SHOW_IMPLICIT);
         } else {
-            edt_search_friend.setText(""); // This will trigger TextWatcher to show rv_friends
+            edt_search_friend.setText("");
             InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(edt_search_friend.getWindowToken(), 0);
         }
@@ -170,7 +169,7 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
                     if (query.length() > 2) {
                         friendViewModel.searchUsers(query);
                     } else {
-                        userSearchAdapter.updateUsers(new ArrayList<>()); // Clear if query is too short
+                        userSearchAdapter.updateUsers(new ArrayList<>());
                     }
                 }
             }
@@ -194,6 +193,7 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
 
     private void observeViewModel() {
         // Fetch initial data
+        friendViewModel.fetchMyFriends();
         friendViewModel.fetchReceivedFriendRequests();
         friendViewModel.fetchSentFriendRequests();
 
@@ -230,11 +230,11 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
             if (searchResults != null && searchResults.getUsers() != null) {
                 userSearchAdapter.updateUsers(searchResults.getUsers());
             } else {
-                userSearchAdapter.updateUsers(new ArrayList<>()); // Clear list on null response
+                userSearchAdapter.updateUsers(new ArrayList<>());
             }
         });
 
-        // Observer for actions like decline, cancel
+        // Observer for actions like accept, decline, cancel, unfriend
         friendViewModel.actionResponse.observe(getViewLifecycleOwner(), response -> {
             if (response != null && response.getMessage() != null) {
                 Toast.makeText(getContext(), response.getMessage(), Toast.LENGTH_SHORT).show();
@@ -245,7 +245,7 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
             }
         });
 
-        // This observer handles both sending a new request and accepting one
+        // This observer handles sending a new friend request
         friendViewModel.friendshipResponse.observe(getViewLifecycleOwner(), response -> {
             if (response != null && response.getMessage() != null) {
                 Toast.makeText(getContext(), response.getMessage(), Toast.LENGTH_SHORT).show();
@@ -253,7 +253,7 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
                 friendViewModel.fetchMyFriends();
                 friendViewModel.fetchReceivedFriendRequests();
                 friendViewModel.fetchSentFriendRequests();
-                // If search was active (i.e., we just sent a request), close it.
+                // If search was active, close it.
                 if (linear_view2.getVisibility() == View.VISIBLE) {
                     toggleSearchView(false);
                 }
@@ -291,6 +291,9 @@ public class BottomSheetFriend extends BottomSheetDialogFragment implements User
     public void onCancel(String friendshipId) {
         friendViewModel.cancelFriendRequest(friendshipId);
     }
+
+    @Override
+    public void onUnfriendClick(String friendId) {
+        friendViewModel.removeFriend(friendId);
+    }
 }
-
-

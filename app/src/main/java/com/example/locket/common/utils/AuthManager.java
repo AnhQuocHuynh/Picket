@@ -13,6 +13,7 @@ import com.example.locket.common.network.AuthApiService;
 import com.example.locket.common.network.client.AuthApiClient;
 import com.example.locket.common.models.auth.VerifyEmailRequest;
 import com.example.locket.common.models.auth.ResendVerificationRequest;
+import com.example.locket.common.models.auth.ChangePasswordRequest;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -294,6 +295,56 @@ public class AuthManager {
             Log.d(TAG, "Logout - no token, cleared local data");
             if (callback != null) callback.onSuccess("Logged out");
         }
+    }
+
+    /**
+     * 🔑 CHANGE PASSWORD
+     */
+    public static void changePassword(Context context, String currentPassword, String newPassword, String confirmPassword, AuthCallback callback) {
+        if (callback != null) callback.onLoading(true);
+
+        String token = SharedPreferencesUser.getJWTToken(context);
+        if (token == null || token.isEmpty()) {
+            if (callback != null) {
+                callback.onLoading(false);
+                callback.onError("No authentication token found.", 401);
+            }
+            return;
+        }
+
+        ChangePasswordRequest request = new ChangePasswordRequest(currentPassword, newPassword, confirmPassword);
+        Call<ApiResponse> call = getAuthApiService().changePassword("Bearer " + token, request);
+
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (callback != null) callback.onLoading(false);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse apiResponse = response.body();
+                    if (apiResponse.isSuccess()) {
+                        Log.d(TAG, "Password changed successfully.");
+                        if (callback != null) callback.onSuccess(apiResponse.getMessage() != null ? apiResponse.getMessage() : "Password changed successfully.");
+                    } else {
+                        String errorMsg = apiResponse.getMessage() != null ? apiResponse.getMessage() : "Failed to change password";
+                        Log.e(TAG, "Change password failed: " + errorMsg);
+                        if (callback != null) callback.onError(errorMsg, response.code());
+                    }
+                } else {
+                    String errorMsg = getErrorMessage(response);
+                    Log.e(TAG, "Change password error: " + errorMsg + " (Code: " + response.code() + ")");
+                    if (callback != null) callback.onError(errorMsg, response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                if (callback != null) callback.onLoading(false);
+                String errorMsg = "Network error: " + t.getMessage();
+                Log.e(TAG, errorMsg, t);
+                if (callback != null) callback.onError(errorMsg, -1);
+            }
+        });
     }
 
     /**

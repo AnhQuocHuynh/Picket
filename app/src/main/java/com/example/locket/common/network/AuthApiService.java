@@ -8,6 +8,7 @@ import com.example.locket.common.models.user.UserProfile;
 import com.example.locket.common.models.common.ApiResponse;
 import com.example.locket.common.models.auth.VerifyEmailRequest;
 import com.example.locket.common.models.auth.ResendVerificationRequest;
+import com.example.locket.common.models.auth.ChangePasswordRequest;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -78,6 +79,16 @@ public interface AuthApiService {
     // - auth/check-email (đã bỏ)
     // - auth/forgot-password (chưa implement)
     // - auth/refresh (backend không có refresh token)
+
+    // 🔑 CHANGE PASSWORD (requires JWT token)
+    @Headers({
+            "Content-Type: application/json"
+    })
+    @POST("auth/change-password")
+    Call<ApiResponse> changePassword(
+            @Header("Authorization") String bearerToken,
+            @Body ChangePasswordRequest request
+    );
 
     // Request classes
     public static class UpdateProfileRequest {

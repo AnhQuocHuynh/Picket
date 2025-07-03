@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.locket.common.models.friendship.AcceptLinkRequest;
+import com.example.locket.common.models.friendship.FriendRequest;
 import com.example.locket.common.models.friendship.FriendRequestResponse;
 import com.example.locket.common.models.friendship.FriendsListResponse;
 import com.example.locket.common.models.friendship.FriendshipResponse;
@@ -16,6 +17,7 @@ import com.example.locket.common.utils.AuthManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import com.google.gson.annotations.SerializedName;
 
 public class FriendshipRepository {
     private static final String TAG = "FriendshipRepository";
@@ -387,6 +389,57 @@ public class FriendshipRepository {
     }
 
     /**
+     * 💔 Remove a friend
+     */
+    public void removeFriend(String friendUserId, DeleteCallback callback) {
+        String authHeader = AuthManager.getAuthHeader(context);
+        if (authHeader == null) {
+            if (callback != null) callback.onError("No authentication token", 401);
+            return;
+        }
+
+        Call<com.example.locket.common.models.common.ApiResponse> call = friendshipApiService.removeFriend(authHeader, friendUserId);
+
+        call.enqueue(new Callback<com.example.locket.common.models.common.ApiResponse>() {
+            @Override
+            public void onResponse(Call<com.example.locket.common.models.common.ApiResponse> call, Response<com.example.locket.common.models.common.ApiResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Remove friend successful");
+                    if (callback != null) callback.onSuccess(response.body().getMessage());
+                } else {
+                    ApiErrorHandler.handleError(response, new ApiErrorHandler.ErrorCallback() {
+                        @Override
+                        public void onError(String message, int code) {
+                            if (callback != null) callback.onError(message, code);
+                        }
+
+                        @Override
+                        public void onTokenExpired() {
+                            ApiErrorHandler.clearAuthenticationData(context);
+                            if (callback != null) callback.onError("Session expired", 401);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<com.example.locket.common.models.common.ApiResponse> call, Throwable t) {
+                ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
+                    @Override
+                    public void onError(String message, int code) {
+                        if (callback != null) callback.onError(message, code);
+                    }
+
+                    @Override
+                    public void onTokenExpired() {
+                        // Not applicable for network errors
+                    }
+                });
+            }
+        });
+    }
+
+    /**
      * 🚫 Cancel sent friend request
      */
     public void cancelFriendRequest(String friendshipId, DeleteCallback callback) {
@@ -433,52 +486,7 @@ public class FriendshipRepository {
         });
     }
 
-    /**
-     * 💔 Remove friend
-     */
-    public void removeFriend(String friendUserId, DeleteCallback callback) {
-        String authHeader = AuthManager.getAuthHeader(context);
-        if (authHeader == null) {
-            if (callback != null) callback.onError("No authentication token", 401);
-            return;
-        }
 
-        Call<com.example.locket.common.models.common.ApiResponse> call = friendshipApiService.removeFriend(authHeader, friendUserId);
-        call.enqueue(new Callback<com.example.locket.common.models.common.ApiResponse>() {
-            @Override
-            public void onResponse(Call<com.example.locket.common.models.common.ApiResponse> call, Response<com.example.locket.common.models.common.ApiResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    if (callback != null) callback.onSuccess(response.body().getMessage());
-                } else {
-                    ApiErrorHandler.handleError(response, new ApiErrorHandler.ErrorCallback() {
-                        @Override
-                        public void onError(String message, int code) {
-                            if (callback != null) callback.onError(message, code);
-                        }
-
-                        @Override
-                        public void onTokenExpired() {
-                            ApiErrorHandler.clearAuthenticationData(context);
-                            if (callback != null) callback.onError("Session expired", 401);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onFailure(Call<com.example.locket.common.models.common.ApiResponse> call, Throwable t) {
-                ApiErrorHandler.handleNetworkError(t, new ApiErrorHandler.ErrorCallback() {
-                    @Override
-                    public void onError(String message, int code) {
-                        if (callback != null) callback.onError(message, code);
-                    }
-
-                    @Override
-                    public void onTokenExpired() {}
-                });
-            }
-        });
-    }
 
     /**
      * 📥 Get received friend requests (pending)

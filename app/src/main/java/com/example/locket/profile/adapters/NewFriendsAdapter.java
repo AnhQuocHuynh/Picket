@@ -22,14 +22,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NewFriendsAdapter extends RecyclerView.Adapter<NewFriendsAdapter.ViewHolder> {
-    private List<FriendsListResponse.FriendData> friendList;
-    private final Context context;
-    private final Activity activity;
 
-    public NewFriendsAdapter(List<FriendsListResponse.FriendData> friendList, Activity activity, Context context) {
+    public interface OnUnfriendClickListener {
+        void onUnfriendClick(String friendId);
+    }
+
+    private List<FriendsListResponse.FriendData> friendList;
+    private final OnUnfriendClickListener unfriendClickListener;
+
+    public NewFriendsAdapter(List<FriendsListResponse.FriendData> friendList, OnUnfriendClickListener listener) {
         this.friendList = friendList != null ? friendList : new ArrayList<>();
-        this.activity = activity;
-        this.context = context;
+        this.unfriendClickListener = listener;
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -42,37 +45,13 @@ public class NewFriendsAdapter extends RecyclerView.Adapter<NewFriendsAdapter.Vi
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_friend, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(view, unfriendClickListener);
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         FriendsListResponse.FriendData friend = friendList.get(position);
-
-        // Set display name or username as fallback
-        String displayName = friend.getDisplayName();
-        if (displayName == null || displayName.trim().isEmpty()) {
-            displayName = friend.getUsername() != null ? friend.getUsername() : "Người dùng";
-        }
-        holder.txt_full_name.setText(displayName);
-
-        // Load profile picture
-        if (friend.getProfilePicture() != null && !friend.getProfilePicture().isEmpty()) {
-            Glide.with(context)
-                    .load(friend.getProfilePicture())
-                    .placeholder(R.drawable.avatar_placeholder)
-                    .error(R.drawable.empty_icon)
-                    .into(holder.img_avatar);
-        } else {
-            holder.img_avatar.setImageResource(R.drawable.avatar_placeholder);
-        }
-
-        // Remove friend click listener (you can implement this later)
-        holder.btn_un_friend.setOnClickListener(view -> {
-            // TODO: Implement remove friend functionality
-            // You can call FriendshipRepository.removeFriend() here
-        });
+        holder.bind(friend);
     }
 
     @Override
@@ -83,13 +62,35 @@ public class NewFriendsAdapter extends RecyclerView.Adapter<NewFriendsAdapter.Vi
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final CircleImageView img_avatar;
         private final TextView txt_full_name;
-        private final MaterialButton btn_un_friend;
+        private final MaterialButton img_un_friend;
+        private final OnUnfriendClickListener listener;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView, OnUnfriendClickListener listener) {
             super(itemView);
+            this.listener = listener;
             img_avatar = itemView.findViewById(R.id.img_avatar);
             txt_full_name = itemView.findViewById(R.id.txt_full_name);
-            btn_un_friend = itemView.findViewById(R.id.img_un_friend);
+            img_un_friend = itemView.findViewById(R.id.img_un_friend);
+        }
+
+        public void bind(final FriendsListResponse.FriendData friend) {
+            String displayName = friend.getDisplayName();
+            if (displayName == null || displayName.trim().isEmpty()) {
+                displayName = friend.getUsername() != null ? friend.getUsername() : "User";
+            }
+            txt_full_name.setText(displayName);
+
+            Glide.with(itemView.getContext())
+                    .load(friend.getProfilePicture())
+                    .placeholder(R.mipmap.ic_launcher)
+                    .error(R.mipmap.ic_launcher)
+                    .into(img_avatar);
+
+            img_un_friend.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onUnfriendClick(friend.getId());
+                }
+            });
         }
     }
-} 
+}

@@ -6,7 +6,7 @@ import com.example.locket.common.models.friendship.FriendRequestResponse;
 import com.example.locket.common.models.friendship.FriendsListResponse;
 import com.example.locket.common.models.friendship.FriendshipResponse;
 import com.example.locket.common.models.friendship.GenerateLinkResponse;
-import com.example.locket.common.repository.FriendRequest;
+import com.example.locket.common.models.friendship.FriendRequest;
 
 import retrofit2.Call;
 import retrofit2.http.Body;

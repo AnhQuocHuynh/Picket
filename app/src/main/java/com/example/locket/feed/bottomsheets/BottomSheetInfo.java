@@ -26,6 +26,7 @@ import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
 import com.example.locket.MainActivity;
 import com.example.locket.R;
+import com.example.locket.auth.bottomsheets.BottomSheetChangPassword;
 import com.example.locket.auth.bottomsheets.BottomSheetChangeEmail;
 import com.example.locket.auth.bottomsheets.BottomSheetChangeName;
 import com.example.locket.auth.bottomsheets.BottomSheetLogout;
@@ -119,6 +120,9 @@ public class BottomSheetInfo extends BottomSheetDialogFragment implements MainAc
     }
 
     private void openBottomSheetChangePassword() {
+        dismiss();
+        BottomSheetChangPassword bottomSheetChangePassword = new BottomSheetChangPassword();
+        bottomSheetChangePassword.show(getActivity().getSupportFragmentManager(), bottomSheetChangePassword.getTag());
     }
 
     private void openBottomSheetChangeEmail() {
