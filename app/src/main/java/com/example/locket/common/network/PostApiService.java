@@ -1,13 +1,13 @@
 package com.example.locket.common.network;
 
-import com.example.locket.common.models.post.CreatePostRequest;
-import com.example.locket.common.models.post.PostResponse;
-import com.example.locket.common.models.post.PostsResponse;
+import com.example.locket.common.models.common.ApiResponse;
 import com.example.locket.common.models.post.CategoriesResponse;
-import com.example.locket.common.models.post.LikeResponse;
 import com.example.locket.common.models.post.CommentRequest;
 import com.example.locket.common.models.post.CommentResponse;
-import com.example.locket.common.models.common.ApiResponse;
+import com.example.locket.common.models.post.CreatePostRequest;
+import com.example.locket.common.models.post.LikeResponse;
+import com.example.locket.common.models.post.PostResponse;
+import com.example.locket.common.models.post.PostsResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;

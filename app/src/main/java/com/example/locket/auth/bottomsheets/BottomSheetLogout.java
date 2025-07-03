@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import com.example.locket.R;
 import com.example.locket.auth.fragments.LoginOrRegisterFragment;
 import com.example.locket.common.utils.AuthManager;
 import com.example.locket.common.utils.SharedPreferencesUser;
+import com.example.locket.MainActivity;
 
 public class BottomSheetLogout extends BottomSheetDialogFragment {
     private final Context context;
@@ -69,7 +71,7 @@ public class BottomSheetLogout extends BottomSheetDialogFragment {
     private void performLogout() {
         // Show loading state (you can add a progress indicator here)
         linear_logout.setEnabled(false);
-        
+
         AuthManager.logout(requireContext(), new AuthManager.AuthCallback() {
             @Override
             public void onSuccess(String message) {
@@ -98,7 +100,11 @@ public class BottomSheetLogout extends BottomSheetDialogFragment {
     private void clearDataAndRedirect() {
         SharedPreferencesUser.clearAll(requireContext());
         dismiss();
-        releaseFragment();
+        // Reset UI về màn hình đăng nhập, clear toàn bộ stack
+        Intent intent = new Intent(getActivity(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        getActivity().finish();
     }
 
     private void releaseFragment() {

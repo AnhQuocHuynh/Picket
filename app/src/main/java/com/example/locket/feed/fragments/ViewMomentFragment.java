@@ -29,6 +29,10 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.example.locket.R;
+import com.example.locket.common.database.entities.MomentEntity;
+import com.example.locket.common.models.post.CategoriesResponse;
+import com.example.locket.common.repository.MomentRepository;
+import com.example.locket.common.repository.viewmodels.MomentViewModel;
 import com.example.locket.feed.adapters.CategoryFilterAdapter;
 import com.example.locket.feed.adapters.ViewAllMomentAdapter;
 import com.example.locket.feed.adapters.ViewMomentAdapter;
@@ -221,12 +225,12 @@ public class ViewMomentFragment extends Fragment {
             }
 
             Log.d("ViewMomentFragment", "Received " + (momentEntities != null ? momentEntities.size() : 0) + " moments");
-            
+
             // Cập nhật dữ liệu cho cả hai adapter
             if (momentEntities != null) {
                 allMoments = momentEntities;
                 viewMomentAdapter.setFilterList(momentEntities);
-                
+
                 // Update category counts and filter
                 updateCategoryCounts();
                 filterMomentsByCategory(currentSelectedCategory);
@@ -253,7 +257,7 @@ public class ViewMomentFragment extends Fragment {
      * Setup category filter RecyclerView and adapter
      */
     private void setupCategoryFilter() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), 
+        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(),
                 LinearLayoutManager.HORIZONTAL, false);
         rv_category_filter.setLayoutManager(layoutManager);
 
@@ -282,9 +286,9 @@ public class ViewMomentFragment extends Fragment {
                 if (apiCategories != null && !apiCategories.isEmpty()) {
                     // Convert API categories to CategoryFilterAdapter.CategoryItem
                     List<CategoryFilterAdapter.CategoryItem> filterCategories = convertApiCategoriesToFilterItems(apiCategories);
-                    
+
                     Log.d("CategoryFilter", "Received " + filterCategories.size() + " categories from API");
-                    
+
                     // Update the filter adapter with real data
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
@@ -309,19 +313,19 @@ public class ViewMomentFragment extends Fragment {
      */
     private List<CategoryFilterAdapter.CategoryItem> convertApiCategoriesToFilterItems(List<CategoriesResponse.CategoryData> apiCategories) {
         List<CategoryFilterAdapter.CategoryItem> filterItems = new ArrayList<>();
-        
+
         for (CategoriesResponse.CategoryData apiCategory : apiCategories) {
             // Only add categories that have images (count > 0)
             if (apiCategory.getCount() > 0) {
                 CategoryFilterAdapter.CategoryItem filterItem = new CategoryFilterAdapter.CategoryItem(
-                    apiCategory.getLabel(),  // Use label as display name
-                    apiCategory.getIcon(),   // Use API icon
-                    apiCategory.getCount()   // Use API count
+                        apiCategory.getLabel(),  // Use label as display name
+                        apiCategory.getIcon(),   // Use API icon
+                        apiCategory.getCount()   // Use API count
                 );
                 filterItems.add(filterItem);
             }
         }
-        
+
         Log.d("CategoryFilter", "Converted " + filterItems.size() + " categories with images from API");
         return filterItems;
     }
@@ -336,7 +340,7 @@ public class ViewMomentFragment extends Fragment {
                 // Navigate back to moment view and show specific moment
                 relative_view_all_moment.setVisibility(View.GONE);
                 relative_view_moment.setVisibility(View.VISIBLE);
-                
+
                 // Find position in the full list and scroll to it
                 int momentPosition = findMomentPositionInFullList(moment);
                 if (momentPosition >= 0) {
@@ -364,7 +368,7 @@ public class ViewMomentFragment extends Fragment {
         }
 
         List<MomentEntity> filteredMoments;
-        
+
         if ("Tất cả".equals(category)) {
             filteredMoments = new ArrayList<>(allMoments);
         } else {
@@ -397,7 +401,7 @@ public class ViewMomentFragment extends Fragment {
 
         // Create new categories list with only categories that have images
         List<CategoryFilterAdapter.CategoryItem> availableCategories = new ArrayList<>();
-        
+
         // Always add "Tất cả" first if there are any moments
         if (!allMoments.isEmpty()) {
             availableCategories.add(new CategoryFilterAdapter.CategoryItem("Tất cả", "📸", allMoments.size()));
@@ -410,7 +414,7 @@ public class ViewMomentFragment extends Fragment {
         for (Map.Entry<String, Integer> entry : categoryCounts.entrySet()) {
             String categoryName = entry.getKey();
             int count = entry.getValue();
-            
+
             // Skip "Tất cả" as we already added it, and only add categories with images
             if (!"Tất cả".equals(categoryName) && count > 0) {
                 String icon = categoryIcons.getOrDefault(categoryName, "📋");
@@ -420,7 +424,7 @@ public class ViewMomentFragment extends Fragment {
 
         // Update the adapter with only available categories
         categoryFilterAdapter.updateCategories(availableCategories);
-        
+
         Log.d("CategoryFilter", "Updated categories: " + availableCategories.size() + " categories with images");
     }
 
@@ -451,11 +455,11 @@ public class ViewMomentFragment extends Fragment {
         if (moment.getCategory() != null && !moment.getCategory().trim().isEmpty()) {
             return moment.getCategory();
         }
-        
+
         // Fallback to keyword matching if no category field
         if (moment.getCaption() != null) {
             String caption = moment.getCaption().toLowerCase();
-            
+
             if (caption.contains("animal") || caption.contains("động vật") || caption.contains("cat") || caption.contains("dog")) {
                 return "Động vật";
             } else if (caption.contains("art") || caption.contains("nghệ thuật") || caption.contains("painting")) {
@@ -468,7 +472,7 @@ public class ViewMomentFragment extends Fragment {
                 return "Con người";
             }
         }
-        
+
         return "Khác";
     }
 

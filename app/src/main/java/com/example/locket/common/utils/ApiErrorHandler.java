@@ -18,12 +18,12 @@ public class ApiErrorHandler {
      */
     public static void handleError(Response<?> response, ErrorCallback callback) {
         if (callback == null) return;
-        
+
         int code = response.code();
         String message = getErrorMessage(code);
-        
+
         Log.e(TAG, "API Error - Code: " + code + ", Message: " + message);
-        
+
         // Handle token expiration
         if (code == 401) {
             callback.onTokenExpired();
@@ -37,14 +37,14 @@ public class ApiErrorHandler {
      */
     public static void handleNetworkError(Throwable throwable, ErrorCallback callback) {
         if (callback == null) return;
-        
+
         String message = "Network error: ";
         if (throwable.getMessage() != null) {
             message += throwable.getMessage();
         } else {
             message += "Please check your internet connection";
         }
-        
+
         Log.e(TAG, "Network Error: " + message, throwable);
         callback.onError(message, -1);
     }

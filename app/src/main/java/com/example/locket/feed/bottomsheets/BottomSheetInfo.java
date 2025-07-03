@@ -16,20 +16,18 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.bumptech.glide.Glide;
+import com.example.locket.R;
+import com.example.locket.common.models.auth.LoginResponse;
+import com.example.locket.common.models.user.AccountInfo;
+import com.example.locket.common.models.user.UserProfile;
+import com.example.locket.common.utils.AuthManager;
+import com.example.locket.common.utils.SharedPreferencesUser;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.makeramen.roundedimageview.RoundedImageView;
-import com.example.locket.R;
-import com.example.locket.auth.bottomsheets.BottomSheetChangeEmail;
-import com.example.locket.auth.bottomsheets.BottomSheetChangeName;
 import com.example.locket.auth.bottomsheets.BottomSheetLogout;
-import com.example.locket.auth.bottomsheets.BottomSheetRegisterUserName;
-import com.example.locket.common.models.user.AccountInfo;
-import com.example.locket.common.models.user.UserProfile;
-import com.example.locket.common.models.auth.LoginResponse;
-import com.example.locket.common.utils.AuthManager;
-import com.example.locket.common.utils.SharedPreferencesUser;
+import com.example.locket.auth.bottomsheets.BottomSheetChangeName;
 
 public class BottomSheetInfo extends BottomSheetDialogFragment {
     private final Context context;
@@ -86,21 +84,15 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
 //        linear_new.setOnClickListener(view -> openBottomSheetRegisterUserName());
 
         txt_edit_info.setOnClickListener(view -> openBottomSheetChangeName());
-        linear_change_email.setOnClickListener(view -> openBottomSheetChangeEmail());
+//        linear_change_email.setOnClickListener(view -> openBottomSheetChangeEmail());
         linear_friend_link.setOnClickListener(view -> openFriendLinkTest());
     }
 
-    private void openBottomSheetRegisterUserName() {
-        dismiss();
-        BottomSheetRegisterUserName bottomSheetRegisterUserName = new BottomSheetRegisterUserName(context, activity);
-        bottomSheetRegisterUserName.show(getActivity().getSupportFragmentManager(), bottomSheetRegisterUserName.getTag());
-    }
-
-    private void openBottomSheetChangeEmail() {
-        dismiss();
-        BottomSheetChangeEmail bottomSheetChangeEmail = new BottomSheetChangeEmail(context, activity);
-        bottomSheetChangeEmail.show(getActivity().getSupportFragmentManager(), bottomSheetChangeEmail.getTag());
-    }
+//    private void openBottomSheetRegisterUserName() {
+//        dismiss();
+//        BottomSheetRegisterUserName bottomSheetRegisterUserName = new BottomSheetRegisterUserName(context, activity);
+//        bottomSheetRegisterUserName.show(getActivity().getSupportFragmentManager(), bottomSheetRegisterUserName.getTag());
+//    }
 
     private void openBottomSheetLogout() {
         dismiss();
@@ -121,10 +113,10 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
             com.example.locket.MainActivity mainActivity = (com.example.locket.MainActivity) activity;
             androidx.fragment.app.FragmentManager fragmentManager = mainActivity.getSupportFragmentManager();
             androidx.fragment.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
-            
-            com.example.locket.feed.fragments.FriendLinkTestFragment friendLinkTestFragment = 
-                new com.example.locket.feed.fragments.FriendLinkTestFragment();
-            
+
+            com.example.locket.feed.fragments.FriendLinkTestFragment friendLinkTestFragment =
+                    new com.example.locket.feed.fragments.FriendLinkTestFragment();
+
             transaction.replace(android.R.id.content, friendLinkTestFragment);
             transaction.addToBackStack(null);
             transaction.commit();
@@ -176,7 +168,7 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
      */
     private void setUserProfileData(UserProfile userProfile, TextView txtFullName, RoundedImageView imgCapture) {
         UserProfile.UserData userData = userProfile.getUser();
-        
+
         // Set display name
         String displayName = userData.getDisplayName();
         if (displayName == null || displayName.isEmpty()) {
@@ -190,7 +182,7 @@ public class BottomSheetInfo extends BottomSheetDialogFragment {
         // Load profile pictures
         String profilePictureUrl = userData.getProfilePicture();
         if (profilePictureUrl != null && !profilePictureUrl.isEmpty()) {
-            
+
             Glide.with(this)
                     .load(profilePictureUrl)
                     .placeholder(R.drawable.ic_widget_empty_icon)

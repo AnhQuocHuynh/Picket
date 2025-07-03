@@ -31,7 +31,7 @@ import com.example.locket.feed.fragments.HomeFragment;
 
 public class RegisterUserNameFragment extends Fragment {
     private static final String TAG = "RegisterUserNameFragment";
-    
+
     private EditText edt_username;
     private TextView txt_note, txt_check;
     private ProgressBar progress_bar;
@@ -40,7 +40,7 @@ public class RegisterUserNameFragment extends Fragment {
     private TextView txt_continue;
     private String username;
     private boolean is_check = false;
-    
+
     // Bundle data từ RegisterEmailFragment
     private String email, password;
 
@@ -100,13 +100,13 @@ public class RegisterUserNameFragment extends Fragment {
                     progress_bar.setVisibility(View.VISIBLE);
                     txt_check.setText("Đang kiểm tra...");
                     txt_check.setTextColor(ContextCompat.getColor(requireContext(), R.color.hint));
-                    
+
                     // Enable continue button
                     linear_continue.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.background_btn_continue_check));
                     txt_continue.setTextColor(ContextCompat.getColor(requireContext(), R.color.bg));
                     linear_continue.setEnabled(true);
                     is_check = true;
-                    
+
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         // Show username valid
                         progress_bar.setVisibility(View.GONE);
@@ -115,18 +115,18 @@ public class RegisterUserNameFragment extends Fragment {
                         txt_check.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
                         edt_username.setBackgroundResource(R.drawable.background_edit_text);
                     }, 1000);
-                    
+
                 } else if (username.isEmpty()) {
                     txt_note.setVisibility(View.VISIBLE);
                     linear_check.setVisibility(View.GONE);
                     edt_username.setBackgroundResource(R.drawable.background_edit_text);
-                    
+
                     // Disable continue button
                     linear_continue.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.background_btn_continue_un_check));
                     txt_continue.setTextColor(ContextCompat.getColor(requireContext(), R.color.hint));
                     linear_continue.setEnabled(false);
                     is_check = false;
-                    
+
                 } else {
                     txt_note.setVisibility(View.GONE);
                     linear_check.setVisibility(View.VISIBLE);
@@ -135,7 +135,7 @@ public class RegisterUserNameFragment extends Fragment {
                     txt_check.setText("Phải dài hơn 3 ký tự");
                     txt_check.setTextColor(ContextCompat.getColor(requireContext(), R.color.red));
                     edt_username.setBackgroundResource(R.drawable.background_edit_text_error);
-                    
+
                     // Disable continue button
                     linear_continue.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.background_btn_continue_un_check));
                     txt_continue.setTextColor(ContextCompat.getColor(requireContext(), R.color.hint));
@@ -154,7 +154,7 @@ public class RegisterUserNameFragment extends Fragment {
                 showErrorDialog("Vui lòng nhập username hợp lệ (ít nhất 3 ký tự)");
             }
         });
-        
+
         img_close.setOnClickListener(view -> {
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager().popBackStack();
@@ -164,174 +164,38 @@ public class RegisterUserNameFragment extends Fragment {
 
     private void proceedWithRegistration(String username) {
         Log.d(TAG, "🚀 Starting final registration with username: " + username + ", email: " + email);
-        
         if (email == null || password == null) {
             showErrorDialog("Lỗi dữ liệu. Vui lòng thử lại từ đầu.");
             return;
         }
-        
-        // Sử dụng AuthManager để hoàn tất đăng ký
+        // Gọi API /api/auth/register
         AuthManager.register(getContext(), username, email, password, new AuthManager.RegisterCallback() {
             @Override
             public void onRegisterSuccess(AuthResponse authResponse) {
-                Log.d(TAG, "✅ Final registration successful! Now attempting to log in...");
-                
-                // Sau khi đăng ký thành công, tự động đăng nhập
-                AuthManager.login(getContext(), email, password, new AuthManager.LoginCallback() {
-                    @Override
-                    public void onLoginSuccess(com.example.locket.common.models.auth.LoginResponse loginResponse) {
-                        Log.d(TAG, "✅ Login after registration successful!");
-
-                        // Chuyển đến HomeFragment
-                        Fragment homeFragment = new HomeFragment();
-                        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-                        transaction.setCustomAnimations(
-                                R.anim.enter_from_right,
-                                R.anim.exit_to_left,
-                                R.anim.enter_from_left,
-                                R.anim.exit_to_right
-                        );
-                        transaction.replace(R.id.frame_layout, homeFragment);
-                        // Clear back stack để user không thể quay lại màn hình đăng ký/đăng nhập
-                        requireActivity().getSupportFragmentManager().popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                        transaction.commit();
-                    }
-
-                    @Override
-                    public void onSuccess(String message) {
-                        Log.d(TAG, "Login success message: " + message);
-                    }
-
-                    @Override
-                    public void onError(String errorMessage, int errorCode) {
-                        Log.e(TAG, "❌ Login after registration failed: " + errorMessage + " (Code: " + errorCode + ")");
-                        showErrorDialog("Đăng ký thành công nhưng đăng nhập thất bại. Vui lòng thử đăng nhập lại. Lỗi: " + errorMessage);
-                        // Optional: Navigate to login screen instead
-                    }
-
-                    @Override
-                    public void onLoading(boolean isLoading) {
-                        // You can update the UI to show a "Logging in..." state
-                        if (isLoading) {
-                            txt_continue.setText("Đang đăng nhập...");
-                        } else {
-                            txt_continue.setText("Tiếp tục");
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void onSuccess(String message) {
-                Log.d(TAG, "✅ Success (Register): " + message);
-            }
-
-            @Override
-            public void onError(String errorMessage, int errorCode) {
-                Log.e(TAG, "❌ Registration error: " + errorMessage + " (Code: " + errorCode + ")");
-                
-                // Handle email/password validation errors by going back to RegisterEmailFragment
-                if (shouldReturnToEmailFragment(errorCode, errorMessage)) {
-                    returnToEmailFragmentWithErrors(errorMessage, errorCode);
-                    return;
-                }
-                
-                // Handle username-specific errors
-                String userMessage;
-                switch (errorCode) {
-                    case 409:
-                        if (errorMessage.toLowerCase().contains("username")) {
-                            userMessage = "Username đã được sử dụng. Vui lòng chọn username khác.";
-                        } else if (errorMessage.toLowerCase().contains("email")) {
-                            // Email conflict - return to email screen
-                            returnToEmailFragmentWithErrors("Email này đã được sử dụng", errorCode);
-                            return;
-                        } else {
-                            userMessage = "Username hoặc email đã được sử dụng. Vui lòng chọn username khác.";
-                        }
-                        break;
-                    case 422:
-                        userMessage = "Thông tin không hợp lệ. Vui lòng kiểm tra lại.";
-                        break;
-                    case -1:
-                        userMessage = "Lỗi kết nối mạng. Vui lòng kiểm tra kết nối internet.";
-                        break;
-                    default:
-                        userMessage = "Đăng ký thất bại: " + errorMessage;
-                        break;
-                }
-                
-                showErrorDialog(userMessage);
-            }
-
-            /**
-             * 🔍 Check if error should return to email fragment
-             */
-            private boolean shouldReturnToEmailFragment(int errorCode, String errorMessage) {
-                String lowerMessage = errorMessage.toLowerCase();
-                
-                // Email validation errors
-                if (lowerMessage.contains("email") && !lowerMessage.contains("username")) {
-                    return true;
-                }
-                
-                // Password validation errors
-                if (lowerMessage.contains("password") || lowerMessage.contains("mật khẩu")) {
-                    return true;
-                }
-                
-                // General validation errors that could apply to email/password
-                if (errorCode == 400 && (lowerMessage.contains("invalid") || lowerMessage.contains("required"))) {
-                    return true;
-                }
-                
-                return false;
-            }
-
-            /**
-             * 🔙 Return to RegisterEmailFragment with backend errors
-             */
-            private void returnToEmailFragmentWithErrors(String errorMessage, int errorCode) {
-                // Create new RegisterEmailFragment
-                RegisterEmailFragment emailFragment = new RegisterEmailFragment();
-                
-                // Navigate back to email fragment
+                Log.d(TAG, "✅ Registration successful! Chuyển sang xác thực email");
+                // Chuyển sang VerifyEmailFragment
+                VerifyEmailFragment verifyEmailFragment = new VerifyEmailFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("email", email);
+                bundle.putString("password", password);
+                verifyEmailFragment.setArguments(bundle);
                 FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
                 transaction.setCustomAnimations(
-                        R.anim.enter_from_left,
-                        R.anim.exit_to_right,
                         R.anim.enter_from_right,
-                        R.anim.exit_to_left
+                        R.anim.exit_to_left,
+                        R.anim.enter_from_left,
+                        R.anim.exit_to_right
                 );
-                transaction.replace(R.id.frame_layout, emailFragment);
-                
-                // Pop current fragment from back stack
-                requireActivity().getSupportFragmentManager().popBackStack();
-                
+                transaction.replace(R.id.frame_layout, verifyEmailFragment);
+                transaction.addToBackStack(null);
                 transaction.commit();
-                
-                // Post the error handling to run after fragment is created
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    if (emailFragment.isAdded()) {
-                        emailFragment.showBackendValidationErrors(errorMessage, errorCode);
-                    }
-                }, 100);
             }
-
             @Override
-            public void onLoading(boolean isLoading) {
-                // Update UI during loading
-                linear_continue.setEnabled(!isLoading);
-                edt_username.setEnabled(!isLoading);
-                
-                if (isLoading) {
-                    txt_continue.setText("Đang hoàn tất...");
-                    progress_bar.setVisibility(View.VISIBLE);
-                } else {
-                    txt_continue.setText("Tiếp tục");
-                    progress_bar.setVisibility(View.GONE);
-                }
-            }
+            public void onSuccess(String message) { Log.d(TAG, "✅ Success (Register): " + message); }
+            @Override
+            public void onError(String errorMessage, int errorCode) { showErrorDialog(errorMessage); }
+            @Override
+            public void onLoading(boolean isLoading) { /* update UI nếu cần */ }
         });
     }
 

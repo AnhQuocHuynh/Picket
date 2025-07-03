@@ -10,11 +10,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -51,10 +53,21 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutionException;
+
+import androidx.camera.video.VideoCapture;
+import androidx.camera.video.Recorder;
+import androidx.camera.video.Recording;
+import androidx.camera.video.PendingRecording;
+import androidx.camera.video.FileOutputOptions;
+import androidx.camera.video.VideoRecordEvent;
+import androidx.camera.video.Quality;
+import androidx.camera.video.QualitySelector;
+import androidx.core.util.Consumer;
 
 public class LiveCameraFragment extends Fragment {
     private static final int REQUEST_CAMERA_PERMISSION = 100;
@@ -89,13 +102,22 @@ public class LiveCameraFragment extends Fragment {
     private byte[] bytes;
     private ImageCapture imageCapture;
     private String edt_message;
-    
+
     // New API components
     private ImageUploadService imageUploadService;
     private PostRepository postRepository;
     private com.example.locket.common.repository.MomentRepository momentRepository;
     private SuccessNotificationDialog successDialog;
 
+    private boolean isRecording = false;
+    private long captureButtonDownTime = 0;
+    private Handler recordHandler = new Handler();
+    private Runnable startRecordingRunnable;
+    private static final int LONG_PRESS_DURATION = 5000; // 5 giây
+    private VideoCapture<Recorder> videoCapture;
+    private Recorder recorder;
+    private Recording activeRecording;
+    private File videoFile;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -124,7 +146,7 @@ public class LiveCameraFragment extends Fragment {
 
     private void getDataUser() {
         loginResponse = SharedPreferencesUser.getLoginResponse(requireContext());
-        
+
         // Initialize new API services
         imageUploadService = new ImageUploadService(requireContext());
         postRepository = new PostRepository(requireContext());
@@ -181,16 +203,37 @@ public class LiveCameraFragment extends Fragment {
             bytes = null;
             edt_message = "";
             edt_add_message.setText("");
-//            relative_profile.setVisibility(View.VISIBLE);
-//            relative_send_friend.setVisibility(View.GONE);
-
             layout_img_view.setVisibility(View.GONE);
             camera_view.setVisibility(View.VISIBLE);
             linear_controller_media.setVisibility(View.VISIBLE);
             linear_controller_send.setVisibility(View.GONE);
         });
 
-        img_capture.setOnClickListener(view -> capturePicture());
+        img_capture.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    captureButtonDownTime = System.currentTimeMillis();
+                    startRecordingRunnable = () -> {
+                        if (!isRecording) {
+                            startVideoRecording();
+                        }
+                    };
+                    recordHandler.postDelayed(startRecordingRunnable, LONG_PRESS_DURATION);
+                    return true;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    recordHandler.removeCallbacks(startRecordingRunnable);
+                    if (isRecording) {
+                        stopVideoRecording();
+                    } else {
+                        if (System.currentTimeMillis() - captureButtonDownTime < LONG_PRESS_DURATION) {
+                            capturePicture();
+                        }
+                    }
+                    return true;
+            }
+            return false;
+        });
 
         layout_send.setOnClickListener(view -> sendImage(bytes, edt_message));
 
@@ -221,17 +264,19 @@ public class LiveCameraFragment extends Fragment {
                 cameraSelector = new CameraSelector.Builder()
                         .requireLensFacing(isBackCamera ? CameraSelector.LENS_FACING_BACK : CameraSelector.LENS_FACING_FRONT)
                         .build();
-
                 Preview preview = new Preview.Builder().build();
                 preview.setSurfaceProvider(camera_view.getSurfaceProvider());
-
                 imageCapture = new ImageCapture.Builder()
                         .setTargetResolution(new Size(800, 800))
                         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                         .build();
-
+                // Khởi tạo Recorder và VideoCapture mới
+                recorder = new Recorder.Builder()
+                        .setQualitySelector(QualitySelector.from(Quality.HIGHEST))
+                        .build();
+                videoCapture = VideoCapture.withOutput(recorder);
                 cameraProvider.unbindAll();
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
+                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture, videoCapture);
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
                 Toast.makeText(requireContext(), "Camera initialization failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -269,15 +314,12 @@ public class LiveCameraFragment extends Fragment {
                 try {
                     // 🔍 Debug: Log orientation info
                     com.example.locket.common.utils.ImageOrientationUtils.logOrientationInfo(selectedImageUri, requireContext());
-                    
+
                     Uri compressedImageUri = ImageUtils.processImage(requireContext(), selectedImageUri, 50);
                     img_view.setImageURI(compressedImageUri);
 
                     InputStream inputStream = requireContext().getContentResolver().openInputStream(compressedImageUri);
                     bytes = IOUtils.toByteArray(inputStream);
-
-//                    relative_profile.setVisibility(View.GONE);
-//                    relative_send_friend.setVisibility(View.VISIBLE);
 
                     layout_img_view.setVisibility(View.VISIBLE);
                     camera_view.setVisibility(View.GONE);
@@ -297,7 +339,7 @@ public class LiveCameraFragment extends Fragment {
 
         // 1. Lấy ảnh preview từ PreviewView (chụp nhanh, dùng để hiển thị ngay lập tức)
         Bitmap previewBitmap = camera_view.getBitmap();
-        
+
         // 2. Chụp ảnh chất lượng cao bằng ImageCapture (xử lý ở background, upload sau)
         imageCapture.takePicture(ContextCompat.getMainExecutor(requireContext()),
                 new ImageCapture.OnImageCapturedCallback() {
@@ -310,17 +352,17 @@ public class LiveCameraFragment extends Fragment {
                             return;
                         }
 
-                                                // 🔧 FIX: Xử lý rotation cho ảnh từ camera
+                        // 🔧 FIX: Xử lý rotation cho ảnh từ camera
                         int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
                         boolean isFrontCamera = !isBackCamera;
                         Bitmap rotatedBitmap = ImageUtils.fixCameraImageRotation(fullBitmap, rotationDegrees, isFrontCamera);
-                        
+
                         Log.d("Debug", "Bitmap hợp lệ và đã xoay đúng chiều, bắt đầu chuyển thành byte array...");
                         new Thread(() -> {
                             try {
                                 byte[] imageBytes = bitmapToByteArray(rotatedBitmap);
                                 Log.d("Debug", "Chuyển đổi thành công, kích thước: " + imageBytes.length + " bytes");
-                                
+
                                 // Navigate to PhotoPreviewFragment
                                 getActivity().runOnUiThread(() -> {
                                     bytes = imageBytes; // Assign to instance variable on UI thread
@@ -361,12 +403,12 @@ public class LiveCameraFragment extends Fragment {
             Toast.makeText(requireContext(), "Không có dữ liệu ảnh để gửi", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         // Show loading UI
         setLoadingState(true);
-        
+
         Log.d("LiveCamera", "🚀 Starting new API flow - Upload image first...");
-        
+
         // Step 1: Upload image to server
         imageUploadService.uploadImage(imageData, new ImageUploadService.UploadCallback() {
             @Override
@@ -400,10 +442,10 @@ public class LiveCameraFragment extends Fragment {
             }
         });
     }
-    
+
     private void createPost(String imageUrl, String caption) {
         Log.d("LiveCamera", "📝 Creating post with imageUrl: " + imageUrl);
-        
+
         postRepository.createPost(imageUrl, caption, new PostRepository.PostCallback() {
             @Override
             public void onSuccess(PostResponse postResponse) {
@@ -435,7 +477,7 @@ public class LiveCameraFragment extends Fragment {
                 });
     }
 
-    /**
+    /*
      * 🎯 Add moment locally with current time for immediate "vừa xong" display
      */
     private void addMomentLocally(String imageUrl, String caption) {
@@ -471,11 +513,11 @@ public class LiveCameraFragment extends Fragment {
             edt_add_message.setEnabled(true);
         }
     }
-    
+
     private void showSuccessState() {
         // Hide loading state
         progress_bar.setVisibility(View.GONE);
-        
+
         // Show custom success dialog
         successDialog.show("Gửi thành công!", "Ảnh của bạn đã được chia sẻ với bạn bè", new SuccessNotificationDialog.OnDismissListener() {
             @Override
@@ -485,7 +527,7 @@ public class LiveCameraFragment extends Fragment {
             }
         });
     }
-    
+
     private void resetToCameraView() {
         // Reset data
         bytes = null;
@@ -534,7 +576,7 @@ public class LiveCameraFragment extends Fragment {
         super.onResume();
         checkCameraPermission();
     }
-    
+
     // Navigate to PhotoPreviewFragment
     private void navigateToPhotoPreview(Bitmap previewBitmap, byte[] imageBytes) {
         if (getParentFragmentManager() != null) {
@@ -559,12 +601,71 @@ public class LiveCameraFragment extends Fragment {
                     resetToCameraView();
                 }
             });
-            
+
             getParentFragmentManager()
-                .beginTransaction()
-                .replace(R.id.frame_layout, photoPreviewFragment)
-                .addToBackStack("photo_preview")
-                .commit();
+                    .beginTransaction()
+                    .replace(R.id.frame_layout, photoPreviewFragment)
+                    .addToBackStack("photo_preview")
+                    .commit();
+        }
+    }
+
+    private void startVideoRecording() {
+        isRecording = true;
+        img_capture.setBackgroundResource(R.drawable.bg_widget_recording_circle_outline);
+        Toast.makeText(getContext(), "Bắt đầu quay video...", Toast.LENGTH_SHORT).show();
+        videoFile = new File(getContext().getExternalFilesDir(null), "video_" + System.currentTimeMillis() + ".mp4");
+        FileOutputOptions outputOptions = new FileOutputOptions.Builder(videoFile).build();
+        PendingRecording pendingRecording = videoCapture.getOutput().prepareRecording(requireContext(), outputOptions);
+        // Nếu muốn ghi âm thanh, bỏ comment dòng dưới:
+        // pendingRecording = pendingRecording.withAudioEnabled();
+        activeRecording = pendingRecording.start(ContextCompat.getMainExecutor(requireContext()), new Consumer<VideoRecordEvent>() {
+            @Override
+            public void accept(VideoRecordEvent event) {
+                if (event instanceof VideoRecordEvent.Finalize) {
+                    isRecording = false;
+                    img_capture.setBackgroundResource(R.drawable.bg_widget_empty_circle_outline);
+                    VideoRecordEvent.Finalize finalizeEvent = (VideoRecordEvent.Finalize) event;
+                    if (finalizeEvent.hasError()) {
+                        Toast.makeText(getContext(), "Lỗi quay video: " + finalizeEvent.getError(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Đã lưu video: " + videoFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                        showVideoPreview(videoFile.getAbsolutePath());
+                    }
+                }
+            }
+        });
+    }
+    private void stopVideoRecording() {
+        if (isRecording && activeRecording != null) {
+            activeRecording.stop();
+            isRecording = false;
+            img_capture.setBackgroundResource(R.drawable.bg_widget_empty_circle_outline);
+        }
+    }
+    private void showVideoPreview(String videoPath) {
+        if (getParentFragmentManager() != null) {
+            PhotoPreviewFragment videoPreviewFragment = PhotoPreviewFragment.newInstanceForVideo(videoPath);
+            videoPreviewFragment.setPhotoPreviewListener(new PhotoPreviewFragment.PhotoPreviewListener() {
+                @Override
+                public void onCancel() {
+                    getParentFragmentManager().popBackStack();
+                }
+                @Override
+                public void onRetake() {
+                    getParentFragmentManager().popBackStack();
+                }
+                @Override
+                public void onSendComplete() {
+                    getParentFragmentManager().popBackStack();
+                    resetToCameraView();
+                }
+            });
+            getParentFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.frame_layout, videoPreviewFragment)
+                    .addToBackStack("video_preview")
+                    .commit();
         }
     }
 }

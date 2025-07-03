@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
+
 import com.example.locket.feed.widget.provider.LocketWidgetProvider;
 import com.example.locket.feed.widget.service.LocketWidgetService;
 
@@ -28,16 +29,16 @@ public class WidgetUpdateHelper {
      */
     public static void onUserLoginSuccess(Context context) {
         Log.d(TAG, "User login success - checking if user changed and updating widget");
-        
+
         String newUserId = getCurrentUserId(context);
         String lastUserId = getLastKnownUserId(context);
-        
+
         Log.d(TAG, "New user ID: " + newUserId + ", Last user ID: " + lastUserId);
-        
+
         // Check if user has changed
-        boolean userChanged = (newUserId != null && !newUserId.equals(lastUserId)) || 
-                             (lastUserId != null && !lastUserId.equals(newUserId));
-        
+        boolean userChanged = (newUserId != null && !newUserId.equals(lastUserId)) ||
+                (lastUserId != null && !lastUserId.equals(newUserId));
+
         if (userChanged) {
             Log.d(TAG, "User changed detected! Clearing widget cache and triggering update");
             clearWidgetCache(context);
@@ -45,10 +46,10 @@ public class WidgetUpdateHelper {
         } else {
             Log.d(TAG, "Same user logged in, just triggering widget update");
         }
-        
+
         // Always trigger widget update on successful login
         triggerWidgetUpdate(context);
-        
+
         // Send broadcast to notify widget provider
         sendUserChangedBroadcast(context);
     }
@@ -60,7 +61,7 @@ public class WidgetUpdateHelper {
         Log.d(TAG, "User logout - clearing widget cache");
         clearWidgetCache(context);
         clearCurrentUserId(context);
-        
+
         // Trigger widget update to show logged out state
         triggerWidgetUpdate(context);
     }
@@ -83,19 +84,19 @@ public class WidgetUpdateHelper {
      */
     public static void triggerWidgetUpdate(Context context) {
         Log.d(TAG, "Triggering immediate widget update");
-        
+
         // Check if any widgets are present
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, LocketWidgetProvider.class));
-        
+
         if (appWidgetIds.length > 0) {
             Log.d(TAG, "Found " + appWidgetIds.length + " widget instances, triggering update");
-            
+
             // Start service to fetch new data
             Intent serviceIntent = new Intent(context, LocketWidgetService.class);
             serviceIntent.setAction("ACTION_UPDATE_WIDGET");
             context.startService(serviceIntent);
-            
+
             // Also send broadcast to widget provider
             Intent widgetIntent = new Intent(context, LocketWidgetProvider.class);
             widgetIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
@@ -125,13 +126,13 @@ public class WidgetUpdateHelper {
         if (userProfile != null && userProfile.getUser() != null && userProfile.getUser().getId() != null) {
             return userProfile.getUser().getId();
         }
-        
+
         // Fallback to LoginResponse
         com.example.locket.common.models.auth.LoginResponse loginResponse = SharedPreferencesUser.getLoginResponse(context);
         if (loginResponse != null && loginResponse.getUser() != null && loginResponse.getUser().getId() != null) {
             return loginResponse.getUser().getId();
         }
-        
+
         return null;
     }
 
@@ -178,7 +179,7 @@ public class WidgetUpdateHelper {
     public static String formatRelativeTime(long timestamp) {
         long now = System.currentTimeMillis();
         long diff = now - timestamp;
-        
+
         if (diff < 60 * 1000) {
             return "Just now";
         } else if (diff < 60 * 60 * 1000) {
@@ -200,12 +201,12 @@ public class WidgetUpdateHelper {
         if (content == null || content.trim().isEmpty()) {
             return "";
         }
-        
+
         // Limit content length for widget display
         if (content.length() > 100) {
             return content.substring(0, 97) + "...";
         }
-        
+
         return content.trim();
     }
 
@@ -217,7 +218,7 @@ public class WidgetUpdateHelper {
         long lastSyncTime = prefs.getLong(LAST_SYNC_TIME, 0);
         long now = System.currentTimeMillis();
         long maxCacheAge = 24 * 60 * 60 * 1000; // 24 hours
-        
+
         return (now - lastSyncTime) < maxCacheAge;
     }
 } 

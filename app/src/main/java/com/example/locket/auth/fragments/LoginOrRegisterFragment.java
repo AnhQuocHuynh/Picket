@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import com.example.locket.R;
 import com.example.locket.auth.adapter.SlideAdapter;
+import com.example.locket.auth.fragments.RegisterEmailFragment;
+import com.example.locket.auth.fragments.LoginEmailFragment;
 
 public class LoginOrRegisterFragment extends Fragment implements SlideAdapter.OnSlideChangeListener {
     private ViewPager2 view_pager2;
@@ -48,47 +50,39 @@ public class LoginOrRegisterFragment extends Fragment implements SlideAdapter.On
         view_pager2.setAdapter(slideAdapter);
 
         view_pager2.setUserInputEnabled(false); // Vô hiệu hóa thao tác tay để chuyển slide
+
+        txt_register.setOnClickListener(v -> {
+            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+            transaction.setCustomAnimations(
+                    R.anim.enter_from_right,
+                    R.anim.exit_to_left,
+                    R.anim.enter_from_left,
+                    R.anim.exit_to_right
+            );
+            transaction.replace(R.id.frame_layout, new RegisterEmailFragment());
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
+
+        txt_login.setOnClickListener(v -> {
+            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+            transaction.setCustomAnimations(
+                    R.anim.enter_from_right,
+                    R.anim.exit_to_left,
+                    R.anim.enter_from_left,
+                    R.anim.exit_to_right
+            );
+            transaction.replace(R.id.frame_layout, new LoginEmailFragment());
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
     }
 
     private void initViews(View view) {
         view_pager2 = view.findViewById(R.id.view_pager2);
         txt_register = view.findViewById(R.id.txt_register);
         txt_login = view.findViewById(R.id.txt_login);
-        
-        // ✅ Thêm onClick listener cho nút "Tạo một tài khoản"
-        txt_register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.setCustomAnimations(
-                        R.anim.enter_from_right,
-                        R.anim.exit_to_left,
-                        R.anim.enter_from_left,
-                        R.anim.exit_to_right
-                );
-                transaction.replace(R.id.frame_layout, new RegisterEmailFragment());
-                transaction.addToBackStack(null);
-                transaction.commit();
-            }
-        });
-        
-        txt_login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.setCustomAnimations(
-                        R.anim.enter_from_right,
-                        R.anim.exit_to_left,
-                        R.anim.enter_from_left,
-                        R.anim.exit_to_right
-                );
-                transaction.replace(R.id.frame_layout, new LoginEmailFragment());
-                transaction.addToBackStack(null);
-                transaction.commit();
-            }
-        });
+        // Không còn logic chọn đăng nhập bằng số điện thoại
     }
 
     @Override

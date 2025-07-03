@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.locket.R;
 import com.example.locket.common.database.entities.MomentEntity;
 import com.example.locket.common.models.auth.LoginResponse;
@@ -107,11 +106,11 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
         public void bind(MomentEntity moment) {
             // 🔧 FIX: Sử dụng CloudinaryImageLoader để tối ưu và giữ đúng tỷ lệ ảnh
             com.example.locket.common.utils.CloudinaryImageLoader.loadMomentImage(
-                    context, 
+                    context,
                     moment.getImageUrl(), // Sử dụng imageUrl thay vì thumbnailUrl
                     shapeable_imageview
             );
-            
+
             // 📝 Hiển thị caption từ overlays hoặc caption field
             if (moment.getOverlays() != null && !moment.getOverlays().isEmpty()) {
                 txt_content.setText(checkOverlayId(moment.getOverlays().get(0).getOverlay_id(), moment.getOverlays().get(0).getAlt_text(), txt_content));
@@ -127,7 +126,7 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
             if (moment.getUser() != null && !moment.getUser().isEmpty()) {
                 txt_name.setText(moment.getUser());
                 txt_name.setVisibility(View.VISIBLE);
-                
+
                 // 🔧 Load default avatar - có thể mở rộng để load real avatar sau
                 rounded_imageview.setImageResource(R.drawable.default_avatar);
                 rounded_imageview.setVisibility(View.VISIBLE);
@@ -135,7 +134,7 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
                 txt_name.setVisibility(View.GONE);
                 rounded_imageview.setVisibility(View.GONE);
             }
-            
+
             // ⏰ Hiển thị thời gian
             txt_time.setText(formatDate(moment.getDateSeconds()));
         }
@@ -230,7 +229,7 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
         // ❌ Backend không có friends endpoints - Disable để tránh 404
         Log.w("ViewMomentAdapter", "Friends endpoint not available, action disabled");
         return;
-        
+
         /* OLD CODE - Endpoint không tồn tại
         String token = "Bearer " + loginResponse.getIdToken();
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=UTF-8"), createFriendJson(userId));

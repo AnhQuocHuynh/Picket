@@ -15,9 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.locket.R;
 import com.example.locket.common.models.friendship.FriendsListResponse;
-import de.hdodenhof.circleimageview.CircleImageView;
 
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HorizontalFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_ALL = 0;
@@ -41,13 +42,13 @@ public class HorizontalFriendsAdapter extends RecyclerView.Adapter<RecyclerView.
         void onShowRecipientPicker();
     }
 
-    public HorizontalFriendsAdapter(Context context, 
-                                   List<FriendsListResponse.FriendData> allFriends,
-                                   List<FriendsListResponse.FriendData> selectedFriends) {
+    public HorizontalFriendsAdapter(Context context,
+                                    List<FriendsListResponse.FriendData> allFriends,
+                                    List<FriendsListResponse.FriendData> selectedFriends) {
         this.context = context;
         this.allFriends = allFriends;
         this.selectedFriends = selectedFriends;
-        
+
         // Initialize with "All" selected by default
         selectedFriends.clear();
         isAllSelected = true;
@@ -123,7 +124,7 @@ public class HorizontalFriendsAdapter extends RecyclerView.Adapter<RecyclerView.
         private final TextView txt_name;
         private final View view_selection_border;
         private final ImageView img_selected_badge;
-        
+
         private boolean awaitingSecondTap = false;
         private Handler tapHandler = new Handler();
 
@@ -181,7 +182,7 @@ public class HorizontalFriendsAdapter extends RecyclerView.Adapter<RecyclerView.
 
         private void handleSingleTap(FriendsListResponse.FriendData friend) {
             boolean isSelected = selectedFriends.contains(friend);
-            
+
             if (isSelected) {
                 // Deselect friend
                 selectedFriends.remove(friend);
@@ -199,7 +200,7 @@ public class HorizontalFriendsAdapter extends RecyclerView.Adapter<RecyclerView.
                     // Refresh "All" item
                     notifyItemChanged(0);
                 }
-                
+
                 // Select friend
                 selectedFriends.add(friend);
                 updateSelectionUI(true, true);
@@ -288,10 +289,10 @@ public class HorizontalFriendsAdapter extends RecyclerView.Adapter<RecyclerView.
                     isAllSelected = true;
                     selectedFriends.clear();
                     updateAllSelectionUI(true, true);
-                    
+
                     // Refresh all friend items to show dimmed state
                     notifyItemRangeChanged(1, allFriends.size());
-                    
+
                     if (listener != null) {
                         listener.onAllSelected();
                     }

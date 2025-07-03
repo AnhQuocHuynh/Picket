@@ -98,7 +98,7 @@ public class ImageOrientationUtils {
      */
     private static Bitmap rotateBitmapBasedOnOrientation(Bitmap bitmap, int orientation) {
         Matrix matrix = new Matrix();
-        
+
         switch (orientation) {
             case ExifInterface.ORIENTATION_ROTATE_90:
                 Log.d(TAG, "🔄 Auto-rotating image 90 degrees");
@@ -137,13 +137,13 @@ public class ImageOrientationUtils {
         }
 
         try {
-            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, 
+            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
                     bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-            
+
             if (rotatedBitmap != bitmap) {
                 bitmap.recycle();
             }
-            
+
             Log.d(TAG, "✅ Image orientation fixed successfully");
             return rotatedBitmap;
         } catch (OutOfMemoryError e) {
@@ -172,8 +172,8 @@ public class ImageOrientationUtils {
      * Kiểm tra xem có cần rotation không
      */
     public static boolean needsRotation(int exifOrientation) {
-        return exifOrientation != ExifInterface.ORIENTATION_NORMAL && 
-               exifOrientation != ExifInterface.ORIENTATION_UNDEFINED;
+        return exifOrientation != ExifInterface.ORIENTATION_NORMAL &&
+                exifOrientation != ExifInterface.ORIENTATION_UNDEFINED;
     }
 
     /**

@@ -29,7 +29,7 @@ public class PostRepository {
     }
 
     // ==================== CALLBACKS ====================
-    
+
     public interface PostsCallback {
         void onSuccess(PostsResponse postsResponse);
         void onError(String message, int code);
@@ -72,12 +72,12 @@ public class PostRepository {
         if (callback != null) callback.onLoading(true);
 
         Call<PostsResponse> call = postApiService.getAllPosts(authHeader, page, limit);
-        
+
         call.enqueue(new Callback<PostsResponse>() {
             @Override
             public void onResponse(Call<PostsResponse> call, Response<PostsResponse> response) {
                 if (callback != null) callback.onLoading(false);
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d(TAG, "Get all posts successful - Page: " + page);
                     if (callback != null) callback.onSuccess(response.body());
@@ -128,12 +128,12 @@ public class PostRepository {
         if (callback != null) callback.onLoading(true);
 
         Call<PostsResponse> call = postApiService.getFriendsPosts(authHeader, page, limit);
-        
+
         call.enqueue(new Callback<PostsResponse>() {
             @Override
             public void onResponse(Call<PostsResponse> call, Response<PostsResponse> response) {
                 if (callback != null) callback.onLoading(false);
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d(TAG, "Get friends posts successful - Page: " + page);
                     if (callback != null) callback.onSuccess(response.body());
@@ -185,12 +185,12 @@ public class PostRepository {
 
         CreatePostRequest request = new CreatePostRequest(imageUrl, caption);
         Call<PostResponse> call = postApiService.createPost(authHeader, request);
-        
+
         call.enqueue(new Callback<PostResponse>() {
             @Override
             public void onResponse(Call<PostResponse> call, Response<PostResponse> response) {
                 if (callback != null) callback.onLoading(false);
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d(TAG, "Create post successful");
                     if (callback != null) callback.onSuccess(response.body());
@@ -239,7 +239,7 @@ public class PostRepository {
         }
 
         Call<LikeResponse> call = postApiService.likePost(authHeader, postId);
-        
+
         call.enqueue(new Callback<LikeResponse>() {
             @Override
             public void onResponse(Call<LikeResponse> call, Response<LikeResponse> response) {
@@ -291,7 +291,7 @@ public class PostRepository {
 
         CommentRequest request = new CommentRequest(commentText);
         Call<CommentResponse> call = postApiService.addComment(authHeader, postId, request);
-        
+
         call.enqueue(new Callback<CommentResponse>() {
             @Override
             public void onResponse(Call<CommentResponse> call, Response<CommentResponse> response) {

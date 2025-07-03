@@ -30,7 +30,6 @@ public class LoginEmailFragment extends Fragment {
     private static final String TAG = "LoginEmailFragment";
     private ImageView img_back;
     private EditText edt_email;
-    private TextView login_phone;
     private LinearLayout linear_continue;
     private TextView txt_continue;
     private ImageView img_continue;
@@ -56,7 +55,7 @@ public class LoginEmailFragment extends Fragment {
         initViews(view);
         conFigViews();
         onClick();
-        
+
         // Test connection để debug
         testBackendConnection();
     }
@@ -115,7 +114,6 @@ public class LoginEmailFragment extends Fragment {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
         });
-        login_phone.setOnClickListener(view -> releaseFragment());
         linear_continue.setOnClickListener(view -> {
             // Skip email check và chuyển thẳng đến password screen
             // Vì backend không có endpoint /api/auth/check-email
@@ -126,7 +124,7 @@ public class LoginEmailFragment extends Fragment {
     private void testBackendConnection() {
         Log.d(TAG, "🔍 Testing backend connection...");
         Log.d(TAG, "📡 Base URL: " + AuthApiClient.getCurrentBaseUrl());
-        
+
         // Test với endpoint GET /api/auth/profile thay vì check-email
         // Vì backend không có check-email endpoint
         Log.d(TAG, "ℹ️ Backend không có /api/auth/check-email endpoint");
@@ -139,19 +137,19 @@ public class LoginEmailFragment extends Fragment {
             showErrorDialog("Email không hợp lệ", "Vui lòng nhập email đúng định dạng.", false);
             return;
         }
-        
+
         Log.d(TAG, "➡️ Proceeding to password screen for email: " + email);
         Log.d(TAG, "ℹ️ Skipping email check vì backend không có endpoint này");
         hideKeyboard();
         releaseFragment(email);
     }
-    
+
     private void showErrorDialog(String title, String message, boolean showRetry) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
-                
+
         if (showRetry) {
             builder.setNeutralButton("Thử lại", (dialog, which) -> {
                 dialog.dismiss();
@@ -160,7 +158,7 @@ public class LoginEmailFragment extends Fragment {
                 }
             });
         }
-        
+
         builder.show();
     }
 
@@ -207,7 +205,7 @@ public class LoginEmailFragment extends Fragment {
                 R.anim.enter_from_left,
                 R.anim.exit_to_right
         );
-        transaction.replace(R.id.frame_layout, new LoginPhoneFragment());
+        // transaction.replace(R.id.frame_layout, new LoginPhoneFragment()); // Đã loại bỏ đăng nhập bằng số điện thoại
         // Xóa toàn bộ back stack để không quay lại các Fragment trước đó
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         transaction.commit();

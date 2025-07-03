@@ -15,13 +15,27 @@
         android:layout_marginTop="@dimen/_20sdp"
         android:layout_marginHorizontal="@dimen/_20sdp">
 
-        <ImageView
-            android:id="@+id/img_preview"
+        <com.example.locket.camera.utils.SquareFrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
-            android:background="@drawable/background_camera" />
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/img_preview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:adjustViewBounds="false"
+                android:background="@drawable/background_camera" />
+
+            <com.example.locket.camera.utils.AutoFitVideoView
+                android:id="@+id/videoViewPreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@drawable/background_camera"
+                android:contentDescription="Video Preview"
+                android:visibility="gone" />
+        </com.example.locket.camera.utils.SquareFrameLayout>
 
         <!-- Message Input -->
         <EditText
@@ -118,6 +132,18 @@
             android:padding="@dimen/_10sdp"
             android:src="@drawable/cached_24px"
             app:tint="@color/white" />
+
+        <!-- Save Video Button -->
+        <ImageView
+            android:id="@+id/img_save"
+            android:layout_width="@dimen/_45sdp"
+            android:layout_height="@dimen/_45sdp"
+            android:background="@drawable/background_btn"
+            android:padding="@dimen/_10sdp"
+            android:src="@drawable/ic_save_24px"
+            app:tint="@color/white"
+            android:contentDescription="Lưu về máy"
+            android:visibility="gone" />
 
     </LinearLayout>
 

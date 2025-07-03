@@ -1,7 +1,11 @@
 package com.example.locket.camera.fragments;
 
 import android.app.Application;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -16,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,15 +41,25 @@ import com.example.locket.common.repository.PostRepository;
 import com.example.locket.common.utils.SharedPreferencesUser;
 import com.example.locket.common.utils.SuccessNotificationDialog;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import android.provider.MediaStore;
+import android.os.Environment;
 
 public class PhotoPreviewFragment extends Fragment {
     private static final String ARG_IMAGE_BITMAP = "image_bitmap";
     private static final String ARG_IMAGE_BYTES = "image_bytes";
+    private static final String ARG_VIDEO_PATH = "video_path";
 
     // UI Components
     private ImageView img_preview;
+    private VideoView videoViewPreview;
     private EditText edt_add_message;
     private RecyclerView rv_friends_horizontal;
     private ImageView img_cancel;
@@ -54,6 +69,7 @@ public class PhotoPreviewFragment extends Fragment {
     private LottieAnimationView lottie_check;
     private ProgressBar progress_bar;
     private TextView txt_recipient_count;
+    private ImageView img_save;
 
     // Data
     private Bitmap imageBitmap;
@@ -61,6 +77,7 @@ public class PhotoPreviewFragment extends Fragment {
     private String message = "";
     private List<FriendsListResponse.FriendData> allFriends = new ArrayList<>();
     private List<FriendsListResponse.FriendData> selectedFriends = new ArrayList<>();
+    private String videoPath;
 
     // Components
     private HorizontalFriendsAdapter friendsAdapter;
@@ -89,6 +106,14 @@ public class PhotoPreviewFragment extends Fragment {
         return fragment;
     }
 
+    public static PhotoPreviewFragment newInstanceForVideo(String videoPath) {
+        PhotoPreviewFragment fragment = new PhotoPreviewFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_VIDEO_PATH, videoPath);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     public void setPhotoPreviewListener(PhotoPreviewListener listener) {
         this.listener = listener;
     }
@@ -99,6 +124,7 @@ public class PhotoPreviewFragment extends Fragment {
         if (getArguments() != null) {
             imageBitmap = getArguments().getParcelable(ARG_IMAGE_BITMAP);
             imageBytes = getArguments().getByteArray(ARG_IMAGE_BYTES);
+            videoPath = getArguments().getString(ARG_VIDEO_PATH);
         }
     }
 
@@ -110,22 +136,40 @@ public class PhotoPreviewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+
         initViews(view);
         initData();
         setupRecyclerView();
         setupClickListeners();
         setupMessageWatcher();
         loadFriendsList();
-        
-        // Display the captured image
-        if (imageBitmap != null) {
+
+        // Display the captured image or video
+        if (videoPath != null) {
+            img_preview.setVisibility(View.GONE);
+            videoViewPreview.setVisibility(View.VISIBLE);
+            videoViewPreview.setVideoURI(Uri.parse(videoPath));
+            videoViewPreview.setOnPreparedListener(mp -> {
+                int videoWidth = mp.getVideoWidth();
+                int videoHeight = mp.getVideoHeight();
+                if (videoViewPreview instanceof com.example.locket.camera.utils.AutoFitVideoView) {
+                    ((com.example.locket.camera.utils.AutoFitVideoView) videoViewPreview).setVideoSize(videoWidth, videoHeight);
+                }
+                mp.setLooping(true);
+                videoViewPreview.start();
+            });
+            img_save.setVisibility(View.VISIBLE);
+        } else if (imageBitmap != null) {
+            img_preview.setVisibility(View.VISIBLE);
+            videoViewPreview.setVisibility(View.GONE);
             img_preview.setImageBitmap(imageBitmap);
+            img_save.setVisibility(View.GONE);
         }
     }
 
     private void initViews(View view) {
         img_preview = view.findViewById(R.id.img_preview);
+        videoViewPreview = view.findViewById(R.id.videoViewPreview);
         edt_add_message = view.findViewById(R.id.edt_add_message);
         rv_friends_horizontal = view.findViewById(R.id.rv_friends_horizontal);
         img_cancel = view.findViewById(R.id.img_cancel);
@@ -135,6 +179,7 @@ public class PhotoPreviewFragment extends Fragment {
         lottie_check = view.findViewById(R.id.lottie_check);
         progress_bar = view.findViewById(R.id.progress_bar);
         txt_recipient_count = view.findViewById(R.id.txt_recipient_count);
+        img_save = view.findViewById(R.id.img_save);
     }
 
     private void initData() {
@@ -216,6 +261,7 @@ public class PhotoPreviewFragment extends Fragment {
         });
 
         layout_send.setOnClickListener(v -> sendImage());
+
     }
 
     private void setupMessageWatcher() {
@@ -241,11 +287,11 @@ public class PhotoPreviewFragment extends Fragment {
                     getActivity().runOnUiThread(() -> {
                         if (friendsListResponse != null && friendsListResponse.getData() != null) {
                             allFriends.clear();
-                            
+
                             // Filter out current user from friends list
                             List<FriendsListResponse.FriendData> filteredFriends = filterCurrentUserFromFriends(friendsListResponse.getData());
                             allFriends.addAll(filteredFriends);
-                            
+
                             friendsAdapter.notifyDataSetChanged();
                             updateRecipientCount();
                             Log.d("PhotoPreview", "✅ Friends list loaded: " + allFriends.size() + " friends (current user filtered)");
@@ -273,16 +319,16 @@ public class PhotoPreviewFragment extends Fragment {
 
     private void showRecipientPickerDialog() {
         RecipientPickerBottomSheet bottomSheet = RecipientPickerBottomSheet.newInstance(
-            new ArrayList<>(allFriends), 
-            new ArrayList<>(selectedFriends)
+                new ArrayList<>(allFriends),
+                new ArrayList<>(selectedFriends)
         );
-        
+
         bottomSheet.setOnRecipientsSelectedListener(new RecipientPickerBottomSheet.OnRecipientsSelectedListener() {
             @Override
             public void onRecipientsSelected(List<FriendsListResponse.FriendData> recipients) {
                 selectedFriends.clear();
                 selectedFriends.addAll(recipients);
-                
+
                 // If all friends are selected, switch to "All" mode
                 if (recipients.size() == allFriends.size()) {
                     friendsAdapter.setAllSelected(true);
@@ -290,27 +336,27 @@ public class PhotoPreviewFragment extends Fragment {
                     friendsAdapter.setAllSelected(false);
                     friendsAdapter.notifyDataSetChanged();
                 }
-                
+
                 updateRecipientCount();
                 updateSendButtonState();
                 Log.d("PhotoPreview", "✅ Recipients updated from picker: " + recipients.size() + " selected");
             }
         });
-        
+
         bottomSheet.show(getParentFragmentManager(), "recipient_picker");
     }
 
     private void updateRecipientCount() {
         int totalFriends = allFriends.size();
         int selectedCount = selectedFriends.size();
-        
+
         // Update the count badge
         if (friendsAdapter != null && friendsAdapter.isAllSelected()) {
             txt_recipient_count.setText("(Tất cả " + totalFriends + ")");
         } else {
             txt_recipient_count.setText("(" + selectedCount + "/" + totalFriends + ")");
         }
-        
+
         Log.d("PhotoPreview", "📊 Recipient count updated: " + selectedCount + "/" + totalFriends);
     }
 
@@ -326,30 +372,30 @@ public class PhotoPreviewFragment extends Fragment {
      */
     private List<FriendsListResponse.FriendData> filterCurrentUserFromFriends(List<FriendsListResponse.FriendData> friendsList) {
         List<FriendsListResponse.FriendData> filteredFriends = new ArrayList<>();
-        
+
         // Get current user info
         String currentUserId = null;
         String currentUsername = null;
-        
+
         if (loginResponse != null && loginResponse.getUser() != null) {
             currentUserId = loginResponse.getUser().getId();
             currentUsername = loginResponse.getUser().getUsername();
         }
-        
+
         // Filter out current user
         for (FriendsListResponse.FriendData friend : friendsList) {
             boolean isCurrentUser = false;
-            
+
             // Check by ID
             if (currentUserId != null && currentUserId.equals(friend.getId())) {
                 isCurrentUser = true;
             }
-            
+
             // Check by username as backup
             if (!isCurrentUser && currentUsername != null && currentUsername.equals(friend.getUsername())) {
                 isCurrentUser = true;
             }
-            
+
             // Add to filtered list if not current user
             if (!isCurrentUser) {
                 filteredFriends.add(friend);
@@ -357,20 +403,63 @@ public class PhotoPreviewFragment extends Fragment {
                 Log.d("PhotoPreview", "🚫 Filtered out current user: " + friend.getDisplayName() + " (" + friend.getUsername() + ")");
             }
         }
-        
+
         Log.d("PhotoPreview", "📊 Friends filter result: " + friendsList.size() + " -> " + filteredFriends.size());
         return filteredFriends;
     }
 
     private void sendImage() {
+        if (videoPath != null) {
+            // Upload video
+            setLoadingState(true);
+            Log.d("PhotoPreview", "🚀 Starting video upload...");
+            try {
+                File videoFile = new File(videoPath);
+                byte[] videoBytes = new byte[(int) videoFile.length()];
+                FileInputStream fis = new FileInputStream(videoFile);
+                fis.read(videoBytes);
+                fis.close();
+                // Nếu imageUploadService có uploadVideo thì dùng, nếu không thì dùng uploadImage
+                imageUploadService.uploadImage(videoBytes, new ImageUploadService.UploadCallback() {
+                    @Override
+                    public void onUploadComplete(String videoUrl, boolean success) {
+                        if (success && videoUrl != null) {
+                            Log.d("PhotoPreview", "✅ Video uploaded successfully: " + videoUrl);
+                            createPost(videoUrl, message);
+                        } else {
+                            Log.e("PhotoPreview", "❌ Video upload failed");
+                            if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                                setLoadingState(false);
+                                Toast.makeText(requireContext(), "Upload video thất bại", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                    }
+                    @Override
+                    public void onUploadProgress(int progress) {
+                        Log.d("PhotoPreview", "📤 Upload progress: " + progress + "%");
+                    }
+                    @Override
+                    public void onError(String message, int code) {
+                        Log.e("PhotoPreview", "❌ Upload error: " + message + " (Code: " + code + ")");
+                        if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                            setLoadingState(false);
+                            Toast.makeText(requireContext(), "Lỗi upload: " + message, Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+                setLoadingState(false);
+                Toast.makeText(requireContext(), "Không thể đọc file video", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
         if (imageBytes == null || imageBytes.length == 0) {
             Toast.makeText(requireContext(), "Không có dữ liệu ảnh để gửi", Toast.LENGTH_SHORT).show();
             return;
         }
-
         setLoadingState(true);
         Log.d("PhotoPreview", "🚀 Starting image upload...");
-
         imageUploadService.uploadImage(imageBytes, new ImageUploadService.UploadCallback() {
             @Override
             public void onUploadComplete(String imageUrl, boolean success) {
@@ -379,22 +468,20 @@ public class PhotoPreviewFragment extends Fragment {
                     createPost(imageUrl, message);
                 } else {
                     Log.e("PhotoPreview", "❌ Image upload failed");
-                    getActivity().runOnUiThread(() -> {
+                    if (getActivity() != null) getActivity().runOnUiThread(() -> {
                         setLoadingState(false);
                         Toast.makeText(requireContext(), "Upload ảnh thất bại", Toast.LENGTH_SHORT).show();
                     });
                 }
             }
-
             @Override
             public void onUploadProgress(int progress) {
                 Log.d("PhotoPreview", "📤 Upload progress: " + progress + "%");
             }
-
             @Override
             public void onError(String message, int code) {
                 Log.e("PhotoPreview", "❌ Upload error: " + message + " (Code: " + code + ")");
-                getActivity().runOnUiThread(() -> {
+                if (getActivity() != null) getActivity().runOnUiThread(() -> {
                     setLoadingState(false);
                     Toast.makeText(requireContext(), "Lỗi upload: " + message, Toast.LENGTH_SHORT).show();
                 });
@@ -404,7 +491,7 @@ public class PhotoPreviewFragment extends Fragment {
 
     private void createPost(String imageUrl, String caption) {
         Log.d("PhotoPreview", "📝 Creating post with imageUrl: " + imageUrl);
-        
+
         if (friendsAdapter.isAllSelected()) {
             Log.d("PhotoPreview", "📤 Sending to all " + allFriends.size() + " friends");
             // TODO: In future, modify PostRepository to accept recipient list for sending to all
@@ -417,7 +504,7 @@ public class PhotoPreviewFragment extends Fragment {
             Log.d("PhotoPreview", "⚠️ No friends selected!");
             return;
         }
-        
+
         postRepository.createPost(imageUrl, caption, new PostRepository.PostCallback() {
             @Override
             public void onSuccess(PostResponse postResponse) {
@@ -488,7 +575,7 @@ public class PhotoPreviewFragment extends Fragment {
     private void showSuccessState() {
         // Hide loading state
         progress_bar.setVisibility(View.GONE);
-        
+
         // Show custom success dialog
         String message;
         if (friendsAdapter != null && friendsAdapter.isAllSelected()) {
@@ -498,7 +585,7 @@ public class PhotoPreviewFragment extends Fragment {
         } else {
             message = "Ảnh của bạn đã được chia sẻ với bạn bè";
         }
-            
+
         successDialog.show("Gửi thành công!", message, new SuccessNotificationDialog.OnDismissListener() {
             @Override
             public void onDismiss() {
@@ -509,4 +596,6 @@ public class PhotoPreviewFragment extends Fragment {
             }
         });
     }
+
+
 } 

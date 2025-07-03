@@ -11,6 +11,8 @@ import com.example.locket.common.models.user.UserProfile;
 import com.example.locket.common.models.common.ApiResponse;
 import com.example.locket.common.network.AuthApiService;
 import com.example.locket.common.network.client.AuthApiClient;
+import com.example.locket.common.models.auth.VerifyEmailRequest;
+import com.example.locket.common.models.auth.ResendVerificationRequest;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -29,7 +31,7 @@ public class AuthManager {
     }
 
     // ==================== AUTHENTICATION CALLBACKS ====================
-    
+
     public interface AuthCallback {
         void onSuccess(String message);
         void onError(String errorMessage, int errorCode);
@@ -56,34 +58,34 @@ public class AuthManager {
      */
     public static void login(Context context, String email, String password, LoginCallback callback) {
         if (callback != null) callback.onLoading(true);
-        
+
         LoginRequest request = new LoginRequest(email, password);
         Call<LoginResponse> call = getAuthApiService().login(request);
-        
+
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (callback != null) callback.onLoading(false);
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
                     if (loginResponse.isSuccess()) {
                         // Save token and user data
                         SharedPreferencesUser.saveJWTToken(context, loginResponse.getToken());
                         SharedPreferencesUser.saveLoginResponse(context, loginResponse);
-                        
+
                         Log.d(TAG, "Login successful for user: " + loginResponse.getEmail());
-                        
+
                         // 🔄 Trigger widget update when user logs in successfully
                         WidgetUpdateHelper.onUserLoginSuccess(context);
-                        
+
                         if (callback != null) {
                             callback.onLoginSuccess(loginResponse);
                             callback.onSuccess("Login successful!");
                         }
                     } else {
-                        String errorMsg = loginResponse.getMessage() != null ? 
-                            loginResponse.getMessage() : "Login failed";
+                        String errorMsg = loginResponse.getMessage() != null ?
+                                loginResponse.getMessage() : "Login failed";
                         Log.e(TAG, "Login failed: " + errorMsg);
                         if (callback != null) callback.onError(errorMsg, 401);
                     }
@@ -107,26 +109,26 @@ public class AuthManager {
     /**
      * 🔐 USER REGISTRATION
      */
-    public static void register(Context context, String username, String email, String password, 
-                               RegisterCallback callback) {
+    public static void register(Context context, String username, String email, String password,
+                                RegisterCallback callback) {
         if (callback != null) callback.onLoading(true);
-        
+
         RegisterRequest request = new RegisterRequest(username, email, password);
-        
+
         // 🔍 Debug logging
         Log.d(TAG, "🚀 Register request data:");
         Log.d(TAG, "   Username: " + username);
         Log.d(TAG, "   Email: " + email);
         Log.d(TAG, "   Password: " + (password != null ? "***" + password.length() + "***" : "null"));
         Log.d(TAG, "   Request object: " + request.toString());
-        
+
         Call<AuthResponse> call = getAuthApiService().register(request);
-        
+
         call.enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 if (callback != null) callback.onLoading(false);
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     AuthResponse authResponse = response.body();
                     if (authResponse.isSuccess()) {
@@ -134,15 +136,15 @@ public class AuthManager {
                         if (authResponse.getToken() != null) {
                             SharedPreferencesUser.saveJWTToken(context, authResponse.getToken());
                         }
-                        
+
                         Log.d(TAG, "Registration successful");
                         if (callback != null) {
                             callback.onRegisterSuccess(authResponse);
                             callback.onSuccess("Registration successful!");
                         }
                     } else {
-                        String errorMsg = authResponse.getMessage() != null ? 
-                            authResponse.getMessage() : "Registration failed";
+                        String errorMsg = authResponse.getMessage() != null ?
+                                authResponse.getMessage() : "Registration failed";
                         Log.e(TAG, "Registration failed: " + errorMsg);
                         if (callback != null) callback.onError(errorMsg, 400);
                     }
@@ -179,9 +181,9 @@ public class AuthManager {
             if (callback != null) callback.onError("No authentication token found", 401);
             return;
         }
-        
+
         Call<UserProfile> call = getAuthApiService().getUserProfile("Bearer " + token);
-        
+
         call.enqueue(new Callback<UserProfile>() {
             @Override
             public void onResponse(Call<UserProfile> call, Response<UserProfile> response) {
@@ -210,19 +212,19 @@ public class AuthManager {
      */
     public static void logout(Context context, AuthCallback callback) {
         String token = SharedPreferencesUser.getJWTToken(context);
-        
+
         if (token != null && !token.isEmpty()) {
             Call<ApiResponse> call = getAuthApiService().logout("Bearer " + token);
-            
+
             call.enqueue(new Callback<ApiResponse>() {
                 @Override
                 public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                     // Clear local data regardless of API response
                     SharedPreferencesUser.clearAll(context);
-                    
+
                     // 🔄 Clear widget cache when user logs out
                     WidgetUpdateHelper.onUserLogout(context);
-                    
+
                     if (response.isSuccessful()) {
                         Log.d(TAG, "Logout successful");
                         if (callback != null) callback.onSuccess("Logged out successfully");
@@ -236,10 +238,10 @@ public class AuthManager {
                 public void onFailure(Call<ApiResponse> call, Throwable t) {
                     // Clear local data even if network call fails
                     SharedPreferencesUser.clearAll(context);
-                    
+
                     // 🔄 Clear widget cache when user logs out
                     WidgetUpdateHelper.onUserLogout(context);
-                    
+
                     Log.w(TAG, "Logout network error but local data cleared: " + t.getMessage());
                     if (callback != null) callback.onSuccess("Logged out (offline)");
                 }
@@ -247,13 +249,111 @@ public class AuthManager {
         } else {
             // No token, just clear local data
             SharedPreferencesUser.clearAll(context);
-            
+
             // 🔄 Clear widget cache when user logs out
             WidgetUpdateHelper.onUserLogout(context);
-            
+
             Log.d(TAG, "Logout - no token, cleared local data");
             if (callback != null) callback.onSuccess("Logged out");
         }
+    }
+
+    /**
+     * 📧 VERIFY EMAIL
+     */
+    public static void verifyEmail(Context context, String email, String code, AuthCallback callback) {
+        if (callback != null) callback.onLoading(true);
+        VerifyEmailRequest request = new VerifyEmailRequest(email, code);
+        Call<ApiResponse> call = getAuthApiService().verifyEmail(request);
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (callback != null) callback.onLoading(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse apiResponse = response.body();
+                    if (apiResponse.isSuccess()) {
+                        if (callback != null) callback.onSuccess(apiResponse.getMessage());
+                    } else {
+                        String errorMsg = apiResponse.getMessage() != null ? apiResponse.getMessage() : "Xác thực thất bại";
+                        if (callback != null) callback.onError(errorMsg, 400);
+                    }
+                } else {
+                    String errorMsg = getErrorMessage(response);
+                    if (callback != null) callback.onError(errorMsg, response.code());
+                }
+            }
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                if (callback != null) callback.onLoading(false);
+                String errorMsg = "Network error: " + t.getMessage();
+                if (callback != null) callback.onError(errorMsg, -1);
+            }
+        });
+    }
+
+    /**
+     * 🔄 RESEND VERIFICATION CODE
+     */
+    public static void resendVerification(Context context, String email, AuthCallback callback) {
+        if (callback != null) callback.onLoading(true);
+        ResendVerificationRequest request = new ResendVerificationRequest(email);
+        Call<ApiResponse> call = getAuthApiService().resendVerification(request);
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (callback != null) callback.onLoading(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse apiResponse = response.body();
+                    if (apiResponse.isSuccess()) {
+                        if (callback != null) callback.onSuccess(apiResponse.getMessage());
+                    } else {
+                        String errorMsg = apiResponse.getMessage() != null ? apiResponse.getMessage() : "Gửi lại mã thất bại";
+                        if (callback != null) callback.onError(errorMsg, 400);
+                    }
+                } else {
+                    String errorMsg = getErrorMessage(response);
+                    if (callback != null) callback.onError(errorMsg, response.code());
+                }
+            }
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                if (callback != null) callback.onLoading(false);
+                String errorMsg = "Network error: " + t.getMessage();
+                if (callback != null) callback.onError(errorMsg, -1);
+            }
+        });
+    }
+
+    /**
+     * 🔄 RESEND VERIFICATION CODE (with token)
+     */
+    public static void resendVerificationWithToken(Context context, String email, String token, AuthCallback callback) {
+        if (callback != null) callback.onLoading(true);
+        Call<ApiResponse> call = getAuthApiService().resendVerificationWithToken("Bearer " + token);
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (callback != null) callback.onLoading(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse apiResponse = response.body();
+                    if (apiResponse.isSuccess()) {
+                        if (callback != null) callback.onSuccess(apiResponse.getMessage());
+                    } else {
+                        String errorMsg = apiResponse.getMessage() != null ? apiResponse.getMessage() : "Gửi lại mã thất bại";
+                        if (callback != null) callback.onError(errorMsg, 400);
+                    }
+                } else {
+                    String errorMsg = getErrorMessage(response);
+                    if (callback != null) callback.onError(errorMsg, response.code());
+                }
+            }
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                if (callback != null) callback.onLoading(false);
+                String errorMsg = "Network error: " + t.getMessage();
+                if (callback != null) callback.onError(errorMsg, -1);
+            }
+        });
     }
 
     // ==================== UTILITY METHODS ====================
